@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Enums\NavigationGroup;
+use App\Filament\Admin\Resources\Payments\Pages\ViewPayment;
 use UnitEnum;
 
 class PaymentResource extends Resource
@@ -55,7 +56,23 @@ class PaymentResource extends Resource
         return [
             'index' => ListPayments::route('/'),
             'create' => CreatePayment::route('/create'),
+            'view'  => ViewPayment::route('/{record}'),
             'edit' => EditPayment::route('/{record}/edit'),
         ];
+    }
+    
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
     }
 }

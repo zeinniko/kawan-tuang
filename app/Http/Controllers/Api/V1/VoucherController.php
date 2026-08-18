@@ -3,17 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class VoucherController extends Controller
-{
-    //
-}
-<?php
-
-namespace App\Http\Controllers\Api\V1;
-
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ApplyVoucherRequest;
 use App\Http\Resources\V1\VoucherResource;
 use App\Services\VoucherService;

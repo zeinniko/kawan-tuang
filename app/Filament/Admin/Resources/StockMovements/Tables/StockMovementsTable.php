@@ -75,8 +75,7 @@ class StockMovementsTable
                     ]),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                //
             ])
             ->bulkActions([
                 BulkActionGroup::make([

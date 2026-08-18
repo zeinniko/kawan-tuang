@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -95,8 +96,7 @@ class OrdersTable
                     ->visible(fn ($record) => $record->status === 'paid')
                     ->action(fn ($record) => $record->update(['status' => 'processing'])),
 
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

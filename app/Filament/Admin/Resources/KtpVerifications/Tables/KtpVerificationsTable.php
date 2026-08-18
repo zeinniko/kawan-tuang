@@ -106,7 +106,6 @@ class KtpVerificationsTable
                         ]);
                     }),
 
-                EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([

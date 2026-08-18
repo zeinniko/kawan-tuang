@@ -12,6 +12,7 @@ class StorePickupScanner extends Page
 {
     protected string $view = 'filament.admin.pages.store-pickup-scanner';
 
+
     public static function getNavigationIcon(): ?string
     {
         return 'data:image/svg+xml;base64,' . base64_encode('
@@ -20,7 +21,7 @@ class StorePickupScanner extends Page
                 <circle cx="12" cy="24" r="8" fill="#9ca3af" />
             </svg>
         ');
-    }
+    } 
 
     protected static UnitEnum|string|null $navigationGroup = NavigationGroup::OrderFulfillment ?? 'Orders & Fulfillment';
     protected static ?string $navigationLabel = 'Store Pickup Scanner';
@@ -37,15 +38,41 @@ class StorePickupScanner extends Page
             return;
         }
 
+        $input = trim($this->pickupCodeInput);
+
+        // Cari berdasarkan PIN Pickup ATAU Nomor Order
         $order = Order::with(['user', 'items.product', 'store'])
-            ->where('pickup_code', trim($this->pickupCodeInput))
             ->where('fulfillment_type', 'pickup')
+            ->where(function ($query) use ($input) {
+                $query->where('pickup_code', $input)
+                      ->orWhere('order_number', $input);
+            })
             ->first();
 
         if (! $order) {
             Notification::make()
                 ->title('Pesanan Tidak Ditemukan')
-                ->body("Kode Pickup '{$this->pickupCodeInput}' tidak valid atau bukan pesanan Pick Up.")
+                ->body("Kode/No. Order '{$input}' tidak ditemukan atau bukan pesanan Pick Up.")
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Validasi jika pesanan sudah diserahkan / selesai
+        if ($order->status === 'completed') {
+            Notification::make()
+                ->title('Pesanan Sudah Selesai')
+                ->body("Pesanan #{$order->order_number} sudah pernah diserahkan/selesai sebelumnya.")
+                ->warning()
+                ->send();
+            return;
+        }
+
+        // Validasi jika pesanan dibatalkan
+        if ($order->status === 'cancelled') {
+            Notification::make()
+                ->title('Pesanan Dibatalkan')
+                ->body("Pesanan #{$order->order_number} telah dibatalkan.")
                 ->danger()
                 ->send();
             return;
@@ -66,7 +93,7 @@ class StorePickupScanner extends Page
 
         Notification::make()
             ->title('Pesanan Berhasil Diserahkan!')
-            ->body("Pesanan {$this->scannedOrder->order_number} telah ditandai Selesai (Completed).")
+            ->body("Pesanan #{$this->scannedOrder->order_number} telah ditandai Selesai (Completed).")
             ->success()
             ->send();
 

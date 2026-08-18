@@ -58,4 +58,14 @@ class KtpVerificationResource extends Resource
             'edit' => EditKtpVerification::route('/{record}/edit'),
         ];
     }
+    
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
 }

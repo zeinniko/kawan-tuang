@@ -37,57 +37,53 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('17rem')
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn(): string => Blade::render('@php
-                    $css = "
-                        /* Merapatkan container group */
-                        ul.fi-sidebar-group-items,
-                        .fi-sidebar-nav-groups {
-                            row-gap: 0px !important;
-                            gap: 0px !important;
-                        }
-                        .fi-sidebar-item {
-                            margin: 0 !important;
-                            padding: 0 !important;
-                        }
-                        .fi-sidebar-item-button, 
-                        .fi-sidebar-item a {
-                            padding-top: 2px !important;
-                            padding-bottom: 2px !important;
-                            padding-left: 8px !important; /* Beri ruang jarak kiri */
-                            padding-right: 8px !important;
-                            margin-top: -2px !important;
-                            margin-bottom: -2px !important;
-                            display: flex;
-                            align-items: center;
-                            gap: 12px !important; /* Mengatur jarak pas antara SVG dan Teks Menu */
-                        }
-                        
-                        /* Menyesuaikan kontainer SVG agar pas dan rapi */
-                        .fi-sidebar-item-icon-container {
-                            padding: 0 !important;
-                            width: auto !important;
-                        }
-                            .fi-sidebar-nav::-webkit-scrollbar {
-                            display: none !important;
-                            width: 0 !important;
-                            height: 0 !important;
-                        }
-                        .fi-sidebar-nav {
-                            scrollbar-width: none !important;
-                            -ms-overflow-style: none !important;
-                        }
-                        /* Hanya menu yang benar-benar aktif (termasuk sub-menu jika aktif) */
-                        .fi-sidebar-item.fi-active > a,
-                        .fi-sidebar-item.fi-active > button,
-                        .fi-sidebar-group-items .fi-sidebar-item.fi-active > a,
-                        .fi-sidebar-group-items .fi-sidebar-item.fi-active > button {
-                            border-right: 2px solid #722f37 !important;
-                            border-bottom: 2px solid #722f37 !important;
-                            border-style: solid !important;
-                        }
-                    ";
-                @endphp
-                <style>{!! $css !!}</style>')
+                fn (): string => Blade::render("@vite(['resources/css/app.css', 'resources/js/app.js'])") . '
+                <style>
+                    /* Merapatkan container group */
+                    ul.fi-sidebar-group-items,
+                    .fi-sidebar-nav-groups {
+                        row-gap: 0px !important;
+                        gap: 0px !important;
+                    }
+                    .fi-sidebar-item {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    .fi-sidebar-item-button, 
+                    .fi-sidebar-item a {
+                        padding-top: 2px !important;
+                        padding-bottom: 2px !important;
+                        padding-left: 8px !important;
+                        padding-right: 8px !important;
+                        margin-top: -2px !important;
+                        margin-bottom: -2px !important;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px !important;
+                    }
+                    
+                    .fi-sidebar-item-icon-container {
+                        padding: 0 !important;
+                        width: auto !important;
+                    }
+                    .fi-sidebar-nav::-webkit-scrollbar {
+                        display: none !important;
+                        width: 0 !important;
+                        height: 0 !important;
+                    }
+                    .fi-sidebar-nav {
+                        scrollbar-width: none !important;
+                        -ms-overflow-style: none !important;
+                    }
+                    .fi-sidebar-item.fi-active > a,
+                    .fi-sidebar-item.fi-active > button,
+                    .fi-sidebar-group-items .fi-sidebar-item.fi-active > a,
+                    .fi-sidebar-group-items .fi-sidebar-item.fi-active > button {
+                        border-right: 2px solid #722f37 !important;
+                        border-bottom: 2px solid #722f37 !important;
+                        border-style: solid !important;
+                    }
+                </style>'
             )
             ->colors([
                 'primary' => Color::Rose,

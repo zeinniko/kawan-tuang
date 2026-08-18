@@ -28,11 +28,11 @@ class ProductResource extends Resource
                 <circle cx="12" cy="24" r="8" fill="#9ca3af" />
             </svg>
         ');
-    }    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::Catalog;
+    }
+    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::Catalog;
     protected static ?string $navigationLabel = 'Products';
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'id';
-
+    protected static ?string $recordTitleAttribute = 'slug';
     public static function form(Schema $schema): Schema
     {
         return ProductForm::configure($schema);

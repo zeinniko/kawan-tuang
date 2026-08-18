@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Users;
 use App\Filament\Admin\Resources\Users\Pages\CreateUser;
 use App\Filament\Admin\Resources\Users\Pages\EditUser;
 use App\Filament\Admin\Resources\Users\Pages\ListUsers;
+use App\Filament\Admin\Resources\Users\Pages\ViewUser;
 use App\Filament\Admin\Resources\Users\Schemas\UserForm;
 use App\Filament\Admin\Resources\Users\Tables\UsersTable;
 use App\Models\User;
@@ -28,11 +29,11 @@ class UserResource extends Resource
                 <circle cx="12" cy="24" r="8" fill="#9ca3af" />
             </svg>
         ');
-    }    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::Compliance;
+    }
+    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::Compliance;
     protected static ?string $navigationLabel = 'Users';
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'id';
-
+    protected static ?string $recordTitleAttribute = 'email';
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
@@ -55,7 +56,13 @@ class UserResource extends Resource
         return [
             'index' => ListUsers::route('/'),
             'create' => CreateUser::route('/create'),
+            'view'   => ViewUser::route('/{record}'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }

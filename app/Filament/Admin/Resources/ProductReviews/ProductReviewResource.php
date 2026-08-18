@@ -59,4 +59,14 @@ class ProductReviewResource extends Resource
             'edit' => EditProductReview::route('/{record}/edit'),
         ];
     }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
 }

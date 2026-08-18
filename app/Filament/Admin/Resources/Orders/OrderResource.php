@@ -11,9 +11,10 @@ use App\Models\Order;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Table;
 use App\Enums\NavigationGroup;
+use App\Filament\Admin\Resources\Orders\Pages\ViewOrder;
 use UnitEnum;
 
 class OrderResource extends Resource
@@ -28,10 +29,16 @@ class OrderResource extends Resource
                 <circle cx="12" cy="24" r="8" fill="#9ca3af" />
             </svg>
         ');
-    }    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::OrderFulfillment;
+    }
+
+    protected static ?string $recordTitleAttribute = 'order_number';
+    protected static UnitEnum|string|null $navigationGroup = NavigationGroup::OrderFulfillment;
     protected static ?string $navigationLabel = 'Orders';
-    protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        return $record ? "Pesanan #{$record->order_number}" : 'Detail Pesanan';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -55,7 +62,18 @@ class OrderResource extends Resource
         return [
             'index' => ListOrders::route('/'),
             'create' => CreateOrder::route('/create'),
+            'view'  => ViewOrder::route('/{record}'),
             'edit' => EditOrder::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
     }
 }

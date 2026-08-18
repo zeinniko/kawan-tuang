@@ -71,7 +71,6 @@ class ProductReviewsTable
                     ->relationship('product', 'name'),
             ])
             ->actions([
-                EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
