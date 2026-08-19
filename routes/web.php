@@ -1,49 +1,45 @@
 <?php
 
+use App\Http\Controllers\Marketplace\AuthController;
+use App\Http\Controllers\Marketplace\HomeController;
+use App\Http\Controllers\Marketplace\CatalogController;
+use App\Http\Controllers\Marketplace\CartController;
+use App\Http\Controllers\Marketplace\ProfileController;
+use App\Http\Controllers\Marketplace\OrderController; // <-- Tambahkan Import Ini
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes (Marketplace Frontend)
-|--------------------------------------------------------------------------
-| Catatan: Route '/admin' dikelola secara otomatis oleh Filament Admin Panel.
-*/
-
 // --- Public & Catalog Routes ---
-Route::get('/', function () {
-    return view('marketplace.index');
-})->name('home');
-
-Route::get('/catalog', function () {
-    return view('marketplace.catalog');
-})->name('catalog.index');
-
-Route::get('/products/{slug}', function ($slug) {
-    return view('marketplace.product-detail', compact('slug'));
-})->name('catalog.show');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 
 // --- Guest / Auth Routes ---
-Route::get('/login', function () {
-    return view('marketplace.auth.login');
-})->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
+});
 
-Route::get('/register', function () {
-    return view('marketplace.auth.register');
-})->name('register');
+// --- Customer Account & Transaksi (Harus Login) ---
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/forgot-password', function () {
-    return view('marketplace.auth.forgot-password');
-})->name('forgot-password');
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
 
-// --- Customer Account & Transaksi ---
-Route::get('/cart', function () {
-    return view('marketplace.cart');
-})->name('cart.index');
+    // Cart Routes
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');
+    Route::put('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-Route::get('/orders', function () {
-    return view('marketplace.orders');
-})->name('orders.index');
-
-Route::get('/profile', function () {
-    return view('marketplace.profile');
-})->name('profile.index');
+    // Orders Routes (Daftar & Tracking Pesanan) <-- TAMBAHKAN DI SINI
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store'); // <-- Tambahkan baris ini
+});

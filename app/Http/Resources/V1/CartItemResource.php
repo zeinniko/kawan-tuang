@@ -9,13 +9,17 @@ class CartItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $price = (float) ($this->unit_price ?? $this->product?->price ?? 0);
+        $qty = (int) $this->quantity;
+        $subtotal = $price * $qty;
+
         return [
             'id' => $this->id,
             'product_id' => $this->product_id,
-            'product' => new ProductResource($this->whenLoaded('product')),
-            'quantity' => (int) $this->quantity,
-            'unit_price' => (float) $this->unit_price,
-            'subtotal' => (float) ($this->quantity * $this->unit_price),
+            'product' => new ProductResource($this->product),
+            'quantity' => $qty,
+            'unit_price' => $price,
+            'subtotal' => $subtotal,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

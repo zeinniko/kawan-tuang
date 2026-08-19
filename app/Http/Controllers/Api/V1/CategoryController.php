@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = Category::where('is_active', true)->withCount('products')->get();
+        $categories = Category::withCount('products')->get();
 
         return response()->json([
             'data' => CategoryResource::collection($categories),

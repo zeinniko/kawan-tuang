@@ -10,12 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class CartService
 {
-    public function getOrCreateCart(User $user): Cart
+    public function getOrCreateCart($user)
     {
-        return Cart::firstOrCreate(
-            ['user_id' => $user->id],
-            ['store_id' => null] // Can be set based on store selection later
-        )->load(['items.product.category', 'items.product.brand']);
+        return Cart::with(['items.product.primaryImage', 'items.product.images'])
+            ->firstOrCreate(['user_id' => $user->id]);
     }
 
     public function addItem(User $user, string $productId, int $quantity): Cart

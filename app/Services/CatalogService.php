@@ -2,34 +2,39 @@
 
 namespace App\Services;
 
-use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\Vibe;
+use App\Models\Voucher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class CatalogService
 {
     public function getHomeData(): array
     {
         return [
-            'banners' => Banner::where('is_active', true)->orderBy('sort_order')->get(),
-            'categories' => Category::where('is_active', true)->withCount('products')->get(),
-            'vibes' => Vibe::where('is_active', true)->get(),
+            'vouchers' => Voucher::where('valid_until', '>=', now())
+                ->latest()
+                ->take(5)
+                ->get(),
+            'categories' => Category::withCount('products')->get(),
+            'vibes' => Vibe::all(),
             'featured_products' => Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->with(['category', 'brand'])
+                ->with(['category', 'brand', 'primaryImage', 'images'])
                 ->latest()
                 ->take(8)
                 ->get(),
+            'brands' => Brand::all(),
+            'stores' => Store::all(),
         ];
     }
 
     public function getFilteredProducts(array $filters): LengthAwarePaginator
     {
-        $query = Product::where('is_active', true)->with(['category', 'brand', 'vibes']);
+        $query = Product::where('is_active', true)
+            ->with(['category', 'brand', 'vibes', 'primaryImage', 'images']);
 
         if (!empty($filters['search'])) {
             $query->where('name', 'like', '%' . $filters['search'] . '%');
@@ -61,6 +66,6 @@ class CatalogService
             default => $query->latest(),
         };
 
-        return $query->paginate($filters['per_page'] ?? 15);
+        return $query->paginate($filters['per_page'] ?? 12);
     }
 }

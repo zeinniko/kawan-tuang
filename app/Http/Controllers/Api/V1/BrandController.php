@@ -11,7 +11,7 @@ class BrandController extends Controller
 {
     public function index(): JsonResponse
     {
-        $brands = Brand::where('is_active', true)->get();
+        $brands = Brand::all();
 
         return response()->json([
             'data' => BrandResource::collection($brands),

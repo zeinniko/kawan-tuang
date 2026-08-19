@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\BannerResource;
 use App\Http\Resources\V1\CategoryResource;
 use App\Http\Resources\V1\ProductResource;
 use App\Http\Resources\V1\VibeResource;
@@ -19,10 +18,12 @@ class HomeController extends Controller
         $data = $this->catalogService->getHomeData();
 
         return response()->json([
-            'banners' => BannerResource::collection($data['banners']),
-            'categories' => CategoryResource::collection($data['categories']),
-            'vibes' => VibeResource::collection($data['vibes']),
-            'featured_products' => ProductResource::collection($data['featured_products']),
+            'vouchers'          => $data['vouchers'],
+            'categories'        => $data['categories'],
+            'vibes'             => $data['vibes'],
+            'featured_products' => $data['featured_products'],
+            'brands'            => $data['brands'],
+            'stores'            => $data['stores'],
         ]);
     }
 }
