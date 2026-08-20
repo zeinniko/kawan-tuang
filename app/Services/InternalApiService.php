@@ -57,4 +57,9 @@ class InternalApiService
     {
         return static::executeInternalRequest('DELETE', $endpoint, $data, $token);
     }
+
+    public static function patch($endpoint, array $data = [], $token = null)
+    {
+        return static::executeInternalRequest('PATCH', $endpoint, $data, $token);
+    }
 }

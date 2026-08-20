@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
-use App\Models\UserAddress;
-use App\Services\AddressService;
+use App\Services\InternalApiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserAddressWebController extends Controller
 {
-    public function __construct(protected AddressService $addressService) {}
-
     /**
      * Halaman List Alamat Pengiriman
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $addresses = $this->addressService->getUserAddresses($request->user());
+        $response = InternalApiService::get('addresses');
+        $rawAddresses = $response['data'] ?? [];
+
+        $addresses = collect($rawAddresses)->map(fn ($item) => (object) $item);
 
         return view('marketplace.addresses.index', compact('addresses'));
     }
@@ -28,95 +28,145 @@ class UserAddressWebController extends Controller
      */
     public function create(): View
     {
-        $address = new UserAddress();
+        $address = (object) [
+            'id'              => null,
+            'label'           => '',
+            'recipient_name'  => '',
+            'recipient_phone' => '',
+            'full_address'    => '',
+            'notes'           => '',
+            'postal_code'     => '',
+            'latitude'        => -6.2088,
+            'longitude'       => 106.8456,
+            'is_primary'      => false,
+            'is_edit'         => false,
+        ];
+
         return view('marketplace.addresses.form', compact('address'));
     }
 
     /**
-     * Simpan Alamat Baru
+     * Simpan Alamat Baru via InternalApiService
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'label'           => 'required|string|max:50',
-            'recipient_name'  => 'required|string|max:100',
-            'recipient_phone' => 'required|string|max:20',
-            'full_address'    => 'required|string|max:500',
-            'latitude'        => 'required|numeric|between:-90,90',
-            'longitude'       => 'required|numeric|between:-180,180',
-            'is_primary'      => 'nullable|boolean',
-        ]);
+        $payload = [
+            'label'           => (string) $request->input('label'),
+            'recipient_name'  => (string) $request->input('recipient_name'),
+            'recipient_phone' => (string) $request->input('recipient_phone'),
+            'full_address'    => (string) $request->input('full_address'),
+            'notes'           => (string) $request->input('notes', ''),
+            'postal_code'     => (string) $request->input('postal_code', '10110'),
+            'latitude'        => (float) $request->input('latitude', -6.2088),
+            'longitude'       => (float) $request->input('longitude', 106.8456),
+            'is_primary'      => $request->has('is_primary') || $request->boolean('is_primary'),
+        ];
 
-        $validated['is_primary'] = $request->has('is_primary');
+        $response = InternalApiService::post('addresses', $payload);
 
-        $this->addressService->createAddress($request->user(), $validated);
+        if (isset($response['errors'])) {
+            return back()->withErrors($response['errors'])->withInput()->with('error', 'Gagal menambahkan alamat. Periksa kembali form Anda.');
+        }
 
-        return redirect()->route('profile.addresses.index')->with('success', 'Alamat pengiriman berhasil ditambahkan.');
+        if (empty($response['data'])) {
+            return back()->with('error', $response['message'] ?? 'Gagal menambahkan alamat pengiriman.')->withInput();
+        }
+
+        return redirect()
+            ->route('profile.addresses.index')
+            ->with('success', $response['message'] ?? 'Alamat pengiriman berhasil ditambahkan.');
     }
 
     /**
      * Halaman Form Edit Alamat
      */
-    public function edit(Request $request, UserAddress $address): View
+    public function edit($id): View
     {
-        if ($address->user_id !== $request->user()->id) {
-            abort(403, 'Akses ditolak.');
+        $response = InternalApiService::get("addresses/{$id}");
+        $data = $response['data'] ?? null;
+
+        if (!$data) {
+            abort(404, 'Alamat tidak ditemukan.');
         }
+
+        $address = (object) [
+            'id'              => $data['id'] ?? $id,
+            'label'           => $data['label'] ?? '',
+            'recipient_name'  => $data['recipient_name'] ?? $data['receiver_name'] ?? '',
+            'recipient_phone' => $data['recipient_phone'] ?? $data['receiver_phone'] ?? '',
+            'full_address'    => $data['full_address'] ?? '',
+            'notes'           => $data['notes'] ?? '',
+            'postal_code'     => $data['postal_code'] ?? '10110',
+            'latitude'        => $data['latitude'] ?? -6.2088,
+            'longitude'       => $data['longitude'] ?? 106.8456,
+            'is_primary'      => $data['is_primary'] ?? false,
+            'is_edit'         => true,
+        ];
 
         return view('marketplace.addresses.form', compact('address'));
     }
 
     /**
-     * Update Alamat
+     * Update Alamat via InternalApiService
      */
-    public function update(Request $request, UserAddress $address): RedirectResponse
+    public function update(Request $request, $id): RedirectResponse
     {
-        if ($address->user_id !== $request->user()->id) {
-            abort(403, 'Akses ditolak.');
+        $payload = [
+            'label'           => (string) $request->input('label'),
+            'recipient_name'  => (string) $request->input('recipient_name'),
+            'recipient_phone' => (string) $request->input('recipient_phone'),
+            'full_address'    => (string) $request->input('full_address'),
+            'notes'           => (string) $request->input('notes', ''),
+            'postal_code'     => (string) $request->input('postal_code', '10110'),
+            'latitude'        => (float) $request->input('latitude', -6.2088),
+            'longitude'       => (float) $request->input('longitude', 106.8456),
+            'is_primary'      => $request->has('is_primary') || $request->boolean('is_primary'),
+        ];
+
+        $response = InternalApiService::put("addresses/{$id}", $payload);
+
+        if (isset($response['errors'])) {
+            return back()->withErrors($response['errors'])->withInput()->with('error', 'Gagal memperbarui alamat. Periksa kembali inputan Anda.');
         }
 
-        $validated = $request->validate([
-            'label'           => 'required|string|max:50',
-            'recipient_name'  => 'required|string|max:100',
-            'recipient_phone' => 'required|string|max:20',
-            'full_address'    => 'required|string|max:500',
-            'latitude'        => 'required|numeric|between:-90,90',
-            'longitude'       => 'required|numeric|between:-180,180',
-            'is_primary'      => 'nullable|boolean',
-        ]);
+        if (empty($response['data'])) {
+            return back()->with('error', $response['message'] ?? 'Gagal memperbarui alamat pengiriman.')->withInput();
+        }
 
-        $validated['is_primary'] = $request->has('is_primary');
-
-        $this->addressService->updateAddress($request->user(), $address, $validated);
-
-        return redirect()->route('profile.addresses.index')->with('success', 'Alamat pengiriman berhasil diperbarui.');
+        return redirect()
+            ->route('profile.addresses.index')
+            ->with('success', $response['message'] ?? 'Alamat pengiriman berhasil diperbarui.');
     }
 
     /**
-     * Hapus Alamat
+     * Hapus Alamat via InternalApiService
      */
-    public function destroy(Request $request, UserAddress $address): RedirectResponse
+    public function destroy($id): RedirectResponse
     {
-        if ($address->user_id !== $request->user()->id) {
-            abort(403, 'Akses ditolak.');
+        $response = InternalApiService::delete("addresses/{$id}");
+
+        if (isset($response['errors']) || (isset($response['message']) && $response['message'] === 'Akses ditolak.')) {
+            return back()->with('error', $response['message'] ?? 'Gagal menghapus alamat.');
         }
 
-        $this->addressService->deleteAddress($address);
-
-        return redirect()->route('profile.addresses.index')->with('success', 'Alamat berhasil dihapus.');
+        return redirect()
+            ->route('profile.addresses.index')
+            ->with('success', $response['message'] ?? 'Alamat berhasil dihapus.');
     }
 
     /**
-     * Set Alamat Utama
+     * Set Alamat Utama via InternalApiService
      */
-    public function setPrimary(Request $request, UserAddress $address): RedirectResponse
+    public function setPrimary($id): RedirectResponse
     {
-        if ($address->user_id !== $request->user()->id) {
-            abort(403, 'Akses ditolak.');
+        $response = InternalApiService::patch("addresses/{$id}/set-primary");
+
+        if (isset($response['errors']) || (isset($response['message']) && $response['message'] === 'Akses ditolak.')) {
+            return back()->with('error', $response['message'] ?? 'Gagal memperbarui alamat utama.');
         }
 
-        $this->addressService->setPrimaryAddress($request->user(), $address);
-
-        return redirect()->route('profile.addresses.index')->with('success', 'Alamat utama berhasil diperbarui.');
+        return redirect()
+            ->route('profile.addresses.index')
+            ->with('success', $response['message'] ?? 'Alamat utama berhasil diperbarui.');
     }
 }

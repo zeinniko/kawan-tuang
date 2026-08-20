@@ -10,15 +10,21 @@ class CartController extends Controller
 {
     public function index()
     {
-        $cartResponse = InternalApiService::get('cart');
-        $items = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
-        
-        // Simpan total item ke session saat buka halaman cart
+        $cartResponse    = InternalApiService::get('cart');
+        $storesResponse  = InternalApiService::get('stores');
+        $addressesResponse = InternalApiService::get('addresses');
+
+        $items     = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
+        $stores    = $storesResponse['data'] ?? [];
+        $addresses = $addressesResponse['data'] ?? [];
+
         $totalQty = collect($items)->sum('quantity');
         session(['cart_count' => $totalQty]);
 
         return view('marketplace.cart', [
-            'cart' => $cartResponse['data'] ?? $cartResponse ?? [],
+            'cart'      => $cartResponse['data'] ?? $cartResponse ?? [],
+            'stores'    => $stores,
+            'addresses' => $addresses,
         ]);
     }
 

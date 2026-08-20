@@ -1,9 +1,8 @@
 @extends('welcome')
 
-@section('title', ($address->exists ? 'Edit Alamat' : 'Tambah Alamat') . ' - Kawan Tuang')
+@section('title', ($address->is_edit ? 'Edit Alamat' : 'Tambah Alamat') . ' - Kawan Tuang')
 
 @push('styles')
-  <!-- Leaflet CSS for Map Picker -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     #map { height: 280px; width: 100%; border-radius: 1rem; z-index: 1; }
@@ -21,7 +20,7 @@
       </a>
       <div>
         <h1 class="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">
-          {{ $address->exists ? 'Edit Alamat' : 'Tambah Alamat Baru' }}
+          {{ $address->is_edit ? 'Edit Alamat' : 'Tambah Alamat Baru' }}
         </h1>
         <p class="text-xs text-slate-500">Lengkapi data penerima dan titik lokasi pengiriman</p>
       </div>
@@ -29,10 +28,10 @@
   </div>
 
   <!-- Form Section -->
-  <form action="{{ $address->exists ? route('profile.addresses.update', $address->id) : route('profile.addresses.store') }}" 
+  <form action="{{ $address->is_edit ? route('profile.addresses.update', $address->id) : route('profile.addresses.store') }}" 
         method="POST" class="space-y-5">
     @csrf
-    @if($address->exists)
+    @if($address->is_edit)
       @method('PUT')
     @endif
 
@@ -74,10 +73,8 @@
           </button>
         </div>
 
-        <!-- Interactive Map Container -->
         <div id="map" class="border border-slate-200 dark:border-slate-700 shadow-inner"></div>
 
-        <!-- Hidden Inputs Coordinate -->
         <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $address->latitude ?? '-6.2088') }}">
         <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $address->longitude ?? '106.8456') }}">
         
@@ -105,10 +102,10 @@
     <!-- Action Buttons -->
     <div class="flex items-center gap-3">
       <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-amber-500/20 text-center">
-        {{ $address->exists ? 'Simpan Perubahan' : 'Tambah Alamat' }}
+        {{ $address->is_edit ? 'Simpan Perubahan' : 'Tambah Alamat' }}
       </button>
 
-      @if($address->exists)
+      @if($address->is_edit)
         <button type="button" onclick="document.getElementById('delete-address-form').submit();" class="px-5 bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-500/20 font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center gap-2">
           <i class="fa-solid fa-trash-can"></i> Hapus
         </button>
@@ -117,8 +114,7 @@
 
   </form>
 
-  <!-- Separate Hidden Form for Edit Mode Delete -->
-  @if($address->exists)
+  @if($address->is_edit)
     <form id="delete-address-form" action="{{ route('profile.addresses.destroy', $address->id) }}" method="POST" class="hidden" onsubmit="return confirm('Apakah Anda yakin ingin menghapus alamat ini?');">
       @csrf
       @method('DELETE')
@@ -127,26 +123,39 @@
 
 </div>
 
+<!-- MODAL POPUP ERROR -->
+@if(session('error') || $errors->any())
+<div id="error-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+  <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+    <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-3 text-2xl">
+      <i class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Terjadi Kesalahan</h3>
+    <p class="text-xs text-slate-500 mb-4">{{ session('error') ?? 'Mohon periksa kembali form isian Anda.' }}</p>
+
+    <button type="button" onclick="document.getElementById('error-modal').remove()" class="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl text-xs transition-colors">
+      Tutup & Perbaiki
+    </button>
+  </div>
+</div>
+@endif
+
 @push('scripts')
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     let map, marker;
 
-    // Default Coordinates (Jakarta default / Saved Address)
     let initialLat = parseFloat(document.getElementById('latitude').value) || -6.2088;
     let initialLng = parseFloat(document.getElementById('longitude').value) || 106.8456;
 
     document.addEventListener('DOMContentLoaded', function () {
-      // Inisialisasi Leaflet Map
       map = L.map('map').setView([initialLat, initialLng], 15);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
       }).addTo(map);
 
-      // Custom Marker Icon
       const customIcon = L.icon({
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
         iconSize: [36, 36],
@@ -158,14 +167,12 @@
         icon: customIcon
       }).addTo(map);
 
-      // Event pas marker di-drag oleh user
       marker.on('dragend', function (e) {
         let position = marker.getLatLng();
         updateCoordinates(position.lat, position.lng);
         reverseGeocode(position.lat, position.lng);
       });
 
-      // Event pas peta di-klik di mana saja
       map.on('click', function (e) {
         marker.setLatLng(e.latlng);
         updateCoordinates(e.latlng.lat, e.latlng.lng);
@@ -178,7 +185,6 @@
       document.getElementById('longitude').value = lng.toFixed(8);
     }
 
-    // Ambil alamat dari koordinat (Reverse Geocoding OpenStreetMap Nominatim)
     function reverseGeocode(lat, lng) {
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
@@ -193,7 +199,6 @@
         .catch(err => console.log(err));
     }
 
-    // Ambil Lokasi Live GPS Perangkat
     function getCurrentLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {

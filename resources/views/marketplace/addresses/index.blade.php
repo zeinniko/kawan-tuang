@@ -22,26 +22,24 @@
     </a>
   </div>
 
-  <!-- Session Flash Message -->
-  @if(session('success'))
-    <div class="mb-5 p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-semibold flex items-center gap-2">
-      <i class="fa-solid fa-circle-check text-base"></i>
-      <span>{{ session('success') }}</span>
-    </div>
-  @endif
-
   <!-- List Address Cards -->
   <div class="space-y-4">
     @forelse($addresses as $address)
+      @php
+        $name = data_get($address, 'recipient_name') ?? data_get($address, 'receiver_name') ?? '-';
+        $phone = data_get($address, 'recipient_phone') ?? data_get($address, 'receiver_phone') ?? '-';
+        $isPrimary = data_get($address, 'is_primary', false);
+      @endphp
+      
       <div onclick="openBottomSheet({{ json_encode($address) }})" 
-           class="cursor-pointer bg-white dark:bg-slate-900 border {{ $address->is_primary ? 'border-amber-500 shadow-md shadow-amber-500/5' : 'border-slate-200/80 dark:border-slate-800' }} rounded-3xl p-5 transition-all hover:border-amber-500/60 relative group">
+           class="cursor-pointer bg-white dark:bg-slate-900 border {{ $isPrimary ? 'border-amber-500 shadow-md shadow-amber-500/5' : 'border-slate-200/80 dark:border-slate-800' }} rounded-3xl p-5 transition-all hover:border-amber-500/60 relative group">
         
         <div class="flex items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
             <span class="px-3 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[11px] font-bold rounded-full uppercase tracking-wider border border-slate-200/50 dark:border-slate-700/50">
-              {{ $address->label }}
+              {{ data_get($address, 'label') }}
             </span>
-            @if($address->is_primary)
+            @if($isPrimary)
               <span class="px-3 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[10px] font-bold rounded-full flex items-center gap-1">
                 <i class="fa-solid fa-star text-[9px]"></i> Utama
               </span>
@@ -53,14 +51,14 @@
 
         <div class="space-y-1">
           <h4 class="font-bold text-slate-900 dark:text-white text-sm">
-            {{ $address->recipient_name }} <span class="text-slate-400 font-normal">({{ $address->recipient_phone }})</span>
+            {{ $name }} <span class="text-slate-400 font-normal">({{ $phone }})</span>
           </h4>
           <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
-            {{ $address->full_address }}
+            {{ data_get($address, 'full_address') }}
           </p>
         </div>
 
-        @if($address->latitude && $address->longitude)
+        @if(data_get($address, 'latitude') && data_get($address, 'longitude'))
           <div class="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
             <i class="fa-solid fa-location-dot"></i> Pinpoint Lokasi Sudah Diatur
           </div>
@@ -68,8 +66,8 @@
 
         <!-- Desktop Action Hints -->
         <div class="hidden sm:flex items-center justify-end gap-3 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
-          @if(!$address->is_primary)
-            <form action="{{ route('profile.addresses.set-primary', $address->id) }}" method="POST" onclick="event.stopPropagation();">
+          @if(!$isPrimary)
+            <form action="{{ route('profile.addresses.set-primary', data_get($address, 'id')) }}" method="POST" onclick="event.stopPropagation();">
               @csrf
               @method('PATCH')
               <button type="submit" class="font-bold text-amber-600 dark:text-amber-400 hover:underline">
@@ -77,7 +75,7 @@
               </button>
             </form>
           @endif
-          <a href="{{ route('profile.addresses.edit', $address->id) }}" onclick="event.stopPropagation();" class="text-slate-500 hover:text-amber-500 font-semibold">
+          <a href="{{ route('profile.addresses.edit', data_get($address, 'id')) }}" onclick="event.stopPropagation();" class="text-slate-500 hover:text-amber-500 font-semibold">
             Edit Alamat
           </a>
         </div>
@@ -103,7 +101,6 @@
 <div id="bottom-sheet-backdrop" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0" onclick="closeBottomSheet()">
   <div id="bottom-sheet-content" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-28 sm:pb-6 max-h-[85vh] overflow-y-auto border-t border-slate-200 dark:border-slate-800 shadow-2xl transform translate-y-full transition-transform duration-300" onclick="event.stopPropagation();">
     
-    <!-- Drag Handle -->
     <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 shrink-0"></div>
 
     <div class="mb-4">
@@ -112,12 +109,10 @@
     </div>
 
     <div class="space-y-2">
-      <!-- Badge Indicator Jika Sudah Utama -->
       <div id="sheet-primary-badge" class="hidden w-full p-3.5 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-3 border border-amber-500/20">
         <i class="fa-solid fa-circle-check text-base"></i> Alamat Utama Saat Ini
       </div>
 
-      <!-- Form Set Primary jika Belum Utama -->
       <form id="sheet-primary-form" method="POST" action="" class="w-full">
         @csrf
         @method('PATCH')
@@ -126,12 +121,10 @@
         </button>
       </form>
 
-      <!-- Edit Address Button -->
       <a id="sheet-edit-btn" href="#" class="block w-full text-left p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-3 transition-colors">
         <i class="fa-solid fa-pen-to-square text-base text-slate-400"></i> Edit Alamat
       </a>
 
-      <!-- Delete Form -->
       <form id="sheet-delete-form" method="POST" action="" onsubmit="return confirm('Yakin ingin menghapus alamat ini?');">
         @csrf
         @method('DELETE')
@@ -144,20 +137,41 @@
   </div>
 </div>
 
+<!-- MODAL POPUP NOTIFIKASI (SUCCESS / ERROR) -->
+@if(session('success') || session('error'))
+<div id="feedback-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+  <div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+    @if(session('success'))
+      <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-3 text-2xl">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Berhasil!</h3>
+      <p class="text-xs text-slate-500 mb-5">{{ session('success') }}</p>
+    @else
+      <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-3 text-2xl">
+        <i class="fa-solid fa-circle-xmark"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Gagal!</h3>
+      <p class="text-xs text-slate-500 mb-5">{{ session('error') }}</p>
+    @endif
+
+    <button type="button" onclick="document.getElementById('feedback-modal').remove()" class="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl text-xs transition-colors">
+      Tutup
+    </button>
+  </div>
+</div>
+@endif
+
 @push('scripts')
 <script>
-  let currentAddress = null;
-
   function openBottomSheet(address) {
-    currentAddress = address;
+    const name = address.recipient_name || address.receiver_name || '-';
     
-    document.getElementById('sheet-title').innerText = address.label + ' (' + address.recipient_name + ')';
-    document.getElementById('sheet-subtitle').innerText = address.full_address;
+    document.getElementById('sheet-title').innerText = (address.label || 'Alamat') + ' (' + name + ')';
+    document.getElementById('sheet-subtitle').innerText = address.full_address || '';
 
-    // Direct Edit Link
     document.getElementById('sheet-edit-btn').href = `/profile/addresses/${address.id}/edit`;
 
-    // Direct Set Primary Form & Badge Logic
     const primaryForm = document.getElementById('sheet-primary-form');
     const primaryBadge = document.getElementById('sheet-primary-badge');
 
@@ -170,10 +184,8 @@
       primaryForm.action = `/profile/addresses/${address.id}/set-primary`;
     }
 
-    // Direct Delete Form
     document.getElementById('sheet-delete-form').action = `/profile/addresses/${address.id}`;
 
-    // Show Animation
     const backdrop = document.getElementById('bottom-sheet-backdrop');
     const content = document.getElementById('bottom-sheet-content');
     

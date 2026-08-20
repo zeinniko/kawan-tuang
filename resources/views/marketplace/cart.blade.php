@@ -59,7 +59,6 @@
             <i class="fa-solid fa-bag-shopping text-amber-500"></i> Item Pesanan
           </h2>
 
-          <!-- Tombol Trigger Modal Hapus Semua -->
           <button type="button" onclick="openClearCartModal()" class="text-xs text-rose-500 hover:text-rose-600 hover:underline font-bold transition-colors">
             Hapus Semua
           </button>
@@ -87,7 +86,6 @@
 
           <div class="py-4 flex gap-3 sm:gap-4 items-start sm:items-center cart-item-row" id="cart-item-{{ $itemId }}">
 
-            <!-- Gambar Produk -->
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
               <img src="{{ $prodImg }}" alt="{{ $prodName }}" class="w-full h-full object-cover">
             </div>
@@ -103,7 +101,6 @@
                   </p>
                 </div>
 
-                <!-- Tombol Hapus Item -->
                 <button type="button" onclick="removeItem('{{ $itemId }}')" class="text-slate-400 hover:text-rose-500 text-xs p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shrink-0" title="Hapus Item">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -114,7 +111,6 @@
                   Rp <span class="item-subtotal" id="subtotal-{{ $itemId }}" data-raw="{{ $subtotal }}">{{ number_format($subtotal, 0, ',', '.') }}</span>
                 </span>
 
-                <!-- Increment / Decrement Realtime -->
                 <div class="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shrink-0">
                   <button type="button" onclick="updateQty('{{ $itemId }}', -1)" class="w-7 h-7 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-l-lg transition-colors">-</button>
                   <span class="w-8 text-center text-xs font-bold text-slate-900 dark:text-white" id="qty-{{ $itemId }}" data-unit-price="{{ $unitPrice }}">{{ $qty }}</span>
@@ -131,49 +127,86 @@
         </div>
       </div>
 
-      <!-- SECTION 3: ALAMAT PENGIRIMAN (DELIVERY MODE) -->
+      <!-- SECTION 3: ALAMAT PENGIRIMAN (DELIVERY MODE) - DINAMIS -->
+      @php
+      $primaryAddress = collect($addresses)->firstWhere('is_primary', true) ?? ($addresses[0] ?? null);
+      @endphp
       <div id="section-address" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <i class="fa-solid fa-location-dot text-amber-500"></i> Alamat Pengiriman
           </h2>
+          @if(!empty($addresses))
           <button type="button" onclick="openAddressModal()" class="text-xs text-amber-600 dark:text-amber-400 font-bold hover:underline">Ubah Alamat</button>
+          @endif
         </div>
         <div class="p-3.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+          @if($primaryAddress)
           <div class="flex items-center gap-2 flex-wrap">
-            <span id="display-address-name" class="text-xs font-bold text-slate-900 dark:text-white">Alex Wijaya</span>
-            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] rounded">Utama</span>
-            <span id="display-address-phone" class="text-xs text-slate-500 dark:text-slate-400">(+62 812-3456-7890)</span>
+            <span id="display-address-name" class="text-xs font-bold text-slate-900 dark:text-white">{{ data_get($primaryAddress, 'recipient_name') }}</span>
+            <span id="display-address-label" class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] rounded">{{ data_get($primaryAddress, 'label', 'Utama') }}</span>
+            <span id="display-address-phone" class="text-xs text-slate-500 dark:text-slate-400">({{ data_get($primaryAddress, 'recipient_phone') }})</span>
           </div>
           <p id="display-address-detail" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed pt-0.5">
-            Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan, DKI Jakarta 12190
+            {{ data_get($primaryAddress, 'full_address') }}
           </p>
+          @else
+          <div class="text-xs text-rose-500 p-2">
+            Belum ada alamat pengiriman tersimpan. Silakan tambahkan alamat terlebih dahulu.
+          </div>
+          @endif
           <input type="text" id="delivery-note" placeholder="Catatan lokasi/driver (cth: Titip di Satpam)" class="w-full mt-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500">
         </div>
       </div>
 
-      <!-- SECTION 4: PILIHAN CABANG (PICKUP MODE) -->
+      <!-- SECTION 4: PILIHAN CABANG (PICKUP MODE) - DINAMIS -->
       <div id="section-store-pickup" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm hidden transition-all">
         <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
           <i class="fa-solid fa-store text-amber-500"></i> Pilih Outlet Pengambilan
         </h2>
-        <div class="space-y-3">
-          <label class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/5 cursor-pointer">
-            <input type="radio" name="pickup_store_id" value="store-senopati" checked class="mt-1 text-amber-500 focus:ring-amber-500">
+
+        <div class="space-y-3" id="stores-container">
+          @forelse($stores as $index => $store)
+          @php
+          $storeId = data_get($store, 'id');
+          $storeName = data_get($store, 'name');
+
+          // Membaca alamat dari full_address atau kolom address
+          $storeAddress = data_get($store, 'full_address') ?? data_get($store, 'address') ?? '-';
+
+          // Membaca jam operasional dari operating_hours atau gabungan open_time & close_time
+          $openTime = data_get($store, 'open_time');
+          $closeTime = data_get($store, 'close_time');
+
+          if ($openTime && $closeTime) {
+          $formattedOpen = \Carbon\Carbon::parse($openTime)->format('H:i');
+          $formattedClose = \Carbon\Carbon::parse($closeTime)->format('H:i');
+          $operatingHours = "{$formattedOpen} - {$formattedClose}";
+          } else {
+          $operatingHours = data_get($store, 'operating_hours', '10:00 - 22:00');
+          }
+
+          $isFirst = $loop->first;
+          @endphp
+
+          <label class="flex items-start gap-3 p-3.5 rounded-xl border {{ $isFirst ? 'border-2 border-amber-500 bg-amber-500/5' : 'border-slate-200 dark:border-slate-800 hover:border-amber-400' }} cursor-pointer store-option-item transition-all" onclick="selectStoreOption(this)">
+            <input type="radio" name="pickup_store_id" value="{{ $storeId }}" {{ $isFirst ? 'checked' : '' }} class="mt-1 text-amber-500 focus:ring-amber-500">
             <div>
-              <span class="text-xs font-bold text-slate-900 dark:text-white block">Kawan Tuang - Senopati (Pusat)</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Jl. Senopati No.45, Kebayoran Baru, Jakarta Selatan</span>
-              <span class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-1 block"><i class="fa-regular fa-clock me-1"></i> Buka Hari Ini: 10:00 - 24:00</span>
+              <span class="text-xs font-bold text-slate-900 dark:text-white block">{{ $storeName }}</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">{{ $storeAddress }}</span>
+
+              @if($operatingHours)
+              <span class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-1.5 block flex items-center gap-1">
+                <i class="fa-regular fa-clock me-1"></i> Jam Buka: {{ $operatingHours }}
+              </span>
+              @endif
             </div>
           </label>
-          <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-400 cursor-pointer">
-            <input type="radio" name="pickup_store_id" value="store-pik" class="mt-1 text-amber-500 focus:ring-amber-500">
-            <div>
-              <span class="text-xs font-bold text-slate-900 dark:text-white block">Kawan Tuang - PIK</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Ruko Golf Island Blok A No.12, PIK, Jakarta Utara</span>
-              <span class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-1 block"><i class="fa-regular fa-clock me-1"></i> Buka Hari Ini: 12:00 - 02:00</span>
-            </div>
-          </label>
+          @empty
+          <div class="p-4 text-center text-xs text-slate-400">
+            Tidak ada outlet toko yang tersedia saat ini.
+          </div>
+          @endforelse
         </div>
       </div>
 
@@ -241,7 +274,6 @@
             <button type="button" id="btn-apply-voucher" onclick="applyVoucher()" class="bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-amber-400 font-bold px-3 py-2 rounded-xl text-xs transition-colors shrink-0">Pakai</button>
             <button type="button" id="btn-remove-voucher" onclick="removeVoucher()" class="hidden bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 font-bold px-3 py-2 rounded-xl text-xs transition-colors shrink-0">Hapus</button>
           </div>
-          <!-- Feedback Message -->
           <p id="voucher-message" class="text-[11px] mt-1.5 hidden font-medium"></p>
         </div>
 
@@ -288,13 +320,11 @@
           </div>
         </div>
 
-        <!-- NOTE SAFETY -->
         <div class="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-2">
           <i class="fa-solid fa-shield-halved text-sm flex-shrink-0"></i>
           <span>Pembayaran aman diproses secara terenkripsi oleh Payment Gateway.</span>
         </div>
 
-        <!-- BUTTON TRIGGER BAYAR SEKARANG DESKTOP -->
         <button type="button" id="btn-checkout" onclick="processCheckout()" class="w-full bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-center text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
           <span>Bayar Sekarang</span> <i class="fa-solid fa-arrow-right"></i>
         </button>
@@ -326,11 +356,10 @@
   </div>
 </div>
 
-<!-- BOTTOM SHEET MODAL DAFTAR ALAMAT -->
+<!-- BOTTOM SHEET MODAL DAFTAR ALAMAT - DINAMIS -->
 <div id="address-modal" class="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
   <div id="address-modal-content" class="w-full max-w-xl bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform translate-y-full transition-transform duration-300 max-h-[85vh] flex flex-col">
 
-    <!-- Modal Header -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
       <div>
         <h3 class="text-base font-bold text-slate-900 dark:text-white">Pilih Alamat Pengiriman</h3>
@@ -341,41 +370,38 @@
       </button>
     </div>
 
-    <!-- Address Item List -->
-    <div class="py-4 space-y-3 overflow-y-auto flex-1">
+    <!-- Address Item List Dinamis -->
+    <div class="py-4 space-y-3 overflow-y-auto flex-1" id="address-modal-list">
+      @forelse($addresses as $addr)
+      @php
+      $addrId = data_get($addr, 'id');
+      $name = data_get($addr, 'recipient_name');
+      $phone = data_get($addr, 'recipient_phone');
+      $fullAddr = data_get($addr, 'full_address');
+      $label = data_get($addr, 'label', 'Alamat');
+      $isPrimary = data_get($addr, 'is_primary', false) || $loop->first;
+      @endphp
 
-      <!-- Alamat 1 (Aktif) -->
-      <label class="address-option flex items-start gap-3 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/5 cursor-pointer transition-all" onclick="highlightAddressOption(this)">
-        <input type="radio" name="selected_address_id" value="1" checked onchange="selectAddress('Alex Wijaya', '(+62 812-3456-7890)', 'Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan, DKI Jakarta 12190')" class="mt-1 text-amber-500 focus:ring-amber-500">
+      <label class="address-option flex items-start gap-3 p-3.5 rounded-xl border {{ $isPrimary ? 'border-2 border-amber-500 bg-amber-500/5' : 'border-slate-200 dark:border-slate-800 hover:border-amber-400' }} cursor-pointer transition-all" onclick="highlightAddressOption(this)">
+        <input type="radio" name="selected_address_id" value="{{ $addrId }}" {{ $isPrimary ? 'checked' : '' }} onchange="selectAddress('{{ addslashes($name) }}', '({{ addslashes($phone) }})', '{{ addslashes($fullAddr) }}', '{{ addslashes($label) }}')" class="mt-1 text-amber-500 focus:ring-amber-500">
         <div class="flex-1">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-900 dark:text-white">Alex Wijaya</span>
-            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] rounded">Utama</span>
-            <span class="text-xs text-slate-500 dark:text-slate-400">(+62 812-3456-7890)</span>
+            <span class="text-xs font-bold text-slate-900 dark:text-white">{{ $name }}</span>
+            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] rounded">{{ $label }}</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">({{ $phone }})</span>
           </div>
           <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mt-1">
-            Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan, DKI Jakarta 12190
+            {{ $fullAddr }}
           </p>
         </div>
       </label>
-
-      <!-- Alamat 2 -->
-      <label class="address-option flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-400 cursor-pointer transition-all" onclick="highlightAddressOption(this)">
-        <input type="radio" name="selected_address_id" value="2" onchange="selectAddress('Alex Wijaya (Kantor)', '(+62 812-9988-7766)', 'Gedung SCBD Tower B Lt. 12, Jl. Jend. Sudirman Kav. 52, Jakarta Selatan')" class="mt-1 text-amber-500 focus:ring-amber-500">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-900 dark:text-white">Alex Wijaya (Kantor)</span>
-            <span class="text-xs text-slate-500 dark:text-slate-400">(+62 812-9988-7766)</span>
-          </div>
-          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mt-1">
-            Gedung SCBD Tower B Lt. 12, Jl. Jend. Sudirman Kav. 52, Jakarta Selatan
-          </p>
-        </div>
-      </label>
-
+      @empty
+      <div class="p-6 text-center text-xs text-slate-400">
+        Belum ada alamat pengiriman tersimpan.
+      </div>
+      @endforelse
     </div>
 
-    <!-- Modal Footer Action -->
     <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex gap-3">
       <button type="button" onclick="closeAddressModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition-colors shadow-sm">
         Gunakan Alamat Ini
@@ -402,7 +428,6 @@
 @endsection
 
 @push('scripts')
-<!-- JAVASCRIPT LOGIC REAL-TIME CHECKOUT & VOUCHER -->
 <script>
   let currentFulfillment = 'delivery';
   let currentShippingCost = 25000;
@@ -411,7 +436,6 @@
 
   const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-  // Initialization
   document.addEventListener('DOMContentLoaded', () => {
     recalculateSummary();
   });
@@ -502,10 +526,12 @@
     selectedEl.classList.remove('border-slate-200', 'dark:border-slate-800');
   }
 
-  function selectAddress(name, phone, detail) {
+  function selectAddress(name, phone, detail, label) {
     document.getElementById('display-address-name').innerText = name;
     document.getElementById('display-address-phone').innerText = phone;
     document.getElementById('display-address-detail').innerText = detail;
+    const labelEl = document.getElementById('display-address-label');
+    if (labelEl) labelEl.innerText = label;
   }
 
   // 3. Select Courier Option
@@ -537,12 +563,10 @@
     recalculateSummary();
   }
 
-  // 4. Custom Clear Cart Modal Logic
+  // 4. Clear Cart
   function openClearCartModal() {
     const cartContainer = document.getElementById('cart-items-container');
-    if (!cartContainer || cartContainer.querySelectorAll('.cart-item-row').length === 0) {
-      return;
-    }
+    if (!cartContainer || cartContainer.querySelectorAll('.cart-item-row').length === 0) return;
     const modal = document.getElementById('clear-cart-modal');
     const content = document.getElementById('clear-cart-modal-content');
     modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -560,42 +584,33 @@
 
   function confirmClearCart() {
     closeClearCartModal();
-
     const cartContainer = document.getElementById('cart-items-container');
     cartContainer.innerHTML = `
-        <div class="py-12 text-center text-slate-400 text-xs" id="empty-cart-msg">
-          Keranjang Anda masih kosong. <a href="{{ route('catalog.index') }}" class="text-amber-500 underline font-bold">Mulai belanja</a>
-        </div>
-      `;
-
+      <div class="py-12 text-center text-slate-400 text-xs" id="empty-cart-msg">
+        Keranjang Anda masih kosong. <a href="{{ route('catalog.index') }}" class="text-amber-500 underline font-bold">Mulai belanja</a>
+      </div>
+    `;
     removeVoucher();
     recalculateSummary();
 
     fetch("{{ route('cart.clear') }}", {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken,
-          'Accept': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data.message || 'Keranjang berhasil dikosongkan.');
-      })
-      .catch(err => console.error('Error clearing cart:', err));
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+      }
+    }).catch(err => console.error('Error clearing cart:', err));
   }
 
-  // 5. Increment / Decrement Quantity Via AJAX (Named Route: cart.update)
+  // 5. Update Qty
   function updateQty(itemId, delta) {
     const qtyElement = document.getElementById(`qty-${itemId}`);
     let currentQty = parseInt(qtyElement.innerText);
     let newQty = currentQty + delta;
-
     if (newQty < 1) return;
 
     const unitPrice = parseFloat(qtyElement.getAttribute('data-unit-price'));
-
     qtyElement.innerText = newQty;
     const newSubtotal = unitPrice * newQty;
     const subtotalEl = document.getElementById(`subtotal-${itemId}`);
@@ -603,13 +618,9 @@
     subtotalEl.setAttribute('data-raw', newSubtotal);
 
     recalculateSummary();
-
-    if (activeVoucherCode) {
-      applyVoucher(true);
-    }
+    if (activeVoucherCode) applyVoucher(true);
 
     const updateUrl = "{{ route('cart.update', ':id') }}".replace(':id', itemId);
-
     fetch(updateUrl, {
       method: 'PUT',
       headers: {
@@ -623,20 +634,16 @@
     }).catch(err => console.error('Error updating cart:', err));
   }
 
-  // 6. Hapus Item Realtime (Named Route: cart.destroy)
+  // 6. Remove Item
   function removeItem(itemId) {
     const itemRow = document.getElementById(`cart-item-${itemId}`);
     if (itemRow) itemRow.remove();
 
     checkEmptyState();
     recalculateSummary();
-
-    if (activeVoucherCode) {
-      applyVoucher(true);
-    }
+    if (activeVoucherCode) applyVoucher(true);
 
     const deleteUrl = "{{ route('cart.destroy', ':id') }}".replace(':id', itemId);
-
     fetch(deleteUrl, {
       method: 'DELETE',
       headers: {
@@ -650,15 +657,15 @@
     const cartContainer = document.getElementById('cart-items-container');
     if (cartContainer && cartContainer.querySelectorAll('.cart-item-row').length === 0) {
       cartContainer.innerHTML = `
-          <div class="py-12 text-center text-slate-400 text-xs" id="empty-cart-msg">
-            Keranjang Anda masih kosong. <a href="{{ route('catalog.index') }}" class="text-amber-500 underline font-bold">Mulai belanja</a>
-          </div>
-        `;
+        <div class="py-12 text-center text-slate-400 text-xs" id="empty-cart-msg">
+          Keranjang Anda masih kosong. <a href="{{ route('catalog.index') }}" class="text-amber-500 underline font-bold">Mulai belanja</a>
+        </div>
+      `;
       removeVoucher();
     }
   }
 
-  // 7. REALTIME APPLY & REMOVE VOUCHER (AJAX Via cart.voucher.apply)
+  // 7. Voucher
   function applyVoucher(isSilent = false) {
     const voucherInput = document.getElementById('voucher-code');
     const applyBtn = document.getElementById('btn-apply-voucher');
@@ -676,43 +683,48 @@
     }
 
     fetch("{{ route('cart.voucher.apply') }}", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ code: code })
-    })
-    .then(res => res.json().then(data => ({ status: res.status, body: data })))
-    .then(res => {
-      applyBtn.disabled = false;
-      applyBtn.innerHTML = 'Pakai';
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          code: code
+        })
+      })
+      .then(res => res.json().then(data => ({
+        status: res.status,
+        body: data
+      })))
+      .then(res => {
+        applyBtn.disabled = false;
+        applyBtn.innerHTML = 'Pakai';
 
-      if ((res.status === 200 || res.status === 201) && res.body.data) {
-        currentDiscount = parseFloat(res.body.data.discount_amount || 0);
-        activeVoucherCode = code;
+        if ((res.status === 200 || res.status === 201) && res.body.data) {
+          currentDiscount = parseFloat(res.body.data.discount_amount || 0);
+          activeVoucherCode = code;
 
-        voucherInput.value = code;
-        voucherInput.disabled = true;
-        applyBtn.classList.add('hidden');
-        removeBtn.classList.remove('hidden');
+          voucherInput.value = code;
+          voucherInput.disabled = true;
+          applyBtn.classList.add('hidden');
+          removeBtn.classList.remove('hidden');
 
-        showVoucherMsg(res.body.message || 'Voucher berhasil digunakan!', 'success');
-        recalculateSummary();
-      } else {
-        currentDiscount = 0;
-        activeVoucherCode = '';
-        showVoucherMsg(res.body.message || 'Kode promo tidak valid.', 'error');
-        recalculateSummary();
-      }
-    })
-    .catch(err => {
-      applyBtn.disabled = false;
-      applyBtn.innerHTML = 'Pakai';
-      showVoucherMsg('Gagal memproses voucher. Coba beberapa saat lagi.', 'error');
-      console.error(err);
-    });
+          showVoucherMsg(res.body.message || 'Voucher berhasil digunakan!', 'success');
+          recalculateSummary();
+        } else {
+          currentDiscount = 0;
+          activeVoucherCode = '';
+          showVoucherMsg(res.body.message || 'Kode promo tidak valid.', 'error');
+          recalculateSummary();
+        }
+      })
+      .catch(err => {
+        applyBtn.disabled = false;
+        applyBtn.innerHTML = 'Pakai';
+        showVoucherMsg('Gagal memproses voucher. Coba beberapa saat lagi.', 'error');
+        console.error(err);
+      });
   }
 
   function removeVoucher() {
@@ -750,7 +762,7 @@
     el.classList.add('hidden');
   }
 
-  // 8. Kalkulasi Ulang Total Ringkasan
+  // 8. Recalculate
   function recalculateSummary() {
     let subtotalSum = 0;
     document.querySelectorAll('.item-subtotal').forEach(el => {
@@ -767,22 +779,58 @@
     document.getElementById('mobile-grand-total').innerText = formatRupiah(grandTotal);
   }
 
-  // 9. Format Number ke Rupiah
   function formatRupiah(number) {
     return new Intl.NumberFormat('id-ID').format(number);
   }
 
-  // 10. Trigger Midtrans Snap
+  function selectStoreOption(selectedLabel) {
+    // Reset semua item outlet ke style default
+    document.querySelectorAll('.store-option-item').forEach(el => {
+      el.classList.remove('border-2', 'border-amber-500', 'bg-amber-500/5');
+      el.classList.add('border-slate-200', 'dark:border-slate-800', 'hover:border-amber-400');
+
+      const radioInput = el.querySelector('input[type="radio"]');
+      if (radioInput) radioInput.checked = false;
+    });
+
+    // Terapkan border active pada item yang dipilih
+    selectedLabel.classList.add('border-2', 'border-amber-500', 'bg-amber-500/5');
+    selectedLabel.classList.remove('border-slate-200', 'dark:border-slate-800', 'hover:border-amber-400');
+
+    // Centang radio input
+    const activeRadio = selectedLabel.querySelector('input[type="radio"]');
+    if (activeRadio) {
+      activeRadio.checked = true;
+    }
+  }
+
+  // 9. Process Checkout (UUID Sync untuk Store & Address)
   function processCheckout() {
     const btn = document.getElementById('btn-checkout');
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
 
+    // Store ID
+    const selectedStoreRadio = document.querySelector('input[name="pickup_store_id"]:checked');
+    const defaultStoreId = selectedStoreRadio ? selectedStoreRadio.value : "{{ $stores[0]['id'] ?? '' }}";
+    const finalStoreId = currentFulfillment === 'pickup' ? selectedStoreRadio?.value : defaultStoreId;
+
+    // Address ID
+    const selectedAddressRadio = document.querySelector('input[name="selected_address_id"]:checked');
+    const defaultAddressId = selectedAddressRadio ? selectedAddressRadio.value : "{{ $primaryAddress['id'] ?? '' }}";
+
+    if (currentFulfillment === 'delivery' && !defaultAddressId) {
+      alert("Harap pilih atau tambahkan alamat pengiriman terlebih dahulu.");
+      btn.disabled = false;
+      btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
+      return;
+    }
+
     const payload = {
       fulfillment_type: currentFulfillment,
       shipping_cost: currentFulfillment === 'pickup' ? 0 : currentShippingCost,
-      store_id: currentFulfillment === 'pickup' ? document.querySelector('input[name="pickup_store_id"]:checked')?.value : 1,
-      user_address_id: currentFulfillment === 'delivery' ? document.querySelector('input[name="selected_address_id"]:checked')?.value : 1,
+      store_id: finalStoreId,
+      user_address_id: defaultAddressId,
       courier_company: 'gojek',
       courier_type: 'instant',
       payment_method: 'midtrans',
@@ -807,7 +855,7 @@
         if (data.snap_token) {
           window.snap.pay(data.snap_token, {
             onSuccess: function(result) {
-              window.location.href = "/orders/" + data.order.id;
+              window.location.href = "/orders/" + (data.order_id || data.order?.id);
             },
             onPending: function(result) {
               window.location.href = "/orders";

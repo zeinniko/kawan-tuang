@@ -37,22 +37,30 @@ class UserAddressController extends Controller
         ], 201);
     }
 
-    public function show(Request $request, UserAddress $address): JsonResponse
+    public function show(Request $request, $address): JsonResponse
     {
-        if ($address->user_id !== $request->user()->id) {
+        $addressModel = $address instanceof UserAddress ? $address : UserAddress::find($address);
+
+        if (!$addressModel || $addressModel->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
 
         return response()->json([
-            'data' => new UserAddressResource($address),
+            'data' => new UserAddressResource($addressModel),
         ]);
     }
 
-    public function update(UpdateAddressRequest $request, UserAddress $address): JsonResponse
+    public function update(UpdateAddressRequest $request, $address): JsonResponse
     {
+        $addressModel = $address instanceof UserAddress ? $address : UserAddress::find($address);
+
+        if (!$addressModel || $addressModel->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
         $updatedAddress = $this->addressService->updateAddress(
             $request->user(),
-            $address,
+            $addressModel,
             $request->validated()
         );
 
@@ -62,26 +70,30 @@ class UserAddressController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, UserAddress $address): JsonResponse
+    public function destroy(Request $request, $address): JsonResponse
     {
-        if ($address->user_id !== $request->user()->id) {
+        $addressModel = $address instanceof UserAddress ? $address : UserAddress::find($address);
+
+        if (!$addressModel || $addressModel->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
 
-        $this->addressService->deleteAddress($address);
+        $this->addressService->deleteAddress($addressModel);
 
         return response()->json([
             'message' => 'Alamat pengiriman berhasil dihapus.',
         ]);
     }
 
-    public function setPrimary(Request $request, UserAddress $address): JsonResponse
+    public function setPrimary(Request $request, $address): JsonResponse
     {
-        if ($address->user_id !== $request->user()->id) {
+        $addressModel = $address instanceof UserAddress ? $address : UserAddress::find($address);
+
+        if (!$addressModel || $addressModel->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
 
-        $primaryAddress = $this->addressService->setPrimaryAddress($request->user(), $address);
+        $primaryAddress = $this->addressService->setPrimaryAddress($request->user(), $addressModel);
 
         return response()->json([
             'message' => 'Alamat utama berhasil diperbarui.',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\CartController;
 use App\Http\Controllers\Marketplace\ProfileController;
 use App\Http\Controllers\Marketplace\OrderController; // <-- Tambahkan Import Ini
+use App\Http\Controllers\Marketplace\StoreController;
 use App\Http\Controllers\Marketplace\UserAddressWebController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store'); // <-- Tambahkan baris ini
+
+    Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 
     Route::prefix('profile/addresses')->as('profile.addresses.')->group(function () {
         Route::get('/', [UserAddressWebController::class, 'index'])->name('index');
