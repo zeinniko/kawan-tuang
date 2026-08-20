@@ -88,4 +88,4 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product:slug}/reviews', [ProductReviewController::class, 'index']);
 });
 
-Route::post('/v1/webhooks/midtrans', [WebhookController::class, 'handleMidtrans']);
+Route::post('/v1/webhooks/notification', [WebhookController::class, 'handleMidtrans']);

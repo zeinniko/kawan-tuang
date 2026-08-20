@@ -11,10 +11,39 @@ class CartController extends Controller
     public function index()
     {
         $cartResponse = InternalApiService::get('cart');
+        $items = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
+        
+        // Simpan total item ke session saat buka halaman cart
+        $totalQty = collect($items)->sum('quantity');
+        session(['cart_count' => $totalQty]);
 
         return view('marketplace.cart', [
             'cart' => $cartResponse['data'] ?? $cartResponse ?? [],
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|string',
+            'quantity'   => 'required|integer|min:1',
+        ]);
+
+        $response = InternalApiService::post('cart/items', [
+            'product_id' => $request->product_id,
+            'quantity'   => (int) $request->quantity,
+        ]);
+
+        // Refresh & update session cart_count
+        $this->updateCartCountSession();
+
+        if ($request->wantsJson()) {
+            return response()->json(array_merge($response, [
+                'cart_count' => session('cart_count', 0)
+            ]));
+        }
+
+        return back()->with('success', $response['message'] ?? 'Produk berhasil ditambahkan.');
     }
 
     public function update(Request $request, $cartItemId)
@@ -27,8 +56,12 @@ class CartController extends Controller
             'quantity' => (int) $request->quantity,
         ]);
 
+        $this->updateCartCountSession();
+
         if ($request->wantsJson()) {
-            return response()->json($response);
+            return response()->json(array_merge($response, [
+                'cart_count' => session('cart_count', 0)
+            ]));
         }
 
         return back()->with('success', $response['message'] ?? 'Jumlah item diperbarui.');
@@ -38,10 +71,74 @@ class CartController extends Controller
     {
         $response = InternalApiService::delete("cart/items/{$cartItemId}");
 
+        $this->updateCartCountSession();
+
+        if ($request->wantsJson()) {
+            return response()->json(array_merge($response, [
+                'cart_count' => session('cart_count', 0)
+            ]));
+        }
+
+        return back()->with('success', $response['message'] ?? 'Item berhasil dihapus.');
+    }
+
+    public function clear(Request $request)
+    {
+        $response = InternalApiService::delete('cart/clear');
+
+        // Reset cart_count ke 0
+        session(['cart_count' => 0]);
+
         if ($request->wantsJson()) {
             return response()->json($response);
         }
 
-        return back()->with('success', $response['message'] ?? 'Item berhasil dihapus.');
+        return back()->with('success', $response['message'] ?? 'Keranjang berhasil dikosongkan.');
+    }
+
+    /**
+     * Menerapkan kode voucher promo melalui InternalApiService
+     */
+    public function applyVoucher(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        // Kirim request internal ke API /api/v1/vouchers/apply
+        $response = InternalApiService::post('vouchers/apply', [
+            'code' => $request->code,
+        ]);
+
+        // Tentukan HTTP status code berdasarkan respon dari API
+        $isSuccess = isset($response['status']) 
+            ? $response['status'] === 'success' 
+            : isset($response['data']);
+
+        $statusCode = $isSuccess ? 200 : 400;
+
+        if (isset($response['errors']) || (isset($response['message']) && !$isSuccess)) {
+            $statusCode = 422;
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($response, $statusCode);
+        }
+
+        if (!$isSuccess) {
+            return back()->with('error', $response['message'] ?? 'Kode promo tidak valid.');
+        }
+
+        return back()->with('success', $response['message'] ?? 'Voucher berhasil diterapkan.');
+    }
+
+    // Helper Private untuk sinkronisasi jumlah item
+    private function updateCartCountSession()
+    {
+        $cartResponse = InternalApiService::get('cart');
+        $items = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
+        $totalQty = collect($items)->sum('quantity');
+        
+        session(['cart_count' => $totalQty]);
     }
 }

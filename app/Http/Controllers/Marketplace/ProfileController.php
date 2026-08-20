@@ -3,54 +3,58 @@
 namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    // Menampilkan halaman profil
-    public function index()
+    /**
+     * Halaman Utama Profil
+     */
+    public function index(Request $request): View
     {
-        $user = Auth::user();
+        $user = $request->user();
         return view('marketplace.profile', compact('user'));
     }
 
-    // Menangani update data diri
-    public function update(Request $request)
+    /**
+     * Halaman Form Edit Profil Terpisah
+     */
+    public function edit(Request $request): View
     {
-        $user = Auth::user();
-
-        $request->validate([
-            'full_name'    => ['required', 'string', 'max:100'],
-            'email'        => ['required', 'string', 'email', 'max:150', 'unique:users,email,' . $user->id],
-            'phone_number' => ['required', 'string', 'max:20', 'unique:users,phone_number,' . $user->id],
-        ]);
-
-        $user->update([
-            'full_name'    => $request->full_name,
-            'email'        => $request->email,
-            'phone_number' => $request->phone_number,
-        ]);
-
-        return back()->with('success', 'Profil berhasil diperbarui.');
+        $user = $request->user();
+        return view('marketplace.profile-edit', compact('user'));
     }
 
-    // Menangani perubahan kata sandi
-    public function changePassword(Request $request)
+    /**
+     * Update Data Profil & Upload Avatar
+     */
+    public function update(Request $request): RedirectResponse
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password'     => ['required', 'confirmed', Password::min(8)],
+        $validated = $request->validate([
+            'full_name'    => 'required|string|max:100',
+            'email'        => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone_number' => 'required|string|max:20',
+            'avatar'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Max 2MB
         ]);
 
-        $user->update([
-            'password' => Hash::make($request->new_password),
-        ]);
+        // Upload Avatar Baru
+        if ($request->hasFile('avatar')) {
+            // Hapus avatar lama jika ada
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
 
-        return back()->with('success', 'Kata sandi berhasil diperbarui.');
+            // Simpan avatar baru
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+
+        return redirect()->route('profile.index')->with('success', 'Profil Anda berhasil diperbarui.');
     }
 }

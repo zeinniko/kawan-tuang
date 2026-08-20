@@ -11,10 +11,19 @@ class VoucherService
 {
     public function getAvailableVouchers(User $user): Collection
     {
-        return Voucher::where('is_active', true)
+        $now = now();
+
+        return Voucher::where(function ($query) use ($now) {
+                $query->whereNull('valid_from')
+                    ->orWhere('valid_from', '<=', $now);
+            })
+            ->where(function ($query) use ($now) {
+                $query->whereNull('valid_until')
+                    ->orWhere('valid_until', '>=', $now);
+            })
             ->where(function ($query) {
-                $query->whereNull('expired_at')
-                    ->orWhere('expired_at', '>', now());
+                $query->whereNull('usage_limit')
+                    ->orWhere('usage_limit', '>', 0);
             })
             ->latest()
             ->get();
@@ -22,17 +31,26 @@ class VoucherService
 
     public function applyVoucher(User $user, string $code): array
     {
-        $voucher = Voucher::where('code', $code)
-            ->where('is_active', true)
-            ->first();
+        $voucher = Voucher::where('code', $code)->first();
 
-        if (! $voucher || ($voucher->expired_at && $voucher->expired_at->isPast())) {
+        // 1. Validasi Keberadaan dan Masa Berlaku
+        if (! $voucher 
+            || ($voucher->valid_from && $voucher->valid_from->isFuture()) 
+            || ($voucher->valid_until && $voucher->valid_until->isPast())) {
             throw ValidationException::withMessages([
-                'code' => ['Kode voucher telah kedaluwarsa atau tidak aktif.'],
+                'code' => ['Kode voucher tidak ditemukan atau sudah kedaluwarsa.'],
             ]);
         }
 
-        $cart = $user->cart()->with('items')->first();
+        // 2. Validasi Kuota Penggunaan
+        if ($voucher->usage_limit !== null && $voucher->usage_limit <= 0) {
+            throw ValidationException::withMessages([
+                'code' => ['Kuota penggunaan voucher ini telah habis.'],
+            ]);
+        }
+
+        // 3. Ambil Cart Beserta Item & Relasi Produknya
+        $cart = $user->cart()->with(['items.product'])->first();
 
         if (! $cart || $cart->items->isEmpty()) {
             throw ValidationException::withMessages([
@@ -40,28 +58,39 @@ class VoucherService
             ]);
         }
 
-        $subtotal = $cart->items->sum(fn ($item) => $item->quantity * $item->unit_price);
+        // 4. Hitung Subtotal secara Presisi (Fallback ke harga produk jika unit_price 0/null)
+        $subtotal = $cart->items->sum(function ($item) {
+            $price = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
+            $qty = (int) $item->quantity;
+            return $price * $qty;
+        });
 
-        if ($subtotal < $voucher->min_spend) {
+        // 5. Validasi Minimal Pembelian (min_order_amount)
+        $minOrder = (float) ($voucher->min_order_amount ?? $voucher->min_spend ?? 0);
+        if ($minOrder > 0 && $subtotal < $minOrder) {
             throw ValidationException::withMessages([
-                'code' => ['Minimal pembelian untuk voucher ini adalah Rp ' . number_format($voucher->min_spend, 0, ',', '.')],
+                'code' => ['Minimal pembelian untuk voucher ini adalah Rp ' . number_format($minOrder, 0, ',', '.')],
             ]);
         }
 
+        // 6. Hitung Nominal Diskon
         $discountAmount = 0;
+        $discountVal = (float) $voucher->discount_value;
+        $maxDiscount = (float) ($voucher->max_discount_amount ?? $voucher->max_discount ?? 0);
+
         if ($voucher->discount_type === 'percentage') {
-            $discountAmount = ($subtotal * $voucher->discount_value) / 100;
-            if ($voucher->max_discount && $discountAmount > $voucher->max_discount) {
-                $discountAmount = $voucher->max_discount;
+            $discountAmount = ($subtotal * $discountVal) / 100;
+            if ($maxDiscount > 0 && $discountAmount > $maxDiscount) {
+                $discountAmount = $maxDiscount;
             }
         } else {
-            $discountAmount = min($voucher->discount_value, $subtotal);
+            $discountAmount = min($discountVal, $subtotal);
         }
 
         return [
-            'voucher' => $voucher,
-            'subtotal' => (float) $subtotal,
-            'discount_amount' => (float) $discountAmount,
+            'voucher'              => $voucher,
+            'subtotal'             => (float) $subtotal,
+            'discount_amount'      => (float) $discountAmount,
             'total_after_discount' => (float) max(0, $subtotal - $discountAmount),
         ];
     }

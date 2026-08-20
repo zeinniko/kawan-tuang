@@ -6,6 +6,7 @@ use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\CartController;
 use App\Http\Controllers\Marketplace\ProfileController;
 use App\Http\Controllers\Marketplace\OrderController; // <-- Tambahkan Import Ini
+use App\Http\Controllers\Marketplace\UserAddressWebController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public & Catalog Routes ---
@@ -28,18 +29,29 @@ Route::middleware('auth')->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
-
+    
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');
     Route::put('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/voucher/apply', [CartController::class, 'applyVoucher'])->name('cart.voucher.apply');
 
     // Orders Routes (Daftar & Tracking Pesanan) <-- TAMBAHKAN DI SINI
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store'); // <-- Tambahkan baris ini
+
+    Route::prefix('profile/addresses')->as('profile.addresses.')->group(function () {
+        Route::get('/', [UserAddressWebController::class, 'index'])->name('index');
+        Route::get('/create', [UserAddressWebController::class, 'create'])->name('create');
+        Route::post('/', [UserAddressWebController::class, 'store'])->name('store');
+        Route::get('/{address}/edit', [UserAddressWebController::class, 'edit'])->name('edit');
+        Route::put('/{address}', [UserAddressWebController::class, 'update'])->name('update');
+        Route::delete('/{address}', [UserAddressWebController::class, 'destroy'])->name('destroy');
+        Route::patch('/{address}/set-primary', [UserAddressWebController::class, 'setPrimary'])->name('set-primary');
+    });
 });

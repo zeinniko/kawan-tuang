@@ -34,6 +34,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'birth_date',
         'is_age_verified',
         'role',
+        'avatar',
     ];
 
     /**

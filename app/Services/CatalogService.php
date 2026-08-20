@@ -36,30 +36,46 @@ class CatalogService
         $query = Product::where('is_active', true)
             ->with(['category', 'brand', 'vibes', 'primaryImage', 'images']);
 
+        // Search
         if (!empty($filters['search'])) {
             $query->where('name', 'like', '%' . $filters['search'] . '%');
         }
 
-        if (!empty($filters['category_slug'])) {
-            $query->whereHas('category', fn ($q) => $q->where('slug', $filters['category_slug']));
+        // Category Filter (Mendukung slug atau category)
+        $categorySlug = $filters['category'] ?? $filters['category_slug'] ?? null;
+        if (!empty($categorySlug)) {
+            $query->whereHas('category', fn($q) => $q->where('slug', $categorySlug));
         }
 
-        if (!empty($filters['brand_slug'])) {
-            $query->whereHas('brand', fn ($q) => $q->where('slug', $filters['brand_slug']));
+        // Brand Filter
+        $brandSlug = $filters['brand'] ?? $filters['brand_slug'] ?? null;
+        if (!empty($brandSlug)) {
+            $query->whereHas('brand', fn($q) => $q->where('slug', $brandSlug));
         }
 
-        if (!empty($filters['vibe_slug'])) {
-            $query->whereHas('vibes', fn ($q) => $q->where('slug', $filters['vibe_slug']));
+        // Vibe Filter
+        $vibeSlug = $filters['vibe'] ?? $filters['vibe_slug'] ?? null;
+        if (!empty($vibeSlug)) {
+            $query->whereHas('vibes', fn($q) => $q->where('slug', $vibeSlug));
         }
 
+        // Price Filter
         if (!empty($filters['min_price'])) {
             $query->where('price', '>=', $filters['min_price']);
         }
-
         if (!empty($filters['max_price'])) {
             $query->where('price', '<=', $filters['max_price']);
         }
 
+        // Alcohol Percentage (ABV) Filter
+        if (isset($filters['min_abv']) && $filters['min_abv'] !== '') {
+            $query->where('abv', '>=', (float)$filters['min_abv']);
+        }
+        if (isset($filters['max_abv']) && $filters['max_abv'] !== '') {
+            $query->where('abv', '<=', (float)$filters['max_abv']);
+        }
+
+        // Sorting
         match ($filters['sort_by'] ?? 'latest') {
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),

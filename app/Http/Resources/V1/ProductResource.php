@@ -14,25 +14,34 @@ class ProductResource extends JsonResource
             ?? $this->images->first()?->image_url 
             ?? null;
 
-        $thumbnail = $this->thumbnail_url 
-            ? (str_starts_with($this->thumbnail_url, 'http') ? $this->thumbnail_url : Storage::disk('s3')->url($this->thumbnail_url))
-            : ($primaryImg ? (str_starts_with($primaryImg, 'http') ? $primaryImg : Storage::disk('s3')->url($primaryImg)) : null);
+        $thumbnailPath = $this->thumbnail_url ?? $primaryImg;
+
+        if ($thumbnailPath) {
+            if (str_starts_with($thumbnailPath, 'http')) {
+                $thumbnail = $thumbnailPath;
+            } else {
+                // Gunakan Storage disk 'public' lokal agar tidak mengecek konfigurasi AWS S3
+                $thumbnail = Storage::disk('public')->url($thumbnailPath);
+            }
+        } else {
+            $thumbnail = 'https://images.unsplash.com/photo-1614316650630-f2030d9980c6?auto=format&fit=crop&w=400&q=80';
+        }
 
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'slug' => $this->slug,
-            'sku' => $this->sku,
-            'price' => (float) $this->price,
+            'id'                 => $this->id,
+            'name'               => $this->name,
+            'slug'               => $this->slug,
+            'sku'                => $this->sku,
+            'price'              => (float) $this->price,
             'alcohol_percentage' => (float) $this->abv,
-            'volume_ml' => (int) $this->volume_ml,
-            'thumbnail_url' => $thumbnail ?? 'https://images.unsplash.com/photo-1614316650630-f2030d9980c6?auto=format&fit=crop&w=400&q=80',
-            'description' => $this->description,
-            'is_featured' => (bool) $this->is_featured,
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'brand' => new BrandResource($this->whenLoaded('brand')),
-            'vibes' => VibeResource::collection($this->whenLoaded('vibes')),
-            'created_at' => $this->created_at?->toIso8601String(),
+            'volume_ml'          => (int) $this->volume_ml,
+            'thumbnail_url'      => $thumbnail,
+            'description'        => $this->description,
+            'is_featured'        => (bool) $this->is_featured,
+            'category'           => new CategoryResource($this->whenLoaded('category')),
+            'brand'              => new BrandResource($this->whenLoaded('brand')),
+            'vibes'              => VibeResource::collection($this->whenLoaded('vibes')),
+            'created_at'         => $this->created_at?->toIso8601String(),
         ];
     }
 }

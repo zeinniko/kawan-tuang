@@ -4,69 +4,79 @@
 
 @section('content')
 <!-- ================= HERO BANNER SLIDER ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12">
-  <div class="relative rounded-[2.5rem] overflow-hidden bg-slate-900 text-white shadow-2xl border border-slate-800">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-12">
+  <!-- Container Utama: Menggunakan Background Wine Fermentasi Gelap (bg-[#2a0812]) dan Border Maroon (border-[#4a0d1d]) -->
+  <div class="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#2e0914] via-[#1a040b] to-[#0f0207] text-white shadow-2xl shadow-rose-950/40 border border-[#4a0d1d]">
 
-    <!-- Background Glow Effects -->
+    <!-- Background Glow Effects Nuansa Wine & Amber -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-      <div class="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-rose-700/25 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl"></div>
     </div>
 
     <!-- Slider Wrapper -->
-    <div id="hero-slider" class="flex transition-transform duration-700 ease-in-out relative z-10">
+    <div id="hero-slider" class="flex transition-transform duration-700 ease-in-out relative z-10 items-stretch">
 
       <!-- Slide 1: Welcome Banner -->
-      <div class="min-w-full flex flex-col md:flex-row items-center justify-between p-8 md:p-16">
-        <div class="space-y-6 max-w-xl">
-          <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md text-amber-300 border border-white/10 rounded-full text-xs font-semibold uppercase tracking-widest">
+      <div class="min-w-full flex flex-col md:flex-row items-center justify-between p-6 sm:p-8 md:p-16">
+        <div class="space-y-4 md:space-y-6 max-w-xl text-center md:text-left">
+          <span class="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-rose-500/20 backdrop-blur-md text-amber-300 border border-rose-400/30 rounded-full text-[10px] md:text-xs font-semibold uppercase tracking-widest">
             ⚡ Delivery 1 Jam • Ready to Serve
           </span>
-          <h1 class="text-4xl md:text-6xl font-serif leading-tight">
-            Kawani Momen <br>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 italic">Sempurna Anda.</span>
+          <h1 class="text-3xl sm:text-4xl md:text-6xl font-serif leading-tight">
+            Kawani Momen <br class="hidden sm:inline">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-500 italic">Sempurna Anda.</span>
           </h1>
-          <p class="text-slate-300 text-sm md:text-base font-light leading-relaxed">
+          <p class="text-rose-100/80 text-xs sm:text-sm md:text-base font-light leading-relaxed">
             Koleksi premium Whiskey, Fine Wine, dan Craft Beer 100% Original. Dikirim langsung ke depan pintu Anda dengan suhu yang terjaga.
           </p>
-          <div class="flex items-center gap-4 pt-4">
-            <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-8 py-3.5 rounded-full text-sm transition-all shadow-lg shadow-amber-500/30">
+          <div class="flex items-center justify-center md:justify-start gap-4 pt-2 md:pt-4">
+            <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3 md:px-8 md:py-3.5 rounded-full text-xs md:text-sm transition-all shadow-lg shadow-amber-500/25">
               Eksplorasi Sekarang
             </a>
           </div>
         </div>
-        <div class="w-full md:w-1/2 flex justify-center p-8 md:p-0 relative mt-8 md:mt-0">
+
+        <div class="w-full md:w-1/2 flex justify-center p-4 md:p-0 relative mt-6 md:mt-0">
           <img src="https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=600&q=80"
-            alt="Promo Beverage" class="w-64 md:w-80 h-[320px] md:h-[400px] object-cover rounded-full shadow-2xl border-4 border-white/10 animate-float-slow">
-          <div class="absolute bottom-12 -left-4 md:left-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl animate-float-fast shadow-xl">
-            <p class="text-amber-400 font-bold text-lg">100% Original</p>
-            <p class="text-xs text-slate-200">Garansi Distributor Resmi</p>
+            alt="Promo Beverage" class="w-48 sm:w-64 md:w-80 h-[240px] sm:h-[320px] md:h-[400px] object-cover rounded-full shadow-2xl border-4 border-rose-300/20 animate-float-slow">
+          <div class="absolute bottom-6 -left-2 md:bottom-12 md:left-8 bg-[#2a0812]/80 backdrop-blur-md border border-rose-500/30 p-2.5 sm:p-4 rounded-2xl animate-float-fast shadow-xl">
+            <p class="text-amber-400 font-bold text-xs sm:text-lg">100% Original</p>
+            <p class="text-[10px] sm:text-xs text-rose-100/90">Garansi Distributor Resmi</p>
           </div>
         </div>
       </div>
 
       <!-- Slide 2: Voucher / Promo Banner -->
-      <div class="min-w-full relative h-[380px] md:h-[480px] flex items-center justify-center overflow-hidden">
+      <div class="min-w-full relative flex flex-col justify-start sm:justify-end overflow-hidden">
+        <!-- Background Image -->
         <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80"
-          alt="Voucher Promo" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-14">
-          <span class="px-3 py-1 bg-rose-500 text-white font-bold rounded-full text-[10px] uppercase tracking-widest w-max mb-2">
+          alt="Voucher Promo" class="absolute inset-0 w-full h-full object-cover">
+
+        <!-- Gradient Overlay dengan Perpaduan Tone Wine (#21050d) -->
+        <div class="relative z-10 bg-gradient-to-b from-[#21050d]/95 via-[#21050d]/65 to-transparent sm:bg-gradient-to-t sm:from-[#21050d]/95 sm:via-[#21050d]/55 sm:to-transparent p-6 sm:p-8 md:p-14 flex flex-col justify-start sm:justify-end h-full">
+
+          <span class="px-3 py-1 bg-rose-600 text-white font-bold rounded-full text-[10px] uppercase tracking-widest w-max mb-2 shadow-md">
             Voucher Diskon Spesial
           </span>
+
           @if(!empty($vouchers) && count($vouchers) > 0)
           <h2 class="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
             Gunakan Kode: <span class="text-amber-400 font-mono">{{ $vouchers[0]['code'] ?? 'KT21PLUS' }}</span>
           </h2>
-          <p class="text-xs md:text-sm text-slate-200 max-w-lg mb-4">
+          <p class="text-xs md:text-sm text-rose-100/90 max-w-lg mb-4">
             Diskon Rp {{ number_format($vouchers[0]['discount_value'] ?? 20000, 0, ',', '.') }} untuk minimal belanja Rp {{ number_format($vouchers[0]['min_order_amount'] ?? 100000, 0, ',', '.') }}.
           </p>
           @else
           <h2 class="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
             Pesta Hemat Bersama Kawan Tuang
           </h2>
-          <p class="text-xs md:text-sm text-slate-200 max-w-lg mb-4">Nikmati potongan harga eksklusif untuk pesanan pilihan minggu ini.</p>
+          <p class="text-xs md:text-sm text-rose-100/90 max-w-lg mb-4">
+            Nikmati potongan harga eksklusif untuk pesanan pilihan minggu ini.
+          </p>
           @endif
-          <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-2.5 rounded-full text-xs w-max transition-colors">
+
+          <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-2.5 rounded-full text-xs w-max transition-colors shadow-lg shadow-amber-500/20">
             Gunakan Voucher
           </a>
         </div>
@@ -75,47 +85,58 @@
     </div>
 
     <!-- Slider Navigation Buttons -->
-    <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-amber-500 text-white flex items-center justify-center transition-colors z-20">
-      <i class="fa-solid fa-chevron-left"></i>
+    <!-- Button Previous (Left Box) -->
+    <button onclick="prevSlide()" class="absolute left-2.5 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center transition-all duration-300 shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 z-20 group">
+      <i class="fa-solid fa-angle-left font-bold text-xs sm:text-base group-hover:-translate-x-0.5 transition-transform"></i>
     </button>
-    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-amber-500 text-white flex items-center justify-center transition-colors z-20">
-      <i class="fa-solid fa-chevron-right"></i>
+
+    <!-- Button Next (Right Box) -->
+    <button onclick="nextSlide()" class="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center transition-all duration-300 shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 z-20 group">
+      <i class="fa-solid fa-angle-right font-bold text-xs sm:text-base group-hover:translate-x-0.5 transition-transform"></i>
     </button>
 
   </div>
 </section>
 
 <!-- ================= 2. EVENT LIGHT PROMO / BEST DEAL ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-6 md:p-8 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-    <div class="space-y-2 text-center md:text-left">
-      <span class="bg-slate-950 text-amber-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+  <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-5 sm:p-6 md:p-8 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-xl">
+
+    <div class="space-y-1.5 text-center md:text-left w-full md:w-auto">
+      <span class="bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
         🔥 Best Deal Hari Ini
       </span>
-      <h2 class="text-2xl md:text-3xl font-serif font-bold">Lagi Cari yang Segar dengan Harga Spesial?</h2>
-      <p class="text-xs md:text-sm text-slate-900 font-medium">Jangan sampai kelewatan potongan harga khusus untuk varian pilihan minggu ini!</p>
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-serif font-bold leading-tight">Lagi Cari yang Segar dengan Harga Spesial?</h2>
+      <p class="text-xs sm:text-sm text-slate-900 font-medium">Jangan sampai kelewatan potongan harga khusus minggu ini!</p>
     </div>
-    <div class="flex items-center gap-4">
-      <div class="bg-slate-950 text-white px-4 py-3 rounded-2xl text-center">
-        <span class="block text-xs text-amber-400 font-bold uppercase">Berakhir dalam</span>
-        <span id="countdown" class="font-mono text-lg font-bold">04 : 32 : 18</span>
+
+    <!-- Disesuaikan Layout Jam & Tombol Agar Kompak di Mobile -->
+    <div class="flex flex-row items-center justify-between sm:justify-end gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t border-slate-950/10 md:border-t-0">
+      <div class="bg-slate-950 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-center shrink-0">
+        <span class="block text-[9px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider">Berakhir Dalam</span>
+        <span id="countdown" class="font-mono text-sm sm:text-base font-bold text-white">04 : 32 : 18</span>
       </div>
-      <a href="{{ route('catalog.index') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors whitespace-nowrap shadow-md">
-        Sikat Sekarang <i class="fa-solid fa-arrow-right ms-1"></i>
+      <a href="{{ route('catalog.index') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold px-4 py-3 sm:px-6 sm:py-3.5 rounded-2xl text-xs sm:text-sm transition-colors whitespace-nowrap shadow-md flex items-center justify-center gap-2 flex-1 sm:flex-initial">
+        <span>Sikat Sekarang</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
       </a>
     </div>
+
   </div>
 </section>
 
 <!-- ================= 3. PILIH SELERA ANDA (Category) ================= -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  <div class="flex items-end justify-between mb-6">
+  <div class="flex items-center justify-between mb-4 sm:mb-6">
     <div>
-      <h2 class="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">Mau Teman Minum yang Mana Nih?</h2>
-      <p class="text-xs sm:text-sm text-slate-500 mt-1">Pilih kategori favorit yang pas buat nemenin santai kamu.</p>
+      <h2 class="text-lg sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">Mau Teman Minum yang Mana Nih?</h2>
+      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Pilih kategori favorit yang pas buat nemenin santai kamu.</p>
     </div>
-    <a href="{{ route('catalog.index') }}" class="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-medium hover:underline flex items-center gap-1 flex-shrink-0">
-      Lihat Semua <i class="fa-solid fa-arrow-right text-xs"></i>
+
+    <!-- Perbarui Tampilan 'Lihat Semua' -->
+    <a href="{{ route('catalog.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-amber-500/20 transition-all shrink-0">
+      <span>Lihat Semua</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
   </div>
 
@@ -315,66 +336,15 @@
 </section>
 
 <!-- ================= 7. KOLEKSI TERFAVORIT (Product) ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8">
-    <h2 class="text-3xl font-serif font-bold text-slate-900 dark:text-white">Paling Sering Diburu Sobat KT</h2>
-    <p class="text-sm text-slate-500 mt-1">Nih rekomendasi botol paling juara yang lagi hits minggu ini.</p>
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <div class="mb-6 sm:mb-8">
+    <h2 class="text-xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white">Paling Sering Diburu Sobat KT</h2>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1">Nih rekomendasi botol paling juara yang lagi hits minggu ini.</p>
   </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
     @forelse($products as $product)
-    <div class="group cursor-pointer">
-      <div class="relative aspect-[4/5] rounded-3xl overflow-hidden bg-white border border-slate-100 dark:border-slate-800 dark:bg-slate-900 mb-4 shadow-sm">
-        @php
-        $imgUrl = $product['primary_image']['image_url'] ?? $product['images'][0]['image_url'] ?? 'https://images.unsplash.com/photo-1614316650630-f2030d9980c6?auto=format&fit=crop&w=400&q=80';
-        @endphp
-
-        <img src="{{ $imgUrl }}" alt="{{ $product['name'] }}" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500">
-
-        @if(!empty($product['is_cold_ready']))
-        <div class="absolute top-3 left-3 bg-indigo-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10 shadow-sm">
-          🧊 COLD READY
-        </div>
-        @endif
-
-        <form action="{{ route('cart.store') }}" method="POST" class="absolute bottom-3 right-3 z-20">
-          @csrf
-          <input type="hidden" name="product_id" value="{{ $product['id'] }}">
-          <input type="hidden" name="quantity" value="1">
-          <button type="submit" class="w-10 h-10 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg hover:bg-amber-400 transition-colors">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-        </form>
-
-        <a href="{{ route('catalog.show', $product['slug']) }}" class="absolute inset-0 z-10"></a>
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] uppercase font-semibold text-amber-600 dark:text-amber-400 tracking-wider">
-            {{ $product['category']['name'] ?? 'Minuman' }}
-          </span>
-          <span class="text-[10px] text-slate-400 font-medium">{{ $product['abv'] ?? 0 }}% ABV</span>
-        </div>
-
-        <a href="{{ route('catalog.show', $product['slug']) }}" class="block">
-          <h3 class="text-base font-serif font-bold text-slate-900 dark:text-white mt-1 group-hover:text-amber-500 transition-colors line-clamp-1">
-            {{ $product['name'] }} @if(!empty($product['volume_ml'])) ({{ $product['volume_ml'] }}ml) @endif
-          </h3>
-        </a>
-
-        <div class="flex items-center gap-2 my-1">
-          <p class="text-sm font-bold text-slate-900 dark:text-white">
-            Rp {{ number_format($product['price'], 0, ',', '.') }}
-          </p>
-          @if(!empty($product['strike_price']) && $product['strike_price'] > $product['price'])
-          <span class="text-xs text-slate-400 line-through">
-            Rp {{ number_format($product['strike_price'], 0, ',', '.') }}
-          </span>
-          @endif
-        </div>
-      </div>
-    </div>
+    <x-product-card :product="$product" />
     @empty
     <div class="col-span-full py-12 text-center text-slate-400 text-sm">
       Belum ada produk yang tersedia saat ini.
@@ -539,22 +509,28 @@
 </section>
 
 @endsection
-
 @push('scripts')
 <script>
-  // Otomatis scroll ke posisi kartu tengah saat halaman dimuat
-  document.addEventListener('DOMContentLoaded', function() {
-    const targetCard = document.getElementById('review-card-2');
-    if (targetCard) {
-      targetCard.scrollIntoView({
-        behavior: 'auto',
-        inline: 'center',
-        block: 'nearest'
-      });
-    }
+  // Force browser untuk selalu scroll ke paling atas saat pertama kali load / refresh
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  window.addEventListener('beforeunload', function() {
+    window.scrollTo(0, 0);
   });
-</script>
-<script>
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Memastikan posisi scroll langsung ke koordinat (0, 0)
+    setTimeout(function() {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+    }, 10);
+  });
+
   // Hero Slider Specific Logic
   let currentSlide = 0;
   const heroSlider = document.getElementById('hero-slider');

@@ -185,13 +185,37 @@
 
                 <!-- Pembayaran Aman -->
                 <div class="border-t sm:border-0 border-slate-100 dark:border-slate-800/60 pt-4 sm:pt-0">
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Pembayaran</h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 md:mb-4 leading-relaxed">
-                        Transaksi terenkripsi aman didukung penuh oleh Midtrans.
+                    <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-4 uppercase tracking-wider">Pembayaran Aman</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                        Transaksi terenkripsi aman didukung penuh dengan Payment Gateway.
                     </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-[11px] font-bold text-indigo-700 dark:text-indigo-400">VISA</span>
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-[11px] font-bold text-teal-600 dark:text-teal-400">QRIS</span>
+
+                    <!-- Group Badges Metode Pembayaran -->
+                    <div class="flex flex-wrap gap-1.5">
+                        <!-- Credit / Debit Cards -->
+                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400" title="Visa, MasterCard, JCB, Amex">
+                            VISA / MC
+                        </span>
+
+                        <!-- QRIS & E-Wallets -->
+                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-red-600 dark:text-red-400" title="QRIS, GoPay, ShopeePay, Dana, OVO">
+                            QRIS & E-Wallet
+                        </span>
+
+                        <!-- Virtual Accounts / Bank Transfer -->
+                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400" title="BCA, Mandiri, BNI, BRI, Permata, ATM Bersama">
+                            Virtual Account
+                        </span>
+
+                        <!-- Convenience Store -->
+                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400" title="Indomaret, Alfamart">
+                            Gerai Retail
+                        </span>
+
+                        <!-- PayLater / Cardless Credit -->
+                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="Akulaku, Kredivo">
+                            PayLater
+                        </span>
                     </div>
                 </div>
 
@@ -236,7 +260,19 @@
 
         </div>
     </nav>
+    <!-- FLOATING WHATSAPP CUSTOMER SERVICE (HIDDEN ON MOBILE CART / FLEX ON DESKTOP) -->
+    <a href="https://wa.me/6289681676100?text=Halo%20Kawan%20Tuang,%20saya%20ingin%20tanya%20produk%20dan%20layanan"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="{{ request()->routeIs('cart.*') ? 'hidden md:flex' : 'flex' }} fixed bottom-20 md:bottom-8 right-4 sm:right-6 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white items-center justify-center shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 group"
+        title="Hubungi CS Kawan Tuang">
 
+        <!-- Efek Ring Pulsing Gelombang di Belakang Tombol -->
+        <span class="absolute -inset-1 rounded-full bg-emerald-500/40 animate-ping pointer-events-none"></span>
+
+        <!-- Icon WhatsApp -->
+        <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
+    </a>
 
     <!-- JAVASCRIPT GLOBAL LOGIC -->
     <script>

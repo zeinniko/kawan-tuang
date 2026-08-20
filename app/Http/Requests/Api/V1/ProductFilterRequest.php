@@ -14,14 +14,20 @@ class ProductFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'category_slug' => ['sometimes', 'nullable', 'string'],
-            'brand_slug' => ['sometimes', 'nullable', 'string'],
-            'vibe_slug' => ['sometimes', 'nullable', 'string'],
-            'min_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'max_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'sort_by' => ['sometimes', 'string', 'in:latest,price_asc,price_desc,popular'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:50'],
+            'search'        => ['nullable', 'string', 'max:255'],
+            'category'      => ['nullable', 'string'],
+            'category_slug' => ['nullable', 'string'],
+            'brand'         => ['nullable', 'string'],
+            'brand_slug'    => ['nullable', 'string'],
+            'vibe'          => ['nullable', 'string'],
+            'vibe_slug'     => ['nullable', 'string'],
+            'min_price'     => ['nullable', 'numeric', 'min:0'],
+            'max_price'     => ['nullable', 'numeric', 'min:0'],
+            'min_abv'       => ['nullable', 'numeric', 'min:0'],
+            'max_abv'       => ['nullable', 'numeric', 'min:0'],
+            'sort_by'       => ['nullable', 'string', 'in:latest,price_asc,price_desc,popular'],
+            'page'          => ['nullable', 'integer', 'min:1'],
+            'per_page'      => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 }
