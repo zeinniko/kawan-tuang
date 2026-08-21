@@ -136,14 +136,13 @@ class OrderService
             foreach ($cart->items as $item) {
                 $unitPrice = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
                 $qty = (int) $item->quantity;
-
+            
                 $order->items()->create([
-                    'product_id'   => $item->product_id,
-                    'product_name' => optional($item->product)->name ?? 'Produk',
-                    'product_sku'  => optional($item->product)->sku ?? '-',
-                    'unit_price'   => $unitPrice,
-                    'quantity'     => $qty,
-                    'subtotal'     => $qty * $unitPrice,
+                    'product_id'            => $item->product_id,
+                    'product_name_snapshot' => optional($item->product)->name ?? 'Produk',
+                    'unit_price'            => $unitPrice,
+                    'quantity'               => $qty,
+                    'subtotal_price'        => $qty * $unitPrice,
                 ]);
             }
 

@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Order extends Model
 {
     use HasUuids;
-// Status Constants
-public const STATUS_PENDING_PAYMENT = 'pending_payment';
-public const STATUS_PAID            = 'paid';
-public const STATUS_PROCESSING      = 'processing';
-public const STATUS_DELIVERING      = 'delivering';
-public const STATUS_COMPLETED       = 'completed';
-public const STATUS_CANCELLED       = 'cancelled';
+    // Status Constants
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+    public const STATUS_PAID            = 'paid';
+    public const STATUS_PROCESSING      = 'processing';
+    public const STATUS_DELIVERING      = 'delivering';
+    public const STATUS_COMPLETED       = 'completed';
+    public const STATUS_CANCELLED       = 'cancelled';
     protected $fillable = [
         'order_number',
         'user_id',
