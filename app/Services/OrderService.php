@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,7 @@ class OrderService
         });
 
         $discountAmount = 0;
+        $voucherId = null;
 
         if (! empty($data['voucher_code'])) {
             $voucher = Voucher::where('code', $data['voucher_code'])->first();
@@ -45,6 +47,7 @@ class OrderService
                 $minOrder = (float) ($voucher->min_order_amount ?? $voucher->min_spend ?? 0);
 
                 if ($itemsSubtotal >= $minOrder) {
+                    $voucherId = $voucher->id;
                     $discountVal = (float) $voucher->discount_value;
                     $maxDiscount = (float) ($voucher->max_discount_amount ?? $voucher->max_discount ?? 0);
 
@@ -60,15 +63,19 @@ class OrderService
             }
         }
 
-        $shippingCost = (float) ($data['shipping_cost'] ?? 15000);
-        $grandTotal = max(0, ($itemsSubtotal - $discountAmount)) + $shippingCost;
+        $fulfillmentType = $data['fulfillment_type'] ?? 'delivery';
+        $deliveryFee = $fulfillmentType === 'pickup' ? 0 : (float) ($data['delivery_fee'] ?? $data['shipping_cost'] ?? 15000);
+        $adminFee = (float) ($data['admin_fee'] ?? 0);
+        $totalAmount = max(0, ($itemsSubtotal - $discountAmount)) + $deliveryFee + $adminFee;
 
         return [
-            'items_subtotal' => (float) $itemsSubtotal,
+            'subtotal'        => (float) $itemsSubtotal,
             'discount_amount' => (float) $discountAmount,
-            'shipping_cost' => (float) $shippingCost,
-            'grand_total' => (float) $grandTotal,
-            'total_items' => $cart->items->sum('quantity'),
+            'delivery_fee'    => (float) $deliveryFee,
+            'admin_fee'       => (float) $adminFee,
+            'total_amount'    => (float) $totalAmount,
+            'voucher_id'      => $voucherId,
+            'total_items'     => $cart->items->sum('quantity'),
         ];
     }
 
@@ -91,22 +98,39 @@ class OrderService
         return DB::transaction(function () use ($user, $cart, $data) {
             $preview = $this->previewCheckout($user, $data);
 
+            // Ambil snapshot alamat jika memilih opsi delivery
+            $addressSnapshot = null;
+            if (! empty($data['user_address_id'])) {
+                $address = UserAddress::find($data['user_address_id']);
+                if ($address) {
+                    $addressSnapshot = [
+                        'recipient_name'  => $address->recipient_name ?? $address->receiver_name,
+                        'recipient_phone' => $address->recipient_phone ?? $address->receiver_phone,
+                        'full_address'    => $address->full_address,
+                        'postal_code'     => $address->postal_code,
+                        'latitude'        => $address->latitude,
+                        'longitude'       => $address->longitude,
+                        'notes'           => $address->notes,
+                    ];
+                }
+            }
+
+            $fulfillmentType = $data['fulfillment_type'] ?? 'delivery';
+
             $order = Order::create([
-                'order_number' => 'TT-' . strtoupper(Str::random(4)) . '-' . date('YmdHis'),
-                'user_id' => $user->id,
-                'store_id' => $data['store_id'],
-                'user_address_id' => $data['user_address_id'],
-                'status' => 'pending',
-                'payment_status' => 'unpaid',
-                'shipping_status' => 'pending',
-                'total_items_price' => $preview['items_subtotal'],
-                'discount_amount' => $preview['discount_amount'],
-                'shipping_cost' => $preview['shipping_cost'],
-                'grand_total' => $preview['grand_total'],
-                'courier_company' => $data['courier_company'],
-                'courier_type' => $data['courier_type'],
-                'payment_method' => $data['payment_method'],
-                'notes' => $data['notes'] ?? null,
+                'order_number'     => 'TT-' . strtoupper(Str::random(4)) . '-' . date('YmdHis'),
+                'user_id'          => $user->id,
+                'store_id'         => $data['store_id'],
+                'voucher_id'       => $preview['voucher_id'],
+                'fulfillment_type' => $fulfillmentType,
+                'pickup_code'      => $fulfillmentType === 'pickup' ? strtoupper(Str::random(6)) : null,
+                'subtotal'         => $preview['subtotal'],
+                'discount_amount'  => $preview['discount_amount'],
+                'delivery_fee'     => $preview['delivery_fee'],
+                'admin_fee'        => $preview['admin_fee'],
+                'total_amount'     => $preview['total_amount'],
+                'status'           => 'pending',
+                'address_snapshot' => $addressSnapshot,
             ]);
 
             foreach ($cart->items as $item) {
@@ -114,12 +138,12 @@ class OrderService
                 $qty = (int) $item->quantity;
 
                 $order->items()->create([
-                    'product_id' => $item->product_id,
+                    'product_id'   => $item->product_id,
                     'product_name' => optional($item->product)->name ?? 'Produk',
-                    'product_sku' => optional($item->product)->sku ?? '-',
-                    'unit_price' => $unitPrice,
-                    'quantity' => $qty,
-                    'subtotal' => $qty * $unitPrice,
+                    'product_sku'  => optional($item->product)->sku ?? '-',
+                    'unit_price'   => $unitPrice,
+                    'quantity'     => $qty,
+                    'subtotal'     => $qty * $unitPrice,
                 ]);
             }
 
@@ -133,13 +157,13 @@ class OrderService
 
             $cart->items()->delete();
 
-            return $order->load(['store', 'address', 'items']);
+            return $order->load(['store', 'items', 'voucher']);
         });
     }
 
     public function getUserOrders(User $user, ?string $status = null): Collection
     {
-        $query = $user->orders()->with(['store', 'address', 'items'])->latest();
+        $query = $user->orders()->with(['store', 'items', 'payment', 'delivery'])->latest();
 
         if ($status) {
             $query->where('status', $status);
@@ -154,15 +178,14 @@ class OrderService
             throw ValidationException::withMessages(['order' => ['Akses ditolak.']]);
         }
 
-        if ($order->status !== 'pending' || $order->payment_status === 'paid') {
+        if ($order->status !== 'pending') {
             throw ValidationException::withMessages([
-                'order' => ['Pesanan yang sudah dibayar atau dalam proses pengiriman tidak dapat dibatalkan.'],
+                'order' => ['Pesanan yang sudah diproses atau dibayar tidak dapat dibatalkan.'],
             ]);
         }
 
         $order->update([
             'status' => 'cancelled',
-            'payment_status' => 'cancelled',
         ]);
 
         return $order;
