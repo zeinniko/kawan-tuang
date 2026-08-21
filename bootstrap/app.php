@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/v1/webhooks/*',
         ]);
+
+        $middleware->append(\App\Http\Middleware\AllowMidtransCsp::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

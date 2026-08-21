@@ -4,6 +4,7 @@
 
 @push('styles')
 <script
+  nonce="{{ csp_nonce() }}"
   src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
   data-client-key="{{ config('services.midtrans.client_key') }}">
 </script>
@@ -851,8 +852,13 @@
       .then(data => {
         btn.disabled = false;
         btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
-
+        const snapToken = data.snap_token || data.data?.snap_token;
+        const orderId = data.order_id || data.data?.order_id || data.order?.id;
         if (data.snap_token) {
+          if (typeof window.snap === 'undefined') {
+            alert("SDK Midtrans Snap belum dimuat dengan sempurna. Harap refresh halaman.");
+            return;
+          }
           window.snap.pay(data.snap_token, {
             onSuccess: function(result) {
               window.location.href = "/orders/" + (data.order_id || data.order?.id);
@@ -874,7 +880,8 @@
       .catch(err => {
         btn.disabled = false;
         btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
-        console.error(err);
+        console.error('Checkout error:', err);
+        alert("Terjadi kesalahan koneksi saat memproses pesanan.");
       });
   }
 </script>
