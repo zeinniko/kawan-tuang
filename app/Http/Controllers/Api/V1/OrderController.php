@@ -62,15 +62,21 @@ class OrderController extends Controller
         ], 201);
     }
 
-
-    public function show(Request $request, Order $order): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        if ($order->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Akses ditolak.'], 403);
+        $order = Order::with(['store', 'address', 'items.product'])
+            ->where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+    
+        if (! $order) {
+            return response()->json([
+                'message' => 'Pesanan tidak ditemukan atau akses ditolak.',
+            ], 404);
         }
-
+    
         return response()->json([
-            'data' => new OrderResource($order->load(['store', 'address', 'items'])),
+            'data' => new OrderResource($order),
         ]);
     }
 

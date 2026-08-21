@@ -54,6 +54,11 @@ class Order extends Model
         return $this->belongsTo(Store::class);
     }
 
+    public function address()
+    {
+        return $this->belongsTo(UserAddress::class, 'user_address_id');
+    }
+
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);

@@ -24,9 +24,9 @@ class OrderController extends Controller
     public function show($id): View
     {
         $orderResponse = InternalApiService::get("orders/{$id}");
-
+        $orderData = $orderResponse['data'] ?? (isset($orderResponse['id']) ? $orderResponse : null);
         return view('marketplace.orders-detail', [
-            'order' => $orderResponse['data'] ?? null,
+            'order' => $orderData,
         ]);
     }
 
@@ -53,14 +53,23 @@ class OrderController extends Controller
 
         $orderId = $checkoutResponse['data']['id'];
 
+        if (! $orderId) {
+            return response()->json([
+                'message' => 'Gagal mendapatkan ID Pesanan dari kalkulasi checkout.',
+            ], 422);
+        }
+        $request->merge(['order_id' => $orderId]);
         // Ambil Snap Token
-        $paymentResponse = InternalApiService::post('payments/snap-token', [
-            'order_id' => $orderId,
-        ]);
+        $paymentResponse = InternalApiService::post('payments/snap-token');
 
-        $snapToken = $paymentResponse['data']['snap_token'] 
-            ?? $paymentResponse['snap_token'] 
-            ?? null;
+        if (isset($paymentResponse['errors']) || empty($paymentResponse['data']['snap_token'])) {
+            return response()->json([
+                'message' => $paymentResponse['message'] ?? 'Gagal menerbitkan token pembayaran.',
+                'errors'  => $paymentResponse['errors'] ?? null,
+            ], 422);
+        }
+
+        $snapToken = $paymentResponse['data']['snap_token'];
 
         return response()->json([
             'status'     => 'success',

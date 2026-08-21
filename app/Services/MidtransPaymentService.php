@@ -23,7 +23,6 @@ class MidtransPaymentService
 
     public function createSnapToken(Order $order): array
     {
-        // Gunakan total_amount, bukan grand_total
         $grossAmount = (int) round($order->total_amount);
 
         $params = [

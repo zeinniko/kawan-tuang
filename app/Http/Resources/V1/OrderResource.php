@@ -12,13 +12,13 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'order_number' => $this->order_number,
-            'status' => $this->status, // pending, paid, processing, shipping, completed, cancelled
-            'payment_status' => $this->payment_status, // unpaid, paid, expired, refunded
+            'status' => $this->status,
+            'payment_status' => $this->payment_status,
             'shipping_status' => $this->shipping_status,
             'total_items_price' => (float) $this->total_items_price,
             'shipping_cost' => (float) $this->shipping_cost,
             'discount_amount' => (float) $this->discount_amount,
-            'grand_total' => (float) $this->grand_total,
+            'total_amount' => (float) $this->total_amount,
             'courier_company' => $this->courier_company,
             'courier_type' => $this->courier_type,
             'waybill_number' => $this->waybill_number,
