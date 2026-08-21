@@ -129,7 +129,7 @@ class OrderService
                 'delivery_fee'     => $preview['delivery_fee'],
                 'admin_fee'        => $preview['admin_fee'],
                 'total_amount'     => $preview['total_amount'],
-                'status'           => 'pending',
+                'status'           => Order::STATUS_PENDING_PAYMENT,
                 'address_snapshot' => $addressSnapshot,
             ]);
 
@@ -178,14 +178,14 @@ class OrderService
             throw ValidationException::withMessages(['order' => ['Akses ditolak.']]);
         }
 
-        if ($order->status !== 'pending') {
+        if ($order->status !== Order::STATUS_PENDING_PAYMENT) {
             throw ValidationException::withMessages([
                 'order' => ['Pesanan yang sudah diproses atau dibayar tidak dapat dibatalkan.'],
             ]);
         }
 
         $order->update([
-            'status' => 'cancelled',
+            'status' => Order::STATUS_CANCELLED,
         ]);
 
         return $order;
