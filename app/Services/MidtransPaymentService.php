@@ -14,8 +14,8 @@ class MidtransPaymentService
 
     public function __construct()
     {
-        $this->serverKey = config('services.midtrans.server_key');
-        $this->isProduction = config('services.midtrans.is_production', false);
+        $this->serverKey = config('services.midtrans.server_key', '');
+        $this->isProduction = (bool) config('services.midtrans.is_production', false);
         $this->snapUrl = $this->isProduction
             ? 'https://app.midtrans.com/snap/v1/transactions'
             : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
@@ -23,18 +23,21 @@ class MidtransPaymentService
 
     public function createSnapToken(Order $order): array
     {
+        // Gunakan total_amount, bukan grand_total
+        $grossAmount = (int) round($order->total_amount);
+
         $params = [
             'transaction_details' => [
-                'order_id' => $order->order_number,
-                'gross_amount' => (int) round($order->grand_total),
+                'order_id'     => $order->order_number,
+                'gross_amount' => $grossAmount,
             ],
             'customer_details' => [
-                'first_name' => $order->user->full_name,
-                'email' => $order->user->email,
-                'phone' => $order->user->phone_number,
+                'first_name' => $order->user->full_name ?? $order->user->name ?? 'Customer',
+                'email'      => $order->user->email ?? '',
+                'phone'      => $order->user->phone_number ?? '',
             ],
             'callbacks' => [
-                'finish' => config('app.frontend_url', 'http://localhost:3000') . '/orders/' . $order->id,
+                'finish' => config('app.url', 'http://localhost:8000') . '/orders/' . $order->id,
             ],
         ];
 
@@ -49,26 +52,25 @@ class MidtransPaymentService
         $responseData = $response->json();
 
         return [
-            'order_id' => $order->id,
-            'snap_token' => $responseData['token'],
-            'redirect_url' => $responseData['redirect_url'],
+            'order_id'     => $order->id,
+            'snap_token'   => $responseData['token'] ?? null,
+            'redirect_url' => $responseData['redirect_url'] ?? null,
         ];
     }
 
     public function handleNotification(array $notification): void
     {
-        $orderNumber = $notification['order_id'] ?? null;
+        $orderNumber       = $notification['order_id'] ?? null;
         $transactionStatus = $notification['transaction_status'] ?? null;
-        $fraudStatus = $notification['fraud_status'] ?? null;
-        $signatureKey = $notification['signature_key'] ?? null;
-        $statusCode = $notification['status_code'] ?? null;
-        $grossAmount = $notification['gross_amount'] ?? null;
+        $fraudStatus       = $notification['fraud_status'] ?? null;
+        $signatureKey      = $notification['signature_key'] ?? null;
+        $statusCode        = $notification['status_code'] ?? null;
+        $grossAmount       = $notification['gross_amount'] ?? null;
 
         if (! $orderNumber) {
             return;
         }
 
-        // Verifikasi Signature Key untuk memastikan integritas data dari Midtrans
         $expectedSignature = hash('sha512', $orderNumber . $statusCode . $grossAmount . $this->serverKey);
         if ($signatureKey !== $expectedSignature) {
             throw new Exception('Integritas Signature Key Midtrans tidak valid.');
@@ -81,14 +83,14 @@ class MidtransPaymentService
 
         if ($transactionStatus === 'capture') {
             if ($fraudStatus === 'accept') {
-                $order->update(['payment_status' => 'paid', 'status' => 'processing']);
+                $order->update(['status' => Order::STATUS_PAID]);
             }
         } elseif ($transactionStatus === 'settlement') {
-            $order->update(['payment_status' => 'paid', 'status' => 'processing']);
+            $order->update(['status' => Order::STATUS_PAID]);
         } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-            $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+            $order->update(['status' => Order::STATUS_CANCELLED]);
         } elseif ($transactionStatus === 'pending') {
-            $order->update(['payment_status' => 'unpaid']);
+            $order->update(['status' => Order::STATUS_PENDING_PAYMENT]);
         }
     }
 }

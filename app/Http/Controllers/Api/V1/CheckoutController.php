@@ -22,7 +22,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'message' => 'Kalkulasi rincian checkout berhasil.',
-            'data' => $result,
+            'data'    => $result,
         ]);
     }
 
@@ -35,7 +35,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'message' => 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.',
-            'data' => new OrderResource($order),
+            'data'    => new OrderResource($order),
         ], 201);
     }
 }

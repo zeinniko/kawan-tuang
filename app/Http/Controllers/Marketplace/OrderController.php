@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Services\InternalApiService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $ordersResponse = InternalApiService::get('orders', [
-            'status' => $request->query('status', 'active'),
+            'status' => $request->query('status'),
         ]);
 
         return view('marketplace.orders', [
@@ -19,7 +21,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id): View
     {
         $orderResponse = InternalApiService::get("orders/{$id}");
 
@@ -28,30 +30,30 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // Teruskan seluruh payload request yang dibutuhkan oleh CheckoutProcessRequest
         $checkoutResponse = InternalApiService::post('checkout/process', [
             'fulfillment_type' => $request->input('fulfillment_type', 'delivery'),
             'shipping_cost'    => (float) $request->input('shipping_cost', 0),
             'store_id'         => (string) $request->input('store_id'),
             'user_address_id'  => (string) $request->input('user_address_id'),
-            'courier_company'  => $request->input('courier_company'),
-            'courier_type'     => $request->input('courier_type'),
-            'payment_method'   => $request->input('payment_method'),
+            'courier_company'  => $request->input('courier_company', 'gojek'),
+            'courier_type'     => $request->input('courier_type', 'instant'),
+            'payment_method'   => $request->input('payment_method', 'midtrans'),
             'voucher_code'     => $request->input('voucher_code'),
             'notes'            => $request->input('notes'),
         ]);
 
-        if (!isset($checkoutResponse['data']['id'])) {
+        if (isset($checkoutResponse['errors']) || empty($checkoutResponse['data']['id'])) {
             return response()->json([
                 'message' => $checkoutResponse['message'] ?? 'Gagal membuat pesanan.',
                 'errors'  => $checkoutResponse['errors'] ?? null,
-            ], 400);
+            ], 422);
         }
 
         $orderId = $checkoutResponse['data']['id'];
 
+        // Ambil Snap Token
         $paymentResponse = InternalApiService::post('payments/snap-token', [
             'order_id' => $orderId,
         ]);
@@ -61,9 +63,10 @@ class OrderController extends Controller
             ?? null;
 
         return response()->json([
+            'status'     => 'success',
             'order_id'   => $orderId,
             'snap_token' => $snapToken,
             'message'    => 'Pesanan berhasil dibuat.',
-        ]);
+        ], 201);
     }
 }
