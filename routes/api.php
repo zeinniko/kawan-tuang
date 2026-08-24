@@ -89,3 +89,4 @@ Route::prefix('v1')->group(function () {
 });
 
 Route::post('/v1/webhooks/notification', [WebhookController::class, 'handleMidtrans']);
+Route::post('/v1/webhooks/biteship', [WebhookController::class, 'handleBiteship']);

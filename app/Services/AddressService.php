@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AddressService
 {
@@ -34,6 +35,13 @@ class AddressService
         }
 
         $address->update($data);
+
+        if ($address->wasChanged(['latitude', 'longitude'])) {
+            DB::table('shipping_rate_caches')
+                ->where('user_address_id', $address->id)
+                ->delete();
+        }
+
         return $address;
     }
 

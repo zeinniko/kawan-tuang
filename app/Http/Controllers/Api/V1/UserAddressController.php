@@ -10,6 +10,7 @@ use App\Models\UserAddress;
 use App\Services\AddressService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserAddressController extends Controller
 {
@@ -53,17 +54,17 @@ class UserAddressController extends Controller
     public function update(UpdateAddressRequest $request, $address): JsonResponse
     {
         $addressModel = $address instanceof UserAddress ? $address : UserAddress::find($address);
-
+    
         if (!$addressModel || $addressModel->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
-
+    
         $updatedAddress = $this->addressService->updateAddress(
             $request->user(),
             $addressModel,
             $request->validated()
-        );
-
+        );    
+    
         return response()->json([
             'message' => 'Alamat pengiriman berhasil diperbarui.',
             'data' => new UserAddressResource($updatedAddress),

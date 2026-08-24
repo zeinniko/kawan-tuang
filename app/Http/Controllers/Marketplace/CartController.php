@@ -117,8 +117,8 @@ class CartController extends Controller
         ]);
 
         // Tentukan HTTP status code berdasarkan respon dari API
-        $isSuccess = isset($response['status']) 
-            ? $response['status'] === 'success' 
+        $isSuccess = isset($response['status'])
+            ? $response['status'] === 'success'
             : isset($response['data']);
 
         $statusCode = $isSuccess ? 200 : 400;
@@ -144,7 +144,32 @@ class CartController extends Controller
         $cartResponse = InternalApiService::get('cart');
         $items = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
         $totalQty = collect($items)->sum('quantity');
-        
+
         session(['cart_count' => $totalQty]);
+    }
+
+    /**
+     * Menerapkan perhitungan tarif pengiriman via InternalApiService
+     */
+    public function checkShippingRates(Request $request)
+    {
+        $request->validate([
+            'store_id'        => 'required|string',
+            'user_address_id' => 'required|string',
+            'items'           => 'required|array',
+            'items.*.product_id' => 'required|string',
+            'items.*.quantity'   => 'required|integer|min:1',
+        ]);
+
+        $response = InternalApiService::post('shipping/rates', [
+            'store_id'        => $request->store_id,
+            'user_address_id' => $request->user_address_id,
+            'items'           => $request->items,
+        ]);
+
+        $isSuccess = isset($response['data']) || (isset($response['message']) && str_contains(strtolower($response['message']), 'berhasil'));
+        $statusCode = $isSuccess ? 200 : 400;
+
+        return response()->json($response, $statusCode);
     }
 }

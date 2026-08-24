@@ -40,7 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/cart/voucher/apply', [CartController::class, 'applyVoucher'])->name('cart.voucher.apply');
-
+    Route::post('/cart/shipping-rates', [CartController::class, 'checkShippingRates'])->name('cart.shipping-rates');
+    
     // Orders Routes (Daftar & Tracking Pesanan) <-- TAMBAHKAN DI SINI
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');

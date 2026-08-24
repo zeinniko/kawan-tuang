@@ -17,7 +17,7 @@ class CheckShippingRateRequest extends FormRequest
             'store_id' => ['required', 'string', 'exists:stores,id'],
             'user_address_id' => ['required', 'string', 'exists:user_addresses,id'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'string', 'exists:products,id'],
+            'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ];
     }

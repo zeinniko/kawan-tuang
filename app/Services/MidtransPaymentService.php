@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\CreateBiteshipOrderJob;
 use App\Models\Order;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -83,6 +84,9 @@ class MidtransPaymentService
         if ($transactionStatus === 'capture') {
             if ($fraudStatus === 'accept') {
                 $order->update(['status' => Order::STATUS_PAID]);
+
+                // Dispatch job untuk auto request pickup Biteship
+                CreateBiteshipOrderJob::dispatch($order);
             }
         } elseif ($transactionStatus === 'settlement') {
             $order->update(['status' => Order::STATUS_PAID]);

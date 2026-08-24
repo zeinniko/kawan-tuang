@@ -22,10 +22,9 @@ class VoucherForm
                             ->label('Kode Voucher')
                             ->required()
                             ->maxLength(50)
-                            ->uppercase()
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                             ->unique(Voucher::class, 'code', ignoreRecord: true)
                             ->placeholder('Contoh: TEMAN21'),
-
                         Select::make('discount_type')
                             ->label('Tipe Diskon')
                             ->options([
@@ -39,7 +38,7 @@ class VoucherForm
                             ->label('Nilai Diskon')
                             ->numeric()
                             ->required()
-                            ->prefix(fn ($get) => $get('discount_type') === 'percentage' ? '%' : 'Rp')
+                            ->prefix(fn($get) => $get('discount_type') === 'percentage' ? '%' : 'Rp')
                             ->placeholder('25000 atau 10'),
 
                         TextInput::make('min_order_amount')

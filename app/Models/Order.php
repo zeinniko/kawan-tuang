@@ -33,6 +33,14 @@ class Order extends Model
         'total_amount',
         'status',
         'address_snapshot',
+        'biteship_order_id',
+        'courier_company',
+        'courier_type',
+        'waybill_number',
+        'driver_name',
+        'driver_phone',
+        'live_tracking_url',
+        'cancel_reason',
     ];
 
     protected $casts = [

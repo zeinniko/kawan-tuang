@@ -84,7 +84,7 @@
           $subtotal = (float) data_get($item, 'subtotal', $unitPrice * $qty);
           @endphp
 
-          <div class="py-4 flex gap-3 sm:gap-4 items-start sm:items-center cart-item-row" id="cart-item-{{ $itemId }}">
+          <div class="py-4 flex gap-3 sm:gap-4 items-start sm:items-center cart-item-row" id="cart-item-{{ $itemId }}" data-product-id="{{ data_get($item, 'product_id', data_get($item, 'product.id')) }}">
 
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
               <img src="{{ $prodImg }}" alt="{{ $prodName }}" class="w-full h-full object-cover">
@@ -212,47 +212,21 @@
 
       <!-- SECTION 5: OPSI EKSPEDISI (DELIVERY MODE) -->
       <div id="section-courier" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all">
-        <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-truck-fast text-amber-500"></i> Opsi Pengiriman
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-truck-fast text-amber-500"></i> Opsi Pengiriman
+          </h2>
+          <button type="button" onclick="fetchShippingRates()" class="text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right text-[10px]"></i> Hitung Ulang
+          </button>
+        </div>
 
-          <label class="relative flex flex-col justify-between p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/5 cursor-pointer courier-option transition-all" onclick="selectCourier(25000, 'Gojek Instant', event)">
-            <input type="radio" name="shipping" value="25000" checked class="hidden">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-900 dark:text-white">Gojek Instant</span>
-              <i class="fa-solid fa-circle-check text-amber-500 text-sm check-icon"></i>
-            </div>
-            <div class="mt-2">
-              <span class="text-xs font-extrabold text-amber-600 dark:text-amber-400 block courier-price">Rp 25.000</span>
-              <span class="text-[10px] text-slate-500">Estimasi 1 Jam Sampai</span>
-            </div>
-          </label>
-
-          <label class="relative flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-400 cursor-pointer courier-option transition-all" onclick="selectCourier(27000, 'GrabExpress', event)">
-            <input type="radio" name="shipping" value="27000" class="hidden">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-900 dark:text-white">GrabExpress</span>
-              <i class="fa-solid fa-circle-check text-amber-500 text-sm check-icon hidden"></i>
-            </div>
-            <div class="mt-2">
-              <span class="text-xs font-extrabold text-slate-900 dark:text-white block courier-price">Rp 27.000</span>
-              <span class="text-[10px] text-slate-500">Estimasi 1-2 Jam Sampai</span>
-            </div>
-          </label>
-
-          <label class="relative flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-400 cursor-pointer courier-option transition-all" onclick="selectCourier(35000, 'Paxel Cold Chain', event)">
-            <input type="radio" name="shipping" value="35000" class="hidden">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-900 dark:text-white">Paxel Cold</span>
-              <i class="fa-solid fa-circle-check text-amber-500 text-sm check-icon hidden"></i>
-            </div>
-            <div class="mt-2">
-              <span class="text-xs font-extrabold text-slate-900 dark:text-white block courier-price">Rp 35.000</span>
-              <span class="text-[10px] text-slate-500">Same Day Cooling Box</span>
-            </div>
-          </label>
-
+        <!-- Container Opsi Kurir Dinamis -->
+        <div id="courier-options-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div class="col-span-full py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-sm"></i>
+            <span>Menghitung tarif ongkos kirim real-time...</span>
+          </div>
         </div>
       </div>
 
@@ -429,6 +403,131 @@
 
 @push('scripts')
 <script>
+  let selectedCourierCompany = '';
+  let selectedCourierType = '';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchShippingRates();
+  });
+
+  // 1. Fungsi Mengambil Rate Ongkir dari API Biteship
+  function fetchShippingRates() {
+    const container = document.getElementById('courier-options-container');
+    if (!container) return;
+
+    const selectedAddressRadio = document.querySelector('input[name="selected_address_id"]:checked');
+    const addressId = selectedAddressRadio ? selectedAddressRadio.value : "{{ $primaryAddress['id'] ?? '' }}";
+
+    const selectedStoreRadio = document.querySelector('input[name="pickup_store_id"]:checked');
+    const storeId = selectedStoreRadio ? selectedStoreRadio.value : "{{ $stores[0]['id'] ?? '' }}";
+
+    if (!addressId || !storeId) {
+      container.innerHTML = `
+      <div class="col-span-full p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs text-center font-medium">
+        Pilih alamat pengiriman dan outlet toko terlebih dahulu untuk menghitung ongkir.
+      </div>`;
+      return;
+    }
+
+    // Kumpulkan item dari DOM/Cart
+    const items = [];
+    document.querySelectorAll('.cart-item-row').forEach(row => {
+      const productId = row.getAttribute('data-product-id'); // Mengambil Product ID yang valid
+      const itemId = row.id.replace('cart-item-', '');
+      const qty = parseInt(document.getElementById(`qty-${itemId}`)?.innerText || 1);
+
+      if (productId) {
+        items.push({
+          product_id: productId,
+          quantity: qty
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      container.innerHTML = `
+      <div class="col-span-full p-4 text-center text-xs text-slate-400">
+        Keranjang belanja Anda kosong.
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+    <div class="col-span-full py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+      <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-sm"></i>
+      <span>Menghitung tarif ongkos kirim real-time...</span>
+    </div>`;
+
+    fetch("{{ route('cart.shipping-rates') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          store_id: storeId,
+          user_address_id: addressId,
+          items: items
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        let rates = res.data || [];
+        if (rates.length === 0) {
+          container.innerHTML = `
+      <div class="col-span-full p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs text-center font-medium">
+        Layanan pengiriman tidak tersedia untuk jarak lokasi ini.
+      </div>`;
+          return;
+        }
+
+        // PASS 1: Urutkan tarif berdasarkan harga terendah ke tertinggi
+        rates.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+        let html = '';
+        rates.forEach((rate, index) => {
+          const isFirst = index === 0;
+          if (isFirst) {
+            currentShippingCost = parseFloat(rate.price);
+            selectedCourierCompany = rate.courier_code;
+            selectedCourierType = rate.courier_service_code;
+          }
+
+          const durationText = rate.estimated_days ? `Estimasi ${rate.estimated_days} ${rate.shipment_duration_unit}` : 'Pengiriman Instan/Reguler';
+
+          html += `
+      <label class="relative flex flex-col justify-between p-3.5 rounded-xl border ${isFirst ? 'border-2 border-amber-500 bg-amber-500/5' : 'border-slate-200 dark:border-slate-800 hover:border-amber-400'} cursor-pointer courier-option transition-all" 
+             onclick="selectCourier(${rate.price}, '${rate.courier_code}', '${rate.courier_service_code}', '${rate.courier_name} ${rate.service_name}', event)">
+        <input type="radio" name="shipping" value="${rate.price}" ${isFirst ? 'checked' : ''} class="hidden">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-900 dark:text-white">${rate.courier_name} (${rate.service_name})</span>
+          <i class="fa-solid fa-circle-check text-amber-500 text-sm check-icon ${isFirst ? '' : 'hidden'}"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-xs font-extrabold ${isFirst ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white'} block courier-price">Rp ${formatRupiah(rate.price)}</span>
+          <span class="text-[10px] text-slate-500">${durationText}</span>
+        </div>
+      </label>`;
+        });
+
+        container.innerHTML = html;
+
+        if (rates[0]) {
+          document.getElementById('summary-shipping-label').innerText = `Ongkos Kirim (${rates[0].courier_name} ${rates[0].service_name})`;
+          document.getElementById('summary-shipping-cost').innerText = formatRupiah(rates[0].price);
+        }
+        recalculateSummary();
+      })
+      .catch(err => {
+        console.error('Error fetching rates:', err);
+        container.innerHTML = `
+      <div class="col-span-full p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs text-center font-medium">
+        Gagal mengambil tarif pengiriman. Silakan coba klik 'Hitung Ulang'.
+      </div>`;
+      });
+  }
+
   let currentFulfillment = 'delivery';
   let currentShippingCost = 25000;
   let currentDiscount = 0;
@@ -515,6 +614,11 @@
     const content = document.getElementById('address-modal-content');
     content.classList.add('translate-y-full');
     modal.classList.add('opacity-0', 'pointer-events-none');
+
+    // Re-fetch rates saat alamat pengiriman diubah
+    if (currentFulfillment === 'delivery') {
+      fetchShippingRates();
+    }
   }
 
   function highlightAddressOption(selectedEl) {
@@ -535,9 +639,12 @@
   }
 
   // 3. Select Courier Option
-  function selectCourier(cost, name, evt) {
-    currentShippingCost = cost;
-    document.getElementById('summary-shipping-label').innerText = `Ongkos Kirim (${name})`;
+  function selectCourier(cost, courierCode, serviceCode, displayName, evt) {
+    currentShippingCost = parseFloat(cost);
+    selectedCourierCompany = courierCode;
+    selectedCourierType = serviceCode;
+
+    document.getElementById('summary-shipping-label').innerText = `Ongkos Kirim (${displayName})`;
     document.getElementById('summary-shipping-cost').innerText = formatRupiah(cost);
 
     document.querySelectorAll('.courier-option').forEach(el => {
@@ -603,13 +710,14 @@
     }).catch(err => console.error('Error clearing cart:', err));
   }
 
-  // 5. Update Qty
-  function updateQty(itemId, delta) {
+  // 5. Update Qty dengan Synchronous Lock (Await)
+  async function updateQty(itemId, delta) {
     const qtyElement = document.getElementById(`qty-${itemId}`);
     let currentQty = parseInt(qtyElement.innerText);
     let newQty = currentQty + delta;
     if (newQty < 1) return;
 
+    // Update tampilan lokal
     const unitPrice = parseFloat(qtyElement.getAttribute('data-unit-price'));
     qtyElement.innerText = newQty;
     const newSubtotal = unitPrice * newQty;
@@ -618,20 +726,31 @@
     subtotalEl.setAttribute('data-raw', newSubtotal);
 
     recalculateSummary();
-    if (activeVoucherCode) applyVoucher(true);
 
+    // Kirim update ke server dan TUNGGU (await) hingga DB ter-commit
     const updateUrl = "{{ route('cart.update', ':id') }}".replace(':id', itemId);
-    fetch(updateUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        quantity: newQty
-      })
-    }).catch(err => console.error('Error updating cart:', err));
+    try {
+      const response = await fetch(updateUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          quantity: newQty
+        })
+      });
+
+      if (response.ok) {
+        // Jika voucher aktif, kalkulasi ulang voucher setelah server terkonfirmasi update
+        if (activeVoucherCode) {
+          applyVoucher(true);
+        }
+      }
+    } catch (err) {
+      console.error('Error updating cart quantity on server:', err);
+    }
   }
 
   // 6. Remove Item
@@ -810,12 +929,10 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
 
-    // Store ID
     const selectedStoreRadio = document.querySelector('input[name="pickup_store_id"]:checked');
     const defaultStoreId = selectedStoreRadio ? selectedStoreRadio.value : "{{ $stores[0]['id'] ?? '' }}";
     const finalStoreId = currentFulfillment === 'pickup' ? selectedStoreRadio?.value : defaultStoreId;
 
-    // Address ID
     const selectedAddressRadio = document.querySelector('input[name="selected_address_id"]:checked');
     const defaultAddressId = selectedAddressRadio ? selectedAddressRadio.value : "{{ $primaryAddress['id'] ?? '' }}";
 
@@ -831,8 +948,8 @@
       shipping_cost: currentFulfillment === 'pickup' ? 0 : currentShippingCost,
       store_id: finalStoreId,
       user_address_id: defaultAddressId,
-      courier_company: 'gojek',
-      courier_type: 'instant',
+      courier_company: selectedCourierCompany || 'gojek',
+      courier_type: selectedCourierType || 'instant',
       payment_method: 'midtrans',
       voucher_code: activeVoucherCode || null,
       notes: document.getElementById('delivery-note')?.value || ''
