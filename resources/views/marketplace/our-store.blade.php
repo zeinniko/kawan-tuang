@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Our Store & Official Brands - Kawan Tuang')
+@section('title', 'Our Store & Official Brands - Tipsy More')
 
 @push('styles')
 <!-- Leaflet CSS -->
@@ -54,7 +54,7 @@
                     </span>
                     Cabang Toko & Brand Resmi
                 </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Temukan titik toko fisik Kawan Tuang terdekat dan eksplorasi koleksi brand original kami.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Temukan titik toko fisik Tipsy More terdekat dan eksplorasi koleksi brand original kami.</p>
             </div>
         </div>
     </div>
@@ -77,7 +77,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
             @forelse($stores as $store)
             @php
-            $sName = $store->name ?? 'Kawan Tuang Store';
+            $sName = $store->name ?? 'Tipsy More Store';
             $sAddress = $store->address ?? '-';
             $sOpen = $store->open_time ? \Carbon\Carbon::parse($store->open_time)->format('H:i') : '';
             $sClose = $store->close_time ? \Carbon\Carbon::parse($store->close_time)->format('H:i') : '';

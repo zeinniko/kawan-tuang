@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', ($address->is_edit ? 'Edit Alamat' : 'Tambah Alamat Baru') . ' - Kawan Tuang')
+@section('title', ($address->is_edit ? 'Edit Alamat' : 'Tambah Alamat Baru') . ' - Tipsy More')
 
 @push('styles')
   <!-- Leaflet CSS -->

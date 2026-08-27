@@ -62,7 +62,7 @@
 
     $defaultStore = $stores[0] ?? null;
     $defaultStoreId = data_get($defaultStore, 'id');
-    $defaultStoreName = data_get($defaultStore, 'name', 'Kawan Tuang Store');
+    $defaultStoreName = data_get($defaultStore, 'name');
     $defaultStoreAddress = data_get($defaultStore, 'full_address', data_get($defaultStore, 'address', '-'));
 
     $rawOpenTime = data_get($defaultStore, 'open_time') ? \Carbon\Carbon::parse(data_get($defaultStore, 'open_time'))->format('H:i') : '';

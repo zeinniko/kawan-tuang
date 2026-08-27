@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Profil Saya & Verifikasi Usia - Kawan Tuang')
+@section('title', 'Profil Saya & Verifikasi Usia - Tipsy More')
 
 @section('content')
 <!-- MAIN CONTAINER -->
@@ -164,7 +164,7 @@
         </div>
         <div>
           <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">Kebijakan Privasi</h4>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Perlindungan data pribadi pengguna Kawan Tuang</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Perlindungan data pribadi pengguna Tipsy More</p>
         </div>
       </div>
       <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:translate-x-1 transition-transform"></i>

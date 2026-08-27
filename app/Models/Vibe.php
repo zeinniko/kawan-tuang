@@ -9,7 +9,9 @@ class Vibe extends Model
 {
     protected $fillable = [
         'name',
-        'icon_emoji',
+        'slug',
+        'icon_url',
+        'image_url',
     ];
 
     public function products(): BelongsToMany

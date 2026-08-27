@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Detail Pesanan #' . ($order['order_number'] ?? '---') . ' - Kawan Tuang')
+@section('title', 'Detail Pesanan #' . ($order['order_number'] ?? '---') . ' - Tipsy More')
 
 @section('content')
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -206,7 +206,7 @@
                     @endif
                   </div>
                   <div class="flex-1 min-w-0">
-                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ $item['product_name'] ?? 'Produk Kawan Tuang' }}</h4>
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ $item['product_name'] ?? 'Produk Tipsy More' }}</h4>
                     <p class="text-[10px] text-slate-400">
                       {{ $item['quantity'] ?? 1 }}x @ Rp {{ number_format($item['unit_price'] ?? 0, 0, ',', '.') }}
                     </p>

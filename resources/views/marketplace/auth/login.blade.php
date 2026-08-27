@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Masuk - Kawan Tuang')
+@section('title', 'Masuk - Tipsy More')
 
 @push('styles')
   <!-- Custom Font Playfair Display -->
@@ -29,7 +29,7 @@
           KT
         </div>
         <h1 class="text-2xl font-serif-custom font-bold text-slate-900 dark:text-white">Selamat Datang Kembali</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masuk untuk melanjutkan pesanan Anda di Kawan Tuang</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masuk untuk melanjutkan pesanan Anda di Tipsy More</p>
       </div>
 
       <!-- Alert Sukses (Jika Ada) -->
@@ -84,7 +84,7 @@
 
       <!-- Register Link -->
       <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-8">
-        Belum punya akun Kawan Tuang? 
+        Belum punya akun Tipsy More? 
         <a href="{{ route('register') }}" class="text-amber-600 dark:text-amber-400 font-bold hover:underline">Daftar di sini</a>
       </p>
 

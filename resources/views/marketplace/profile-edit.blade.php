@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Edit Profil - Kawan Tuang')
+@section('title', 'Edit Profil - Tipsy More')
 
 @section('content')
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

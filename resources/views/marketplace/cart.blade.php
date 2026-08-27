@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Keranjang & Checkout - Kawan Tuang')
+@section('title', 'Keranjang & Checkout - Tipsy More')
 
 @push('styles')
 <script

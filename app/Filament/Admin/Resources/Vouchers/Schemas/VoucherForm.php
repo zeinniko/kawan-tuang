@@ -25,6 +25,8 @@ class VoucherForm
                             ->directory('vouchers')
                             ->maxSize(2048)
                             ->imageEditor()
+                            ->disk('public')
+                            ->visibility('public')
                             ->columnSpanFull(),
                         TextInput::make('code')
                             ->label('Kode Voucher')

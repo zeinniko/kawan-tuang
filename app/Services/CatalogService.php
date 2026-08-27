@@ -15,7 +15,8 @@ class CatalogService
     public function getHomeData(): array
     {
         return [
-            'vouchers' => Voucher::where('valid_until', '>=', now())
+            'vouchers' => Voucher::where('valid_from', '<=', now())
+                ->where('valid_until', '>=', now())
                 ->latest()
                 ->take(5)
                 ->get(),

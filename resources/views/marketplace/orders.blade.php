@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Daftar Riwayat Pesanan - Kawan Tuang')
+@section('title', 'Daftar Riwayat Pesanan - Tipsy More')
 
 @section('content')
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -66,7 +66,7 @@
               <!-- Outlet / Store Badge -->
               <span class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <i class="fa-solid fa-store text-amber-500"></i>
-                {{ $item['store']['name'] ?? 'Kawan Tuang Outlet' }}
+                {{ $item['store']['name'] ?? 'Tipsy More Outlet' }}
               </span>
               <span class="text-slate-300 dark:text-slate-700">•</span>
               <!-- Order Date -->
@@ -100,7 +100,7 @@
               <div class="space-y-1 min-w-0 flex-1">
                 @if($firstItem)
                   <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {{ $firstItem['product_name_snapshot'] ?? ($firstItem['product']['name'] ?? 'Produk Kawan Tuang') }}
+                    {{ $firstItem['product_name_snapshot'] ?? ($firstItem['product']['name'] ?? 'Produk Tipsy More') }}
                   </h3>
                   <p class="text-xs text-slate-500 dark:text-slate-400">
                     {{ $firstItem['quantity'] }} barang x Rp {{ number_format($firstItem['unit_price'] ?? 0, 0, ',', '.') }}

@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Kawan Tuang - Premium Beverage Store')
+@section('title', 'Tipsy More - Premium Beverage Store')
 
 @section('content')
 <!-- ================= HERO BANNER SLIDER ================= -->
@@ -47,40 +47,72 @@
         </div>
       </div>
 
-      <!-- Slide 2: Voucher / Promo Banner -->
+      <!-- Slide 2 dst: Voucher / Promo Banner (Dinamis dari Database) -->
+      @if(!empty($vouchers) && count($vouchers) > 0)
+      @foreach($vouchers as $voucher)
       <div class="min-w-full relative flex flex-col justify-start sm:justify-end overflow-hidden">
-        <!-- Background Image -->
-        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80"
-          alt="Voucher Promo" class="absolute inset-0 w-full h-full object-cover">
+        <!-- Background Image Banner dari DB (dengan Fallback jika banner kosong) -->
+        @php
+        $bannerUrl = !empty($voucher['banner'])
+        ? asset('storage/' . $voucher['banner'])
+        : 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80';
+        @endphp
+        <img src="{{ $bannerUrl }}"
+          alt="Promo {{ $voucher['code'] }}" class="absolute inset-0 w-full h-full object-cover">
 
-        <!-- Gradient Overlay dengan Perpaduan Tone Wine (#21050d) -->
+        <!-- Gradient Overlay -->
         <div class="relative z-10 bg-gradient-to-b from-[#21050d]/95 via-[#21050d]/65 to-transparent sm:bg-gradient-to-t sm:from-[#21050d]/95 sm:via-[#21050d]/55 sm:to-transparent p-6 sm:p-8 md:p-14 flex flex-col justify-start sm:justify-end h-full">
 
           <span class="px-3 py-1 bg-rose-600 text-white font-bold rounded-full text-[10px] uppercase tracking-widest w-max mb-2 shadow-md">
             Voucher Diskon Spesial
           </span>
 
-          @if(!empty($vouchers) && count($vouchers) > 0)
           <h2 class="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
-            Gunakan Kode: <span class="text-amber-400 font-mono">{{ $vouchers[0]['code'] ?? 'KT21PLUS' }}</span>
+            Gunakan Kode: <span class="text-amber-400 font-mono">{{ $voucher['code'] }}</span>
           </h2>
+
           <p class="text-xs md:text-sm text-rose-100/90 max-w-lg mb-4">
-            Diskon Rp {{ number_format($vouchers[0]['discount_value'] ?? 20000, 0, ',', '.') }} untuk minimal belanja Rp {{ number_format($vouchers[0]['min_order_amount'] ?? 100000, 0, ',', '.') }}.
+            @if(($voucher['discount_type'] ?? '') === 'percentage')
+            Diskon {{ (int)$voucher['discount_value'] }}%
+            @else
+            Diskon Rp {{ number_format($voucher['discount_value'], 0, ',', '.') }}
+            @endif
+
+            @if(!empty($voucher['min_order_amount']) && $voucher['min_order_amount'] > 0)
+            untuk minimal belanja Rp {{ number_format($voucher['min_order_amount'], 0, ',', '.') }}.
+            @else
+            tanpa minimal belanja.
+            @endif
           </p>
-          @else
-          <h2 class="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
-            Pesta Hemat Bersama Kawan Tuang
-          </h2>
-          <p class="text-xs md:text-sm text-rose-100/90 max-w-lg mb-4">
-            Nikmati potongan harga eksklusif untuk pesanan pilihan minggu ini.
-          </p>
-          @endif
 
           <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-2.5 rounded-full text-xs w-max transition-colors shadow-lg shadow-amber-500/20">
             Gunakan Voucher
           </a>
         </div>
       </div>
+      @endforeach
+      @else
+      <!-- Fallback jika tidak ada voucher di database -->
+      <div class="min-w-full relative flex flex-col justify-start sm:justify-end overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80"
+          alt="Voucher Promo" class="absolute inset-0 w-full h-full object-cover">
+
+        <div class="relative z-10 bg-gradient-to-b from-[#21050d]/95 via-[#21050d]/65 to-transparent sm:bg-gradient-to-t sm:from-[#21050d]/95 sm:via-[#21050d]/55 sm:to-transparent p-6 sm:p-8 md:p-14 flex flex-col justify-start sm:justify-end h-full">
+          <span class="px-3 py-1 bg-rose-600 text-white font-bold rounded-full text-[10px] uppercase tracking-widest w-max mb-2 shadow-md">
+            Promo Spesial
+          </span>
+          <h2 class="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
+            Pesta Hemat Bersama Tipsy More
+          </h2>
+          <p class="text-xs md:text-sm text-rose-100/90 max-w-lg mb-4">
+            Nikmati potongan harga eksklusif untuk pesanan pilihan minggu ini.
+          </p>
+          <a href="{{ route('catalog.index') }}" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-2.5 rounded-full text-xs w-max transition-colors shadow-lg shadow-amber-500/20">
+            Eksplorasi Sekarang
+          </a>
+        </div>
+      </div>
+      @endif
 
     </div>
 
@@ -133,29 +165,34 @@
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Pilih kategori favorit yang pas buat nemenin santai kamu.</p>
     </div>
 
-    <!-- Perbarui Tampilan 'Lihat Semua' -->
     <a href="{{ route('catalog.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-amber-500/20 transition-all shrink-0">
       <span>Lihat Semua</span>
       <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
   </div>
 
-  <!-- Container Slide Alami dengan Snap Scroll & Hidden Scrollbar -->
   <div class="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0">
     @php
-    // Filter kategori agar hanya yang memiliki produk saja yang ditampilkan
     $activeCategories = collect($categories)->filter(function($category) {
     return (int) data_get($category, 'products_count', 0) > 0;
     });
     @endphp
 
     @forelse($activeCategories as $category)
+    @php
+    $categoryIcon = data_get($category, 'icon_url');
+    $iconPath = $categoryIcon ? asset('storage/' . $categoryIcon) : null;
+    @endphp
     <a href="{{ route('catalog.index', ['category_slug' => data_get($category, 'slug', '')]) }}"
       class="flex-shrink-0 snap-start group text-center w-20 sm:w-24">
 
       <!-- Icon Circle -->
-      <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-white dark:bg-slate-900 shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-center justify-center mb-2.5 group-hover:border-amber-500 group-hover:bg-amber-500/10 dark:group-hover:bg-amber-500/20 transition-all duration-300">
+      <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-white dark:bg-slate-900 shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-center justify-center p-4 mb-2.5 group-hover:border-amber-500 group-hover:bg-amber-500/10 dark:group-hover:bg-amber-500/20 transition-all duration-300">
+        @if($iconPath)
+        <img src="{{ $iconPath }}" alt="{{ data_get($category, 'name') }}" class="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-110 transition-transform duration-300">
+        @else
         <i class="fa-solid fa-wine-bottle text-2xl sm:text-3xl text-slate-400 group-hover:text-amber-500 group-hover:scale-110 transition-all duration-300"></i>
+        @endif
       </div>
 
       <!-- Category Title & Count -->
@@ -184,15 +221,21 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     @forelse($vibes as $vibe)
     @php
-    $vibeName = data_get($vibe, 'name', data_get($vibe, 'data.name'));
-    $vibeSlug = data_get($vibe, 'slug', data_get($vibe, 'data.slug'));
-    $vibeEmoji = data_get($vibe, 'icon_emoji', data_get($vibe, 'data.icon_emoji', '🥂'));
-    $vibeImage = data_get($vibe, 'image_url', data_get($vibe, 'data.image_url', 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80'));
+    $vibeName = data_get($vibe, 'name');
+    $vibeSlug = data_get($vibe, 'slug');
+
+    $vibeIcon = data_get($vibe, 'icon_url');
+    $iconUrl = $vibeIcon ? asset('storage/' . $vibeIcon) : null;
+
+    $vibeImg = data_get($vibe, 'image_url');
+    $bgImage = $vibeImg ? asset('storage/' . $vibeImg) : 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
     @endphp
     <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" class="relative h-40 md:h-56 rounded-3xl overflow-hidden group">
-      <img src="{{ $vibeImage }}" alt="{{ $vibeName }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+      <img src="{{ $bgImage }}" alt="{{ $vibeName }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-        <div class="text-2xl mb-1">{{ $vibeEmoji }}</div>
+        @if($iconUrl)
+        <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-8 h-8 mb-1 object-contain">
+        @endif
         <h3 class="text-white font-serif font-bold text-lg">{{ $vibeName }}</h3>
       </div>
     </a>
@@ -206,7 +249,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
     <div class="text-center max-w-xl mx-auto mb-10">
-      <h2 class="text-2xl md:text-3xl font-serif font-bold text-slate-900 dark:text-white">Kenapa Harus Belanja di Kawan Tuang?</h2>
+      <h2 class="text-2xl md:text-3xl font-serif font-bold text-slate-900 dark:text-white">Kenapa Harus Belanja di Tipsy More?</h2>
       <p class="text-xs md:text-sm text-slate-500 mt-2">Biar kamu gak ragu, ini nih keistimewaan yang bakal kamu dapetin setiap kali order.</p>
     </div>
 
@@ -252,85 +295,113 @@
   <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-[#F8F9FA] dark:from-[#0B0F19] to-transparent z-10 pointer-events-none"></div>
   <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-[#F8F9FA] dark:from-[#0B0F19] to-transparent z-10 pointer-events-none"></div>
 
+  @php
+  $allBrands = collect($brands);
+
+  // Bagi koleksi brand menjadi 3 baris agar variatif (jika data cukup)
+  if ($allBrands->count() >= 6) {
+  $chunks = $allBrands->chunk(ceil($allBrands->count() / 3));
+  $row1Brands = $chunks->get(0, $allBrands);
+  $row2Brands = $chunks->get(1, $allBrands);
+  $row3Brands = $chunks->get(2, $allBrands);
+  } else {
+  $row1Brands = $allBrands;
+  $row2Brands = $allBrands;
+  $row3Brands = $allBrands;
+  }
+  @endphp
+
   <div class="flex flex-col gap-4 relative z-0">
 
     <!-- BARIS 1: Ke Kanan (animate-marquee-right) -->
     <div class="flex w-max animate-marquee-right hover:[animation-play-state:paused]">
-      <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
+      @for($i = 0; $i < 2; $i++) {{-- Duplikasi untuk efek infinite scroll --}}
+        <div class="flex gap-4 px-2">
+        @forelse($row1Brands as $brand)
+        @php
+        $logo = data_get($brand, 'logo_url');
+        $logoUrl = $logo ? (str_starts_with($logo, 'http') ? $logo : asset('storage/' . $logo)) : null;
+        $brandName = data_get($brand, 'name', 'Brand');
+        $brandSlug = data_get($brand, 'slug', '');
+        @endphp
+        <a href="{{ route('catalog.index', ['brand_slug' => $brandSlug]) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:border-amber-500/50 hover:shadow-md transition-all group shrink-0 min-w-[130px] sm:min-w-[150px] h-14 sm:h-16">
+          @if($logoUrl)
+          <img src="{{ $logoUrl }}" alt="{{ $brandName }}" class="max-h-8 sm:max-h-9 w-auto object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300">
+          @else
+          <span class="text-slate-600 dark:text-slate-300 font-serif font-bold tracking-wider text-xs sm:text-sm uppercase group-hover:text-amber-500 transition-colors whitespace-nowrap">
+            {{ $brandName }}
+          </span>
+          @endif
+        </a>
         @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">MACALLAN</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">PENFOLDS</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">HENDRICK'S</div>
+        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">MACALLAN</div>
+        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">PENFOLDS</div>
+        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">HENDRICK'S</div>
         @endforelse
-      </div>
-      <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
-        @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">MACALLAN</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">PENFOLDS</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">HENDRICK'S</div>
-        @endforelse
-      </div>
     </div>
+    @endfor
+  </div>
 
-    <!-- BARIS 2: Ke Kiri (animate-marquee-left) -->
-    <div class="flex w-max animate-marquee-left hover:[animation-play-state:paused]">
+  <!-- BARIS 2: Ke Kiri (animate-marquee-left) -->
+  <div class="flex w-max animate-marquee-left hover:[animation-play-state:paused]">
+    @for($i = 0; $i < 2; $i++)
       <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
-        @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JOHNNIE WALKER</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">CHIVAS REGAL</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JACK DANIEL'S</div>
-        @endforelse
-      </div>
-      <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
-        @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JOHNNIE WALKER</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">CHIVAS REGAL</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JACK DANIEL'S</div>
-        @endforelse
-      </div>
-    </div>
+      @forelse($row2Brands as $brand)
+      @php
+      $logo = data_get($brand, 'logo_url');
+      $logoUrl = $logo ? (str_starts_with($logo, 'http') ? $logo : asset('storage/' . $logo)) : null;
+      $brandName = data_get($brand, 'name', 'Brand');
+      $brandSlug = data_get($brand, 'slug', '');
+      @endphp
+      <a href="{{ route('catalog.index', ['brand_slug' => $brandSlug]) }}"
+        class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:border-amber-500/50 hover:shadow-md transition-all group shrink-0 min-w-[130px] sm:min-w-[150px] h-14 sm:h-16">
+        @if($logoUrl)
+        <img src="{{ $logoUrl }}" alt="{{ $brandName }}" class="max-h-8 sm:max-h-9 w-auto object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300">
+        @else
+        <span class="text-slate-600 dark:text-slate-300 font-serif font-bold tracking-wider text-xs sm:text-sm uppercase group-hover:text-amber-500 transition-colors whitespace-nowrap">
+          {{ $brandName }}
+        </span>
+        @endif
+      </a>
+      @empty
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">JOHNNIE WALKER</div>
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">CHIVAS REGAL</div>
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">JACK DANIEL'S</div>
+      @endforelse
+  </div>
+  @endfor
+  </div>
 
-    <!-- BARIS 3: Ke Kanan (animate-marquee-right) -->
-    <div class="flex w-max animate-marquee-right hover:[animation-play-state:paused]">
+  <!-- BARIS 3: Ke Kanan (animate-marquee-right) -->
+  <div class="flex w-max animate-marquee-right hover:[animation-play-state:paused]">
+    @for($i = 0; $i < 2; $i++)
       <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
-        @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">MOËT & CHANDON</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JAMESON</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">GREY GOOSE</div>
-        @endforelse
-      </div>
-      <div class="flex gap-4 px-2">
-        @forelse($brands as $brand)
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest uppercase text-xs sm:text-sm whitespace-nowrap shadow-sm">
-          {{ $brand['name'] ?? '' }}
-        </div>
-        @empty
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">MOËT & CHANDON</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">JAMESON</div>
-        <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 font-serif font-bold tracking-widest text-xs sm:text-sm whitespace-nowrap">GREY GOOSE</div>
-        @endforelse
-      </div>
-    </div>
+      @forelse($row3Brands as $brand)
+      @php
+      $logo = data_get($brand, 'logo_url');
+      $logoUrl = $logo ? (str_starts_with($logo, 'http') ? $logo : asset('storage/' . $logo)) : null;
+      $brandName = data_get($brand, 'name', 'Brand');
+      $brandSlug = data_get($brand, 'slug', '');
+      @endphp
+      <a href="{{ route('catalog.index', ['brand_slug' => $brandSlug]) }}"
+        class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:border-amber-500/50 hover:shadow-md transition-all group shrink-0 min-w-[130px] sm:min-w-[150px] h-14 sm:h-16">
+        @if($logoUrl)
+        <img src="{{ $logoUrl }}" alt="{{ $brandName }}" class="max-h-8 sm:max-h-9 w-auto object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300">
+        @else
+        <span class="text-slate-600 dark:text-slate-300 font-serif font-bold tracking-wider text-xs sm:text-sm uppercase group-hover:text-amber-500 transition-colors whitespace-nowrap">
+          {{ $brandName }}
+        </span>
+        @endif
+      </a>
+      @empty
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">MOËT & CHANDON</div>
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">JAMESON</div>
+      <div class="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-serif font-bold tracking-widest text-xs uppercase">GREY GOOSE</div>
+      @endforelse
+  </div>
+  @endfor
+  </div>
 
   </div>
 </section>
@@ -424,7 +495,7 @@
 <section class="max-w-7xl mx-auto py-10 overflow-hidden">
   <div class="mb-6 text-center px-4">
     <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white">Apa Kata Sobat KT Lainnya?</h2>
-    <p class="text-xs sm:text-sm text-slate-500 mt-1">Cerita jujur dari mereka yang sudah nemenin malamnya pakai Kawan Tuang.</p>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1">Cerita jujur dari mereka yang sudah nemenin malamnya pakai Tipsy More.</p>
   </div>
 
   @php
@@ -446,7 +517,7 @@
   [
   'name' => 'Siti Nurhaliza',
   'product' => 'Penfolds Bin 389 Shiraz Cabernet',
-  'comment' => 'Wine dikemas dalam temperatur ruangan yang terjaga. Rasa authentic dan dapet bonus opener juga dari Kawan Tuang!',
+  'comment' => 'Wine dikemas dalam temperatur ruangan yang terjaga. Rasa authentic dan dapet bonus opener juga dari Tipsy More!',
   'rating' => 5,
   'avatar' => 'Siti+Nurhaliza'
   ],
@@ -460,7 +531,7 @@
   [
   'name' => 'Andi Wijaya',
   'product' => 'Chivas Regal 12 Y.O',
-  'comment' => 'Layanan Store Pickup nya juara banget! Tinggal ambil tanpa antre sama sekali. Mantap Kawan Tuang!',
+  'comment' => 'Layanan Store Pickup nya juara banget! Tinggal ambil tanpa antre sama sekali. Mantap Tipsy More!',
   'rating' => 5,
   'avatar' => 'Andi+Wijaya'
   ],
@@ -533,8 +604,6 @@
 
   // Hero Slider Specific Logic
   let currentSlide = 0;
-  const heroSlider = document.getElementById('hero-slider');
-  const totalSlides = 2;
 
   function updateHeroSlider() {
     if (heroSlider) {
@@ -542,14 +611,33 @@
     }
   }
 
+  function updateSlide() {
+    const slider = document.getElementById('hero-slider');
+    if (!slider) return;
+
+    // Perbarui posisi slider
+    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }
+
   function nextSlide() {
+    const slider = document.getElementById('hero-slider');
+    if (!slider) return;
+
+    // Hitung total slide secara otomatis dari jumlah elemen anak di #hero-slider
+    const totalSlides = slider.children.length;
+
     currentSlide = (currentSlide + 1) % totalSlides;
-    updateHeroSlider();
+    updateSlide();
   }
 
   function prevSlide() {
+    const slider = document.getElementById('hero-slider');
+    if (!slider) return;
+
+    const totalSlides = slider.children.length;
+
     currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-    updateHeroSlider();
+    updateSlide();
   }
 
   setInterval(nextSlide, 10000);

@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Alamat Pengiriman - Kawan Tuang')
+@section('title', 'Alamat Pengiriman - Tipsy More')
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

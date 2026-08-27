@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', ($product['name'] ?? 'Detail Produk') . ' - Kawan Tuang')
+@section('title', ($product['name'] ?? 'Detail Produk') . ' - Tipsy More')
 
 @section('content')
   <!-- BREADCRUMB -->

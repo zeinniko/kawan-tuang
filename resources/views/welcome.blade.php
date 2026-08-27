@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Kawan Tuang - Premium Beverage Store')</title>
+    <title>@yield('title', 'Tipsy More - Premium Beverage Store')</title>
 
     <!-- Google Fonts: Plus Jakarta Sans (UI) & Playfair Display (Heading) -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,16 +29,28 @@
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-15px)' },
+                            '0%, 100%': {
+                                transform: 'translateY(0)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-15px)'
+                            },
                         },
                         'marquee-left': {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-50%)' }
+                            '0%': {
+                                transform: 'translateX(0)'
+                            },
+                            '100%': {
+                                transform: 'translateX(-50%)'
+                            }
                         },
                         'marquee-right': {
-                            '0%': { transform: 'translateX(-50%)' },
-                            '100%': { transform: 'translateX(0)' }
+                            '0%': {
+                                transform: 'translateX(-50%)'
+                            },
+                            '100%': {
+                                transform: 'translateX(0)'
+                            }
                         }
                     }
                 }
@@ -50,8 +62,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 
     @stack('styles')
@@ -112,20 +130,20 @@
 
     <!-- 21+ Verification Banner -->
     <div class="bg-amber-100 text-amber-900 dark:bg-amber-500/10 dark:text-amber-400 px-4 py-2 text-[11px] sm:text-xs text-center font-medium tracking-wide">
-        <i class="fa-solid fa-triangle-exclamation me-1"></i> Halo Sobat KT! Pastikan usia kamu sudah 21+ ya sebelum menjelajah. Nikmati minuman secara bertanggung jawab.
+        <i class="fa-solid fa-triangle-exclamation me-1"></i> Halo Sobat TM! Pastikan usia kamu sudah 21+ ya sebelum menjelajah. Nikmati minuman secara bertanggung jawab.
     </div>
 
     <!-- HEADER NAVBAR -->
     <header class="sticky top-0 z-40 bg-white/70 dark:bg-[#0B0F19]/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
 
-            <!-- Brand Logo KT -->
+            <!-- Brand Logo TM -->
             <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-xl shadow-lg shadow-amber-500/30 group-hover:rotate-12 transition-transform duration-300">
-                    KT
+                    TM
                 </div>
                 <span class="text-2xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">
-                    Kawan<span class="text-amber-500 dark:text-amber-400 italic">Tuang</span>
+                    Tipsy<span class="text-amber-500 dark:text-amber-400 italic">More</span>
                 </span>
             </a>
 
@@ -184,9 +202,9 @@
                 <div class="sm:col-span-2 md:col-span-1 border-b sm:border-0 border-slate-100 dark:border-slate-800/60 pb-5 sm:pb-0">
                     <a href="{{ route('home') }}" class="flex items-center gap-2 mb-3 md:mb-6">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-sm shadow-md shadow-amber-500/20">
-                            KT
+                            TM
                         </div>
-                        <span class="text-xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">Kawan<span class="text-amber-500 italic">Tuang</span></span>
+                        <span class="text-xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">Tipsy<span class="text-amber-500 italic">More</span></span>
                     </a>
                     <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                         Penyedia minuman premium, fine wine, dan craft beer terpercaya. Selalu siap nemenin setiap momen berharga kamu.
@@ -218,17 +236,72 @@
 
                 <!-- Pembayaran Aman -->
                 <div class="border-t sm:border-0 border-slate-100 dark:border-slate-800/60 pt-4 sm:pt-0">
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-4 uppercase tracking-wider">Pembayaran Aman</h4>
+                    <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-4 uppercase tracking-wider">Metode Pembayaran</h4>
+
                     <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
-                        Transaksi terenkripsi aman didukung penuh dengan Payment Gateway.
+                        Transaksi terenkripsi aman dengan konfirmasi otomatis 24/7.
                     </p>
 
-                    <div class="flex flex-wrap gap-1.5">
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">VISA / MC</span>
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-red-600 dark:text-red-400">QRIS & E-Wallet</span>
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400">Virtual Account</span>
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400">Gerai Retail</span>
-                        <span class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded px-2 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">PayLater</span>
+                    <div class="flex flex-wrap gap-2">
+                        <!-- QRIS & E-Wallet -->
+                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 cursor-pointer transition-colors">
+                            <span>QRIS & E-Wallet</span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                            <!-- Tooltip Hover -->
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                <p class="font-bold text-rose-400 mb-0.5">E-Wallet & QRIS:</p>
+                                <p class="text-slate-300">GoPay, ShopeePay, OVO, DANA, LinkAja & Semua Bank QRIS</p>
+                            </div>
+                        </div>
+
+                        <!-- Virtual Account -->
+                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 cursor-pointer transition-colors">
+                            <span>Virtual Account</span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                            <!-- Tooltip Hover -->
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                <p class="font-bold text-blue-400 mb-0.5">Transfer VA:</p>
+                                <p class="text-slate-300">BCA, Mandiri, BNI, BRI, Permata, CIMB Niaga</p>
+                            </div>
+                        </div>
+
+                        <!-- Kartu Kredit / Debit -->
+                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer transition-colors">
+                            <span>Kartu Kredit/Debit</span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                            <!-- Tooltip Hover -->
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                <p class="font-bold text-indigo-400 mb-0.5">Kartu Kredit/Debit:</p>
+                                <p class="text-slate-300">Visa, Mastercard, JCB (3D Secure)</p>
+                            </div>
+                        </div>
+
+                        <!-- Gerai Retail -->
+                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 cursor-pointer transition-colors">
+                            <span>Gerai Retail</span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                            <!-- Tooltip Hover -->
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                <p class="font-bold text-amber-400 mb-0.5">Tunai Minimarket:</p>
+                                <p class="text-slate-300">Alfamart, Indomaret, DanDan, Lawson</p>
+                            </div>
+                        </div>
+
+                        <!-- PayLater -->
+                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 cursor-pointer transition-colors">
+                            <span>PayLater</span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                            <!-- Tooltip Hover -->
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                <p class="font-bold text-emerald-400 mb-0.5">Cicilan Tanpa Kartu:</p>
+                                <p class="text-slate-300">Kredivo, Akulaku, Indodana</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -236,7 +309,7 @@
 
             <!-- Copyright Bottom -->
             <div class="border-t border-slate-200/50 dark:border-slate-800/50 pt-4 md:pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 text-center sm:text-left">
-                <p>&copy; 2026 Kawan Tuang (KT). All rights reserved.</p>
+                <p>&copy; 2026 Tipsy More (TM). All rights reserved.</p>
                 <p class="flex items-center gap-1.5">Drink Responsibly <i class="fa-solid fa-wine-glass text-amber-500"></i></p>
             </div>
 
@@ -266,11 +339,11 @@
     </nav>
 
     <!-- FLOATING WHATSAPP CUSTOMER SERVICE -->
-    <a href="https://wa.me/6289681676100?text=Halo%20Kawan%20Tuang,%20saya%20ingin%20tanya%20produk%20dan%20layanan"
+    <a href="https://wa.me/6289681676100?text=Halo%20Tipsy%20More,%20saya%20ingin%20tanya%20produk%20dan%20layanan"
         target="_blank"
         rel="noopener noreferrer"
         class="{{ request()->routeIs('cart.*') ? 'hidden md:flex' : 'flex' }} fixed bottom-20 md:bottom-8 right-4 sm:right-6 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white items-center justify-center shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 group"
-        title="Hubungi CS Kawan Tuang">
+        title="Hubungi CS Tipsy More">
         <span class="absolute -inset-1 rounded-full bg-emerald-500/40 animate-ping pointer-events-none"></span>
         <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
     </a>

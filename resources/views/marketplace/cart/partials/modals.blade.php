@@ -90,7 +90,7 @@
       @forelse($stores as $store)
         @php
           $sId = data_get($store, 'id');
-          $sName = data_get($store, 'name', 'Kawan Tuang Store');
+          $sName = data_get($store, 'name');
           $sAddr = data_get($store, 'full_address') ?? data_get($store, 'address') ?? '-';
           $sLat = data_get($store, 'latitude');
           $sLng = data_get($store, 'longitude');

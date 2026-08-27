@@ -3,9 +3,10 @@
 namespace App\Filament\Admin\Resources\Categories\Schemas;
 
 use App\Models\Category;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
@@ -44,6 +45,14 @@ class CategoryForm
                             ->required()
                             ->maxLength(50)
                             ->unique(Category::class, 'slug', ignoreRecord: true),
+
+                        FileUpload::make('icon_url')
+                            ->label('Icon Kategori')
+                            ->image()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->directory('categories')
+                            ->columnSpanFull(),
                     ])->columns(2),
             ]);
     }

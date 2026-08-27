@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Katalog Produk Lengkap - Kawan Tuang')
+@section('title', 'Katalog Produk Lengkap - Tipsy More')
 
 @section('content')
 <!-- BREADCRUMB & PAGE HEADER -->

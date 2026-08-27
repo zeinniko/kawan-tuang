@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Buat Kata Sandi Baru - Kawan Tuang')
+@section('title', 'Buat Kata Sandi Baru - Tipsy More')
 
 @section('content')
 <div class="min-h-[80vh] flex items-center justify-center p-4">

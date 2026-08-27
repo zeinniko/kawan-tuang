@@ -124,6 +124,8 @@ class ProductForm
                                     ->directory('products')
                                     ->imageEditor()
                                     ->required()
+                                    ->disk('public')
+                                    ->visibility('public')
                                     ->columnSpanFull(),
 
                                 Toggle::make('is_primary')

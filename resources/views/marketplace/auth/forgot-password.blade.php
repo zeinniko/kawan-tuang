@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Pemulihan Sandi - Kawan Tuang')
+@section('title', 'Pemulihan Sandi - Tipsy More')
 
 @push('styles')
 <!-- Custom Font Playfair Display -->

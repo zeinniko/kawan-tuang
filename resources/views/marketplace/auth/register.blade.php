@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Daftar Akun - Kawan Tuang')
+@section('title', 'Daftar Akun - Tipsy More')
 
 @push('styles')
   <!-- Custom Font Playfair Display -->
@@ -111,7 +111,7 @@
 
       <!-- Login Link -->
       <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
-        Sudah punya akun Kawan Tuang? 
+        Sudah punya akun Tipsy More? 
         <a href="{{ route('login') }}" class="text-amber-600 dark:text-amber-400 font-bold hover:underline">Masuk di sini</a>
       </p>
 
