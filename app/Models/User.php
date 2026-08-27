@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Filament\Panel;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -27,6 +28,7 @@ class User extends Authenticatable implements FilamentUser, HasName
      */
     protected $fillable = [
         'id',
+        'store_id',
         'full_name',
         'email',
         'phone_number',
@@ -76,6 +78,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(ProductReview::class);
     }
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         // Izinkan hanya jika role bernilai 'admin'

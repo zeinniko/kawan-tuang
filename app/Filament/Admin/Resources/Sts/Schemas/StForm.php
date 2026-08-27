@@ -3,10 +3,12 @@
 namespace App\Filament\Admin\Resources\Sts\Schemas;
 
 use App\Models\Store;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -45,22 +47,21 @@ class StForm
                             ->columnSpanFull(),
                     ])->columns(3),
 
-                Section::make('Koordinat Lokasi GPS')
+                    Section::make('Koordinat Lokasi GPS')
                     ->schema([
-                        TextInput::make('latitude')
-                            ->label('Latitude')
-                            ->numeric()
-                            ->step('0.00000001')
-                            ->required()
-                            ->placeholder('-6.26071870'),
+                        ViewField::make('location_picker')
+                            ->label('Penentuan Lokasi GPS & Koordinat')
+                            ->view('filament.forms.components.location-picker')
+                            ->columnSpanFull(),
 
-                        TextInput::make('longitude')
-                            ->label('Longitude')
-                            ->numeric()
-                            ->step('0.00000001')
-                            ->required()
-                            ->placeholder('106.81060080'),
-                    ])->columns(2),
+                            Hidden::make('latitude')
+            ->default('-2.99090000')
+            ->required(),
+
+        Hidden::make('longitude')
+            ->default('104.75650000')
+            ->required(),
+                    ]),
 
                 Section::make('Jam Operasional & Status Cabang')
                     ->schema([

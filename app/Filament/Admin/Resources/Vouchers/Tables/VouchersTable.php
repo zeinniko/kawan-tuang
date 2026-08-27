@@ -65,7 +65,7 @@ class VouchersTable
                 SelectFilter::make('discount_type')
                     ->label('Tipe Diskon')
                     ->options([
-                        'fixed' => 'Fixed Nominal',
+                        'fixed_amount' => 'Fixed Nominal',
                         'percentage' => 'Persentase',
                     ]),
             ])

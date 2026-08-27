@@ -70,4 +70,32 @@ class CartController extends Controller
             'message' => 'Keranjang belanja berhasil dikosongkan.',
         ]);
     }
+
+    public function toggleSelect(Request $request, CartItem $cartItem): JsonResponse
+    {
+        $request->validate(['is_selected' => 'required|boolean']);
+
+        if ($cartItem->cart->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
+        $cart = $this->cartService->toggleItemSelect($cartItem, (bool) $request->is_selected);
+
+        return response()->json([
+            'message' => 'Status item berhasil diperbarui.',
+            'data' => new CartResource($cart),
+        ]);
+    }
+
+    public function toggleSelectAll(Request $request): JsonResponse
+    {
+        $request->validate(['is_selected' => 'required|boolean']);
+
+        $cart = $this->cartService->toggleAllSelect($request->user(), (bool) $request->is_selected);
+
+        return response()->json([
+            'message' => 'Status semua item berhasil diperbarui.',
+            'data' => new CartResource($cart),
+        ]);
+    }
 }

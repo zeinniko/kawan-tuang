@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\StoreAddressRequest;
 use App\Http\Requests\Api\V1\UpdateAddressRequest;
 use App\Http\Resources\V1\UserAddressResource;
 use App\Models\UserAddress;
@@ -25,11 +24,11 @@ class UserAddressController extends Controller
         ]);
     }
 
-    public function store(StoreAddressRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $address = $this->addressService->createAddress(
             $request->user(),
-            $request->validated()
+            $request->all()
         );
 
         return response()->json([

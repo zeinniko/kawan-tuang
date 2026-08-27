@@ -27,7 +27,7 @@ class UpdateAddressRequest extends FormRequest
             'recipient_phone' => ['required', 'string', 'max:20'],
             'full_address'    => ['required', 'string', 'max:500'],
             'notes'           => ['nullable', 'string', 'max:255'],
-            'postal_code'     => ['nullable', 'string', 'max:10'], // Diubah ke nullable agar aman
+            'postal_code'     => ['nullable', 'string', 'max:10'],
             'latitude'        => ['required', 'numeric', 'between:-90,90'],
             'longitude'       => ['required', 'numeric', 'between:-180,180'],
             'is_primary'      => ['sometimes', 'boolean'],

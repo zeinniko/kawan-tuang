@@ -98,7 +98,7 @@
 </div>
 
 <!-- BOTTOM SHEET ACTION MODAL -->
-<div id="bottom-sheet-backdrop" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0" onclick="closeBottomSheet()">
+<div id="bottom-sheet-backdrop" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0" onclick="closeBottomSheet()">
   <div id="bottom-sheet-content" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-28 sm:pb-6 max-h-[85vh] overflow-y-auto border-t border-slate-200 dark:border-slate-800 shadow-2xl transform translate-y-full transition-transform duration-300" onclick="event.stopPropagation();">
     
     <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 shrink-0"></div>
@@ -116,7 +116,7 @@
       <form id="sheet-primary-form" method="POST" action="" class="w-full">
         @csrf
         @method('PATCH')
-        <button type="submit" id="sheet-primary-btn" class="w-full text-left p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-3 transition-colors">
+        <button type="submit" id="sheet-primary-btn" class="w-full text-left p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-3 transition-colors cursor-pointer">
           <i class="fa-solid fa-star text-base"></i> Jadikan Alamat Utama
         </button>
       </form>
@@ -125,13 +125,44 @@
         <i class="fa-solid fa-pen-to-square text-base text-slate-400"></i> Edit Alamat
       </a>
 
-      <form id="sheet-delete-form" method="POST" action="" onsubmit="return confirm('Yakin ingin menghapus alamat ini?');">
+      <!-- HIDDEN DELETE FORM SUBMITTED BY CUSTOM MODAL -->
+      <form id="sheet-delete-form" method="POST" action="" class="hidden">
         @csrf
         @method('DELETE')
-        <button type="submit" class="w-full text-left p-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-3 transition-colors">
-          <i class="fa-solid fa-trash-can text-base"></i> Hapus Alamat
-        </button>
       </form>
+
+      <!-- BUTTON TRIGGER FOR CUSTOM MODAL -->
+      <button type="button" onclick="triggerDeleteFromSheet()" class="w-full text-left p-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-3 transition-colors cursor-pointer">
+        <i class="fa-solid fa-trash-can text-base"></i> Hapus Alamat
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CUSTOM CONFIRM DELETE MODAL FOR INDEX SHEET -->
+<div id="index-delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden transition-all duration-300">
+  <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-4">
+    
+    <div class="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-rose-500/10">
+      <i class="fa-solid fa-trash-can"></i>
+    </div>
+
+    <div class="space-y-1">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">Hapus Alamat Ini?</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Alamat yang dihapus tidak dapat dikembalikan. Apakah Anda yakin ingin melanjutkan?
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 pt-2">
+      <button type="button" onclick="closeIndexDeleteModal()" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-2xl text-xs transition-colors cursor-pointer">
+        Batal
+      </button>
+      
+      <button type="button" onclick="document.getElementById('sheet-delete-form').submit();" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-2xl text-xs transition-colors shadow-lg shadow-rose-500/20 cursor-pointer">
+        Ya, Hapus
+      </button>
     </div>
 
   </div>
@@ -155,7 +186,7 @@
       <p class="text-xs text-slate-500 mb-5">{{ session('error') }}</p>
     @endif
 
-    <button type="button" onclick="document.getElementById('feedback-modal').remove()" class="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl text-xs transition-colors">
+    <button type="button" onclick="document.getElementById('feedback-modal').remove()" class="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl text-xs transition-colors cursor-pointer">
       Tutup
     </button>
   </div>
@@ -206,6 +237,17 @@
     setTimeout(() => {
       backdrop.classList.add('hidden');
     }, 300);
+  }
+
+  function triggerDeleteFromSheet() {
+    closeBottomSheet();
+    setTimeout(() => {
+      document.getElementById('index-delete-modal').classList.remove('hidden');
+    }, 200);
+  }
+
+  function closeIndexDeleteModal() {
+    document.getElementById('index-delete-modal').classList.add('hidden');
   }
 </script>
 @endpush

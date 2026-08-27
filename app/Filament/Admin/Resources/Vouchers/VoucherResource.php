@@ -31,7 +31,7 @@ class VoucherResource extends Resource
     protected static UnitEnum|string|null $navigationGroup = NavigationGroup::Marketing;
     protected static ?string $navigationLabel = 'Vouchers';
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'code';
 
     public static function form(Schema $schema): Schema
     {

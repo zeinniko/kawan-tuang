@@ -28,11 +28,13 @@ class CatalogController extends Controller
 
         // 2. Ambil master data pendukung
         $categoriesResponse = InternalApiService::get('categories');
+        $brandsResponse     = InternalApiService::get('brands');
 
         return view('marketplace.catalog', [
             'products'   => $productsResponse['data'] ?? [],
             'pagination' => $productsResponse['meta'] ?? $productsResponse['links'] ?? [],
             'categories' => $categoriesResponse['data'] ?? $categoriesResponse ?? [],
+            'brands'     => $brandsResponse['data'] ?? $brandsResponse ?? [],
             'filters'    => $filters,
         ]);
     }

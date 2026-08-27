@@ -18,6 +18,7 @@ class ShippingRateResource extends JsonResource
             'price' => (float) $this['price'],
             'estimated_days' => $this['estimated_days'] ?? null,
             'shipment_duration_type' => $this['shipment_duration_type'] ?? null,
+            'shipment_duration_unit' => $this['shipment_duration_unit'] ?? 'days',
         ];
     }
 }

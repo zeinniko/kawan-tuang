@@ -10,8 +10,8 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $primaryImg = $this->primaryImage->first()?->image_url 
-            ?? $this->images->first()?->image_url 
+        $primaryImg = $this->primaryImage->first()?->image_url
+            ?? $this->images->first()?->image_url
             ?? null;
 
         $thumbnailPath = $this->thumbnail_url ?? $primaryImg;
@@ -42,6 +42,15 @@ class ProductResource extends JsonResource
             'brand'              => new BrandResource($this->whenLoaded('brand')),
             'vibes'              => VibeResource::collection($this->whenLoaded('vibes')),
             'created_at'         => $this->created_at?->toIso8601String(),
+            'store_stocks'       => $this->whenLoaded('storeStocks', function () {
+                return $this->storeStocks->map(function ($item) {
+                    return [
+                        'store_id'   => $item->store_id,
+                        'stock'      => (int) $item->stock,
+                        'cold_stock' => (int) $item->cold_stock,
+                    ];
+                });
+            }),
         ];
     }
 }

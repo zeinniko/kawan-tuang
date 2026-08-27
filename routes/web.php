@@ -5,7 +5,7 @@ use App\Http\Controllers\Marketplace\HomeController;
 use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\CartController;
 use App\Http\Controllers\Marketplace\ProfileController;
-use App\Http\Controllers\Marketplace\OrderController; // <-- Tambahkan Import Ini
+use App\Http\Controllers\Marketplace\OrderController;
 use App\Http\Controllers\Marketplace\StoreController;
 use App\Http\Controllers\Marketplace\UserAddressWebController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::get('/our-store', [StoreController::class, 'index'])->name('our-store.index');
 
 // --- Guest / Auth Routes ---
 Route::middleware('guest')->group(function () {
@@ -22,6 +23,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot-password.send');
+    // Menampilkan form input password baru (diakses dari link email)
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+
+    // Memproses update password baru ke database
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
 // --- Customer Account & Transaksi (Harus Login) ---
@@ -32,7 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    
+
     // Cart Routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');
@@ -41,7 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/cart/voucher/apply', [CartController::class, 'applyVoucher'])->name('cart.voucher.apply');
     Route::post('/cart/shipping-rates', [CartController::class, 'checkShippingRates'])->name('cart.shipping-rates');
-    
+    Route::get('/cart/nearest-store', [CartController::class, 'getNearestStore'])->name('cart.nearest-store');
+    Route::patch('/cart/items/{cartItem}/toggle-select', [CartController::class, 'toggleSelect'])->name('cart.toggle-select');
+    Route::patch('/cart/toggle-select-all', [CartController::class, 'toggleSelectAll'])->name('cart.toggle-select-all');
+
     // Orders Routes (Daftar & Tracking Pesanan) <-- TAMBAHKAN DI SINI
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');

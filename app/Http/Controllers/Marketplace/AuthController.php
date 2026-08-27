@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password as PasswordBroker;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
 
 class AuthController extends Controller
 {
@@ -26,7 +29,7 @@ class AuthController extends Controller
 
         // Cek apakah input berupa email atau nomor HP
         $fieldType = filter_var($request->login_id, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
-        
+
         $credentials = [
             $fieldType => $request->login_id,
             'password' => $request->password,
@@ -93,4 +96,58 @@ class AuthController extends Controller
     {
         return view('marketplace.auth.forgot-password');
     }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.exists' => 'Alamat email ini tidak terdaftar di sistem kami.',
+        ]);
+
+        // Menggunakan alias PasswordBroker
+        $status = PasswordBroker::sendResetLink($request->only('email'));
+
+        if ($status === PasswordBroker::RESET_LINK_SENT) {
+            return back()->with('status', 'Tautan pemulihan sandi telah dikirim ke email Anda!');
+        }
+
+        return back()->withErrors(['email' => __($status)]);
+    }
+
+    public function showResetPassword(Request $request, $token)
+{
+    return view('marketplace.auth.reset-password-form', [
+        'token' => $token,
+        'email' => $request->email
+    ]);
+}
+
+// 2. Eksekusi update password di database
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => ['required', 'confirmed', Password::min(8)],
+    ]);
+
+    $status = PasswordBroker::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password)
+            ])->setRememberToken(Str::random(60));
+
+            $user->save();
+            event(new PasswordReset($user));
+        }
+    );
+
+    if ($status === PasswordBroker::PASSWORD_RESET) {
+        return redirect()->route('login')->with('success', 'Kata sandi berhasil diperbarui! Silakan masuk.');
+    }
+
+    return back()->withErrors(['email' => [__($status)]]);
+}
 }

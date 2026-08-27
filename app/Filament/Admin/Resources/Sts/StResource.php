@@ -33,7 +33,7 @@ class StResource extends Resource
     protected static UnitEnum|string|null $navigationGroup = NavigationGroup::StoreInventory;
     protected static ?string $navigationLabel = 'Stores'; // Mengubah 'Sts' menjadi 'Stores'
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

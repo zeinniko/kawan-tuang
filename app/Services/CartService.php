@@ -10,9 +10,18 @@ use Illuminate\Validation\ValidationException;
 
 class CartService
 {
+    // Definisikan relasi standar agar tidak ada yang terlewat
+    protected array $cartRelations = [
+        'items.product.primaryImage',
+        'items.product.images',
+        'items.product.category',
+        'items.product.brand',
+        'items.product.storeStocks',
+    ];
+
     public function getOrCreateCart($user)
     {
-        return Cart::with(['items.product.primaryImage', 'items.product.images'])
+        return Cart::with($this->cartRelations)
             ->firstOrCreate(['user_id' => $user->id]);
     }
 
@@ -27,7 +36,6 @@ class CartService
         }
 
         $cart = $this->getOrCreateCart($user);
-
         $cartItem = $cart->items()->where('product_id', $productId)->first();
 
         if ($cartItem) {
@@ -43,22 +51,20 @@ class CartService
             ]);
         }
 
-        return $cart->fresh(['items.product.category', 'items.product.brand']);
+        return $cart->fresh($this->cartRelations);
     }
 
     public function updateItemQuantity(CartItem $cartItem, int $quantity): Cart
     {
         $cartItem->update(['quantity' => $quantity]);
-
-        return $cartItem->cart->load(['items.product.category', 'items.product.brand']);
+        return $cartItem->cart->load($this->cartRelations);
     }
 
     public function removeItem(CartItem $cartItem): Cart
     {
         $cart = $cartItem->cart;
         $cartItem->delete();
-
-        return $cart->load(['items.product.category', 'items.product.brand']);
+        return $cart->load($this->cartRelations);
     }
 
     public function clearCart(User $user): void
@@ -67,5 +73,18 @@ class CartService
         if ($cart) {
             $cart->items()->delete();
         }
+    }
+
+    public function toggleItemSelect(CartItem $cartItem, bool $isSelected): Cart
+    {
+        $cartItem->update(['is_selected' => $isSelected]);
+        return $cartItem->cart->load($this->cartRelations);
+    }
+
+    public function toggleAllSelect(User $user, bool $isSelected): Cart
+    {
+        $cart = $this->getOrCreateCart($user);
+        $cart->items()->update(['is_selected' => $isSelected]);
+        return $cart->fresh($this->cartRelations);
     }
 }

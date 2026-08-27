@@ -19,6 +19,7 @@ class Voucher extends Model
         'valid_from',
         'valid_until',
         'usage_limit',
+        'banner'
     ];
 
     protected $casts = [

@@ -183,7 +183,7 @@
           $formattedClose = \Carbon\Carbon::parse($closeTime)->format('H:i');
           $operatingHours = "{$formattedOpen} - {$formattedClose}";
           } else {
-          $operatingHours = data_get($store, 'operating_hours', '10:00 - 22:00');
+          $operatingHours = data_get($store, 'operating_hours');
           }
 
           $isFirst = $loop->first;

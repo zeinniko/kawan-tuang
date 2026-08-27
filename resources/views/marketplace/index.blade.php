@@ -360,7 +360,7 @@
       <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white">Mau Mampir Langsung ke Toko KT?</h2>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">Bisa banget! Pilih opsi 'Store Pickup' saat checkout kalau mau ambil sendiri tanpa ongkir.</p>
     </div>
-    <a href="{{ route('catalog.index') }}" class="self-center sm:w-auto text-center text-xs sm:text-sm font-semibold text-amber-500 border border-amber-500/50 rounded-full px-6 py-2.5 hover:bg-amber-500 hover:text-slate-950 transition-colors shrink-0">
+    <a href="{{ route('our-store.index') }}" class="self-center sm:w-auto text-center text-xs sm:text-sm font-semibold text-amber-500 border border-amber-500/50 rounded-full px-6 py-2.5 hover:bg-amber-500 hover:text-slate-950 transition-colors shrink-0">
       Lihat Semua Cabang
     </a>
   </div>
@@ -374,8 +374,8 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
     @forelse($randomStores as $store)
     @php
-    $openTime = !empty($store['open_time']) ? date('H:i', strtotime($store['open_time'])) : '10:00';
-    $closeTime = !empty($store['close_time']) ? date('H:i', strtotime($store['close_time'])) : '22:00';
+    $openTime = !empty($store['open_time']) ? date('H:i', strtotime($store['open_time'])) : '';
+    $closeTime = !empty($store['close_time']) ? date('H:i', strtotime($store['close_time'])) : '';
     $mapsUrl = "https://www.google.com/maps/search/?api=1&query=" . urlencode(($store['name'] ?? '') . ' ' . ($store['address'] ?? ''));
     @endphp
 

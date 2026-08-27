@@ -47,6 +47,8 @@ Route::prefix('v1')->group(function () {
         Route::put('/cart/items/{cartItem}', [CartController::class, 'update']);
         Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
         Route::delete('/cart/clear', [CartController::class, 'clear']);
+        Route::patch('/cart/items/{cartItem}/toggle-select', [CartController::class, 'toggleSelect']);
+        Route::patch('/cart/toggle-select-all', [CartController::class, 'toggleSelectAll']);
 
         Route::get('/vouchers', [VoucherController::class, 'index']);
         Route::post('/vouchers/apply', [VoucherController::class, 'apply']);
@@ -57,13 +59,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/{order}', [OrderController::class, 'show']);
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
-        
+
         Route::post('/payments/snap-token', [PaymentController::class, 'generateSnapToken']);
         Route::get('/payments/{order}/status', [PaymentController::class, 'checkStatus']);
-        
+
         Route::post('/shipping/rates', [ShippingController::class, 'getRates']);
         Route::get('/shipping/orders/{order}/track', [ShippingController::class, 'trackOrder']);
-        
+
         Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store']);
         Route::get('/user/reviews', [ProductReviewController::class, 'userReviews']);
     });

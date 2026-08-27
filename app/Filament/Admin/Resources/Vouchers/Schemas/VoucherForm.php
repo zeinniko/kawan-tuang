@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Filament\Forms\Components\FileUpload;
 
 class VoucherForm
 {
@@ -18,6 +19,13 @@ class VoucherForm
             ->components([
                 Section::make('Informasi Dasar Kupon')
                     ->schema([
+                        FileUpload::make('banner')
+                            ->label('Banner Voucher')
+                            ->image()
+                            ->directory('vouchers')
+                            ->maxSize(2048)
+                            ->imageEditor()
+                            ->columnSpanFull(),
                         TextInput::make('code')
                             ->label('Kode Voucher')
                             ->required()
@@ -28,7 +36,7 @@ class VoucherForm
                         Select::make('discount_type')
                             ->label('Tipe Diskon')
                             ->options([
-                                'fixed' => 'Nominal Tetap (Rp)',
+                                'fixed_amount' => 'Nominal Tetap (Rp)',
                                 'percentage' => 'Persentase (%)',
                             ])
                             ->required()

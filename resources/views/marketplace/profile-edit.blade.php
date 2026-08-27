@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Field Inputs -->
+    <!-- Field Inputs Data Diri -->
     <div class="space-y-4">
       <div>
         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
@@ -73,6 +73,58 @@
       <div>
         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. Handphone / WhatsApp</label>
         <input type="text" name="phone_number" value="{{ old('phone_number', $user->phone_number) }}" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm rounded-2xl py-3.5 px-4 outline-none border border-slate-200 dark:border-slate-700 focus:border-amber-500 transition-all text-slate-900 dark:text-white">
+      </div>
+    </div>
+
+    <!-- SECTION TOGGLE & UBAH PASSWORD -->
+    <div class="pt-5 border-t border-slate-100 dark:border-slate-800">
+      
+      <!-- Custom Toggle Switch -->
+      <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-700/60">
+        <div class="space-y-0.5">
+          <span class="text-xs font-bold text-slate-900 dark:text-white block">Ubah Kata Sandi</span>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Aktifkan sakelar ini jika Anda ingin mengganti kata sandi akun Anda.</p>
+        </div>
+
+        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+          <input type="checkbox" id="change-password-toggle" name="change_password" value="1" {{ old('change_password') ? 'checked' : '' }} onchange="togglePasswordSection()" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-slate-600 peer-checked:bg-amber-500"></div>
+        </label>
+      </div>
+
+      <!-- Section Input Password Baru (Tersembunyi secara default) -->
+      <div id="password-section" class="mt-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-4 {{ old('change_password') ? '' : 'hidden' }}">
+        
+        <!-- Hint Box -->
+        <div class="flex gap-2.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 p-3 rounded-xl">
+          <i class="fa-solid fa-circle-info text-sm mt-0.5 shrink-0"></i>
+          <p class="leading-relaxed">
+            Kata sandi baru minimal harus terdiri dari <strong>8 karakter</strong>. Masukkan ulang kata sandi yang sama pada kolom konfirmasi untuk memverifikasi.
+          </p>
+        </div>
+
+        <!-- New Password -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kata Sandi Baru</label>
+          <div class="relative">
+            <input type="password" id="new_password" name="password" placeholder="Masukkan kata sandi baru" class="w-full bg-white dark:bg-slate-800 text-sm rounded-2xl py-3 pl-4 pr-10 outline-none border border-slate-200 dark:border-slate-700 focus:border-amber-500 transition-all text-slate-900 dark:text-white">
+            <button type="button" onclick="togglePasswordVisibility('new_password', 'eye-icon-new')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+              <i id="eye-icon-new" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Password Confirmation -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Konfirmasi Kata Sandi Baru</label>
+          <div class="relative">
+            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Ulangi kata sandi baru" class="w-full bg-white dark:bg-slate-800 text-sm rounded-2xl py-3 pl-4 pr-10 outline-none border border-slate-200 dark:border-slate-700 focus:border-amber-500 transition-all text-slate-900 dark:text-white">
+            <button type="button" onclick="togglePasswordVisibility('password_confirmation', 'eye-icon-confirm')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+              <i id="eye-icon-confirm" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -97,6 +149,34 @@
     }
     if (event.target.files[0]) {
       reader.readAsDataURL(event.target.files[0]);
+    }
+  }
+
+  function togglePasswordSection() {
+    const checkbox = document.getElementById('change-password-toggle');
+    const passwordSection = document.getElementById('password-section');
+    
+    if (checkbox.checked) {
+      passwordSection.classList.remove('hidden');
+    } else {
+      passwordSection.classList.add('hidden');
+      document.getElementById('new_password').value = '';
+      document.getElementById('password_confirmation').value = '';
+    }
+  }
+
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
     }
   }
 </script>

@@ -40,8 +40,8 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
           <div class="relative">
-            <input type="text" name="full_name" value="{{ old('full_name') }}" placeholder="Budi Santoso" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('full_name') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
-            <i class="fa-regular fa-user absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            <input type="text" name="full_name" value="{{ old('full_name') }}" placeholder="Nama Lengkap" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('full_name') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
+            <i class="fa-regular fa-user absolute left-4 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
           </div>
           @error('full_name')<span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>@enderror
         </div>
@@ -50,8 +50,8 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Email</label>
           <div class="relative">
-            <input type="email" name="email" value="{{ old('email') }}" placeholder="budi@email.com" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('email') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
-            <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            <input type="email" name="email" value="{{ old('email') }}" placeholder="nama@domain.com" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('email') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
+            <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
           </div>
           @error('email')<span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>@enderror
         </div>
@@ -60,18 +60,26 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nomor Handphone (WhatsApp)</label>
           <div class="relative">
-            <input type="tel" name="phone_number" value="{{ old('phone_number') }}" placeholder="081234567890" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('phone_number') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
-            <i class="fa-solid fa-phone absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            <input type="tel" name="phone_number" value="{{ old('phone_number') }}" placeholder="08123xxxx" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('phone_number') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
+            <i class="fa-solid fa-phone absolute left-4 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
           </div>
           @error('phone_number')<span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>@enderror
         </div>
 
-        <!-- Tanggal Lahir -->
+        <!-- Tanggal Lahir (Kalender Native - Di-lock Usia < 21) -->
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal Lahir (Khusus 21+)</label>
           <div class="relative">
-            <input type="date" name="birth_date" value="{{ old('birth_date') }}" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('birth_date') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
-            <i class="fa-regular fa-calendar absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            <input 
+              type="date" 
+              id="birth_date"
+              name="birth_date" 
+              value="{{ old('birth_date') }}" 
+              max="{{ \Carbon\Carbon::now()->subYears(21)->format('Y-m-d') }}" 
+              required 
+              class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('birth_date') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all cursor-pointer"
+            >
+            <i class="fa-regular fa-calendar absolute left-4 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
           </div>
           @error('birth_date')<span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>@enderror
         </div>
@@ -81,14 +89,14 @@
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kata Sandi</label>
           <div class="relative">
             <input type="password" name="password" placeholder="Min. 8 karakter" required class="w-full bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-2xl py-3 pl-11 pr-4 outline-none border {{ $errors->has('password') ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700/60' }} focus:border-amber-500 transition-all">
-            <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+            <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-400 text-sm pointer-events-none"></i>
           </div>
           @error('password')<span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>@enderror
         </div>
 
         <!-- Checkbox Verifikasi Usia -->
         <div class="flex items-start gap-2 pt-1">
-          <input type="checkbox" name="is_age_verified" value="1" {{ old('is_age_verified') ? 'checked' : '' }} required class="mt-0.5 rounded border-slate-300 text-amber-500 focus:ring-amber-500">
+          <input type="checkbox" name="is_age_verified" value="1" {{ old('is_age_verified') ? 'checked' : '' }} required class="mt-0.5 rounded border-slate-300 text-amber-500 focus:ring-amber-500 cursor-pointer">
           <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
             Saya menyatakan bahwa saya telah berusia <strong class="text-slate-700 dark:text-slate-300">21 tahun ke atas</strong> dan menyetujui Syarat & Ketentuan.
           </span>
@@ -110,3 +118,20 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const birthInput = document.getElementById('birth_date');
+
+    if (birthInput) {
+      // Buka kalender saat klik di mana saja dalam kotak input
+      birthInput.addEventListener('click', function () {
+        if (typeof this.showPicker === 'function') {
+          this.showPicker();
+        }
+      });
+    }
+  });
+</script>
+@endpush

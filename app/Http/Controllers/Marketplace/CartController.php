@@ -21,7 +21,7 @@ class CartController extends Controller
         $totalQty = collect($items)->sum('quantity');
         session(['cart_count' => $totalQty]);
 
-        return view('marketplace.cart', [
+        return view('marketplace.cart.index', [
             'cart'      => $cartResponse['data'] ?? $cartResponse ?? [],
             'stores'    => $stores,
             'addresses' => $addresses,
@@ -171,5 +171,56 @@ class CartController extends Controller
         $statusCode = $isSuccess ? 200 : 400;
 
         return response()->json($response, $statusCode);
+    }
+
+    public function toggleSelect(Request $request, $cartItemId)
+    {
+        $request->validate([
+            'is_selected' => 'required|boolean',
+        ]);
+
+        $response = InternalApiService::patch("cart/items/{$cartItemId}/toggle-select", [
+            'is_selected' => (bool) $request->is_selected,
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json($response);
+        }
+
+        return back();
+    }
+
+    public function toggleSelectAll(Request $request)
+    {
+        $request->validate([
+            'is_selected' => 'required|boolean',
+        ]);
+
+        $response = InternalApiService::patch("cart/toggle-select-all", [
+            'is_selected' => (bool) $request->is_selected,
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json($response);
+        }
+
+        return back();
+    }
+
+    public function getNearestStore(Request $request)
+    {
+        $request->validate([
+            'latitude'  => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'limit'     => 'sometimes|integer|min:1|max:20',
+        ]);
+
+        $response = InternalApiService::get('stores/nearest', [
+            'latitude'  => $request->latitude,
+            'longitude' => $request->longitude,
+            'limit'     => $request->input('limit', 5),
+        ]);
+
+        return response()->json($response);
     }
 }
