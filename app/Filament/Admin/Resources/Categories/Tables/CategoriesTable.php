@@ -3,12 +3,13 @@
 namespace App\Filament\Admin\Resources\Categories\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Filament\Actions\DeleteAction;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class CategoriesTable
@@ -17,6 +18,12 @@ class CategoriesTable
     {
         return $table
             ->columns([
+                ImageColumn::make('icon_url')
+                    ->label('Icon')
+                    ->disk('public')
+                    ->circular()
+                    ->size(40),
+                    
                 TextColumn::make('name')
                     ->label('Nama Kategori')
                     ->searchable()

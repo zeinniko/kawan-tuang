@@ -14,7 +14,7 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'icon_url' => $this->icon_url ? Storage::disk('s3')->url($this->icon_url) : null,
+            'icon_url' => $this->icon_url,
             'products_count' => $this->whenCounted('products'),
         ];
     }

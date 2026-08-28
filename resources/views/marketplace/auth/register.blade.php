@@ -26,7 +26,7 @@
       <!-- Header Card -->
       <div class="text-center mb-6 mt-2">
         <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif-custom font-bold text-slate-950 text-2xl mx-auto mb-3 shadow-lg shadow-amber-500/30">
-          KT
+          TM
         </div>
         <h1 class="text-2xl font-serif-custom font-bold text-slate-900 dark:text-white">Buat Akun Baru</h1>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Nikmati kemudahan pesan minuman bergaransi original 100%</p>

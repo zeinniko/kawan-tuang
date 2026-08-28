@@ -14,7 +14,7 @@ class VibeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image_url' => $this->image_url ? Storage::disk('s3')->url($this->image_url) : null,
+            'image_url' => $this->image_url,
         ];
     }
 }

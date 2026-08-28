@@ -18,7 +18,7 @@ class OrderItemResource extends JsonResource
             'unit_price' => (float) $this->unit_price,
             'quantity' => (int) $this->quantity,
             'subtotal' => (float) $this->subtotal,
-            'thumbnail_url' => $this->product?->thumbnail_url ? Storage::disk('s3')->url($this->product->thumbnail_url) : null,
+            'thumbnail_url' => $this->product?->thumbnail_url,
         ];
     }
 }

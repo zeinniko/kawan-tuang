@@ -26,7 +26,7 @@
       <!-- Header Card -->
       <div class="text-center mb-8 mt-2">
         <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif-custom font-bold text-slate-950 text-2xl mx-auto mb-3 shadow-lg shadow-amber-500/30">
-          KT
+          TM
         </div>
         <h1 class="text-2xl font-serif-custom font-bold text-slate-900 dark:text-white">Selamat Datang Kembali</h1>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masuk untuk melanjutkan pesanan Anda di Tipsy More</p>
@@ -79,7 +79,9 @@
       <!-- Divider -->
       <div class="relative my-6 text-center">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200 dark:border-slate-800"></div></div>
-        <span class="relative px-4 bg-white dark:bg-slate-900 text-[10px] uppercase font-semibold text-slate-400">Atau masuk dengan</span>
+        <span class="relative px-4 bg-white dark:bg-slate-900 text-[10px] uppercase font-semibold text-slate-400">
+          <!-- Atau masuk dengan -->
+        </span>
       </div>
 
       <!-- Register Link -->

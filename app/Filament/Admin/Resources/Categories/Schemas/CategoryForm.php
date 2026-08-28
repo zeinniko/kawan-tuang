@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class CategoryForm
@@ -52,6 +53,24 @@ class CategoryForm
                             ->disk('public')
                             ->visibility('public')
                             ->directory('categories')
+                            ->helperText(function ($get) {
+                                $name = $get('name');
+                                $query = urlencode($name ?? '');
+                                
+                                $url = $query 
+                                    ? "https://www.flaticon.com/search?word={$query}" 
+                                    : "https://www.flaticon.com";
+
+                                $labelText = $name 
+                                    ? "Cari icon untuk <strong>\"" . e($name) . "\"</strong> di Flaticon ↗" 
+                                    : "Cari icon di Flaticon ↗";
+
+                                return new HtmlString(
+                                    '<a href="' . $url . '" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">' 
+                                    . $labelText . 
+                                    '</a>'
+                                );
+                            })
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);

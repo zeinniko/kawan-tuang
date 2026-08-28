@@ -14,7 +14,7 @@ class BrandResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'logo_url' => $this->logo_url ? Storage::disk('s3')->url($this->logo_url) : null,
+            'logo_url' => $this->logo_url,
         ];
     }
 }
