@@ -211,68 +211,64 @@
   </div>
 </section>
 
-<!-- ================= 4. REDESIGN: MINUM UNTUK ACARA APA? (Vibes) ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <div class="mb-8">
-    <h2 class="text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white">Malam Ini Agendanya Apa Nih?</h2>
-    <p class="text-lg text-slate-600 dark:text-slate-400 mt-2">Biar gak salah pilih, yuk sesuaikan minuman dengan suasana acara kamu.</p>
+<!-- ================= 4. MINUM UNTUK ACARA APA? (Vibes) ================= -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+  <div class="mb-6 md:mb-8">
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white">Malam Ini Agendanya Apa Nih?</h2>
+    <p class="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mt-1.5">Biar gak salah pilih, yuk sesuaikan minuman dengan suasana acara kamu.</p>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+  <!-- GRID: 2 Kolom di Mobile, 4 Kolom di Desktop -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
     @forelse($vibes as $vibe)
     @php
-    $vibeName = data_get($vibe, 'name');
-    $vibeSlug = data_get($vibe, 'slug');
+      $vibeName = data_get($vibe, 'name');
+      $vibeSlug = data_get($vibe, 'slug');
 
-    $vibeIcon = data_get($vibe, 'icon_url');
-    $iconUrl = $vibeIcon ? asset('storage/' . $vibeIcon) : null;
+      // Ambil path Icon & BG Image dengan penanganan URL yang aman
+      $vibeIcon = data_get($vibe, 'icon_url');
+      $iconUrl = $vibeIcon 
+        ? (\Illuminate\Support\Str::startsWith($vibeIcon, 'http') ? $vibeIcon : asset('storage/' . ltrim($vibeIcon, '/'))) 
+        : null;
 
-    $vibeImg = data_get($vibe, 'image_url');
-    // Placeholder background jika image_url kosong
-    $bgImage = $vibeImg ? asset('storage/' . $vibeImg) : 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
+      $vibeImg = data_get($vibe, 'image_url');
+      $bgImage = $vibeImg 
+        ? (\Illuminate\Support\Str::startsWith($vibeImg, 'http') ? $vibeImg : asset('storage/' . ltrim($vibeImg, '/'))) 
+        : 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
     @endphp
     
-    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" class="group relative rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl hover:border-emerald-200 dark:hover:border-emerald-800">
+    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" 
+       class="group relative h-48 sm:h-60 md:h-64 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-end p-3.5 sm:p-5">
       
-      <!-- Bagian Visual Utama: Gambar dan Ikon dalam Lingkaran -->
-      <div class="relative aspect-square w-full rounded-2xl overflow-hidden mb-5">
-        <!-- Gambar Latar Belakang Kecil/Blurred untuk Konteks -->
-        <img src="{{ $bgImage }}" alt="{{ $vibeName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        
-        <!-- Overlay Gradien -->
-        <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/60 to-emerald-950/10"></div>
-        
-        <!-- Lingkaran Ikon di Tengah -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="relative w-1/2 h-1/2 aspect-square rounded-full bg-emerald-100 dark:bg-emerald-900 border-2 border-emerald-300 dark:border-emerald-700 p-3 shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-            @if($iconUrl)
-            <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-full h-full object-contain">
-            @else
-            <!-- Fallback icon atau symbol jika ikon kosong -->
-            <svg class="w-12 h-12 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            @endif
-          </div>
+      <!-- Background Image dengan Hover Zoom -->
+      <img src="{{ $bgImage }}" 
+           alt="{{ $vibeName }}" 
+           class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+      
+      <!-- Overlay Gradien Gelap untuk Kejelasan Teks -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 group-hover:from-black/95 transition-colors duration-300"></div>
+
+      <!-- ICON BADGE: Kanan Tengah, Ukuran Ekstra Besar & Hover Scale 125% -->
+      <div class="absolute top-1/2 -translate-y-1/2 right-3.5 sm:right-5 z-10">
+        <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/20 dark:bg-black/40 backdrop-blur-md border border-white/30 dark:border-white/10 p-2.5 sm:p-3.5 flex items-center justify-center shadow-2xl group-hover:scale-125 group-hover:bg-amber-500 group-hover:border-amber-400 transition-all duration-300">
+          @if($iconUrl)
+            <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-full h-full object-contain filter drop-shadow-md">
+          @else
+            <i class="fa-solid fa-glass-cheers text-white text-xl sm:text-3xl"></i>
+          @endif
         </div>
       </div>
-      
-      <!-- Bagian Teks dan Aksi -->
-      <h3 class="font-serif font-bold text-xl text-slate-900 dark:text-white mt-1">{{ $vibeName }}</h3>
-      
-      {{-- Deskripsi tambahan (contoh) --}}
-      @if($vibeSlug == 'nyantai')
-        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk suasana santai di sore hari.</p>
-      @elseif($vibeSlug == 'pesta-rame')
-        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Biar suasana makin meriah.</p>
-      @elseif($vibeSlug == 'makan-romantis')
-        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk kencan istimewa bersama pasangan.</p>
-      @elseif($vibeSlug == 'pertemuan-bisnis')
-        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk kesan profesional dan akrab.</p>
-      @endif
 
-      <span class="mt-4 text-sm font-semibold text-emerald-600 dark:text-emerald-400 group-hover:underline">Cari Minuman →</span>
+      <!-- TEKS DITUMPUK DI BAGIAN BAWAH (Padding Kanan pr-16 / pr-24) -->
+      <div class="relative z-10 space-y-1 pr-16 sm:pr-24">
+        <h3 class="font-serif font-bold text-sm sm:text-lg md:text-xl text-white group-hover:text-amber-300 transition-colors leading-snug">
+          {{ $vibeName }}
+        </h3>
+        <span class="inline-flex items-center text-[11px] sm:text-xs font-medium text-slate-300 group-hover:text-white transition-colors gap-1">
+          Cari Minuman <i class="fa-solid fa-arrow-right text-[9px] sm:text-[10px] group-hover:translate-x-1 transition-transform"></i>
+        </span>
+      </div>
+
     </a>
     
     @empty
@@ -339,32 +335,32 @@
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
@@ -375,32 +371,32 @@
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
@@ -411,32 +407,32 @@
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
       <div class="flex gap-4 px-2">
         @foreach($brands as $brand)
         @php
-          $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
-          $logoUrl   = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
-          $brandSlug = \Illuminate\Support\Str::slug($brandName);
+        $brandName = is_array($brand) ? ($brand['name'] ?? '') : ($brand->name ?? '');
+        $logoUrl = is_array($brand) ? ($brand['logo_url'] ?? '') : ($brand->logo_url ?? '');
+        $brandSlug = \Illuminate\Support\Str::slug($brandName);
         @endphp
-        <a href="{{ url('/catalog?brand=' . $brandSlug) }}" 
-           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}" 
-               alt="{{ $brandName }}" 
-               class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" 
-               loading="lazy" />
+        <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
+          class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
+          <img src="{{ asset('storage/'.$logoUrl) }}"
+            alt="{{ $brandName }}"
+            class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+            loading="lazy" />
         </a>
         @endforeach
       </div>
