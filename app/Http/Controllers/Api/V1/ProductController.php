@@ -27,7 +27,7 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'data' => new ProductResource($product->load(['category', 'brand', 'vibes'])),
+            'data' => new ProductResource($product->load(['category', 'brand', 'vibes', 'images', 'primaryImage'])),
         ]);
     }
 }

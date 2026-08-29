@@ -24,15 +24,7 @@ class ProductForm
                         TextInput::make('name')
                             ->label('Nama Produk')
                             ->required()
-                            ->maxLength(150)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state))),
-
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(150)
-                            ->unique(Product::class, 'slug', ignoreRecord: true),
+                            ->maxLength(150),
 
                         TextInput::make('sku')
                             ->label('SKU (Stock Keeping Unit)')

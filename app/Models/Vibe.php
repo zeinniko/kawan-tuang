@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 
 class Vibe extends Model
 {
@@ -17,5 +18,12 @@ class Vibe extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'product_vibes');
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function ($vibe) {
+            $vibe->slug = Str::slug($vibe->name);
+        });
     }
 }

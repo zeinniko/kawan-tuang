@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,16 +16,18 @@ class VibesTable
     {
         return $table
             ->columns([
-                TextColumn::make('icon_emoji')
-                    ->label('Emoji')
-                    ->alignCenter()
+                ImageColumn::make('icon_url')
+                    ->label('Icon')
+                    ->disk('public')
+                    ->circular()
                     ->placeholder('-'),
 
                 TextColumn::make('name')
                     ->label('Nama Vibe')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn ($record) => $record->slug), // Menampilkan slug di bawah nama
 
                 TextColumn::make('products_count')
                     ->label('Jumlah Produk')

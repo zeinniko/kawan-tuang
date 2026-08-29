@@ -14,6 +14,7 @@ class VibeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'icon_url' => $this->icon_url,
             'image_url' => $this->image_url,
         ];
     }

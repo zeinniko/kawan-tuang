@@ -37,15 +37,8 @@ class CategoryForm
                         TextInput::make('name')
                             ->label('Nama Kategori')
                             ->required()
-                            ->maxLength(50)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state))),
+                            ->maxLength(50),
 
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(50)
-                            ->unique(Category::class, 'slug', ignoreRecord: true),
 
                         FileUpload::make('icon_url')
                             ->label('Icon Kategori')

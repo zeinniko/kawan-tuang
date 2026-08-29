@@ -21,16 +21,7 @@ class BrandForm
                             ->label('Nama Brand')
                             ->required()
                             ->maxLength(100)
-                            ->placeholder('Contoh: Jack Daniel\'s')
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state))),
-
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(100)
-                            ->unique(ignoreRecord: true)
-                            ->placeholder('Otomatis terisi dari nama brand'),
+                            ->placeholder('Contoh: Jack Daniel\'s'),
 
                         TextInput::make('country_origin')
                             ->label('Negara Asal')

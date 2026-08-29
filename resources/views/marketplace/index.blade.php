@@ -211,14 +211,14 @@
   </div>
 </section>
 
-<!-- ================= 4. MINUM UNTUK ACARA APA? (Vibes) ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-6">
-    <h2 class="text-3xl font-serif font-bold text-slate-900 dark:text-white">Malam Ini Agendanya Apa Nih?</h2>
-    <p class="text-sm text-slate-500 mt-1">Biar gak salah pilih, yuk sesuaikan minuman dengan suasana acara kamu.</p>
+<!-- ================= 4. REDESIGN: MINUM UNTUK ACARA APA? (Vibes) ================= -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="mb-8">
+    <h2 class="text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white">Malam Ini Agendanya Apa Nih?</h2>
+    <p class="text-lg text-slate-600 dark:text-slate-400 mt-2">Biar gak salah pilih, yuk sesuaikan minuman dengan suasana acara kamu.</p>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
     @forelse($vibes as $vibe)
     @php
     $vibeName = data_get($vibe, 'name');
@@ -228,17 +228,53 @@
     $iconUrl = $vibeIcon ? asset('storage/' . $vibeIcon) : null;
 
     $vibeImg = data_get($vibe, 'image_url');
+    // Placeholder background jika image_url kosong
     $bgImage = $vibeImg ? asset('storage/' . $vibeImg) : 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
     @endphp
-    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" class="relative h-40 md:h-56 rounded-3xl overflow-hidden group">
-      <img src="{{ $bgImage }}" alt="{{ $vibeName }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-        @if($iconUrl)
-        <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-8 h-8 mb-1 object-contain">
-        @endif
-        <h3 class="text-white font-serif font-bold text-lg">{{ $vibeName }}</h3>
+    
+    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" class="group relative rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl hover:border-emerald-200 dark:hover:border-emerald-800">
+      
+      <!-- Bagian Visual Utama: Gambar dan Ikon dalam Lingkaran -->
+      <div class="relative aspect-square w-full rounded-2xl overflow-hidden mb-5">
+        <!-- Gambar Latar Belakang Kecil/Blurred untuk Konteks -->
+        <img src="{{ $bgImage }}" alt="{{ $vibeName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        
+        <!-- Overlay Gradien -->
+        <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/60 to-emerald-950/10"></div>
+        
+        <!-- Lingkaran Ikon di Tengah -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="relative w-1/2 h-1/2 aspect-square rounded-full bg-emerald-100 dark:bg-emerald-900 border-2 border-emerald-300 dark:border-emerald-700 p-3 shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+            @if($iconUrl)
+            <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-full h-full object-contain">
+            @else
+            <!-- Fallback icon atau symbol jika ikon kosong -->
+            <svg class="w-12 h-12 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            @endif
+          </div>
+        </div>
       </div>
+      
+      <!-- Bagian Teks dan Aksi -->
+      <h3 class="font-serif font-bold text-xl text-slate-900 dark:text-white mt-1">{{ $vibeName }}</h3>
+      
+      {{-- Deskripsi tambahan (contoh) --}}
+      @if($vibeSlug == 'nyantai')
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk suasana santai di sore hari.</p>
+      @elseif($vibeSlug == 'pesta-rame')
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Biar suasana makin meriah.</p>
+      @elseif($vibeSlug == 'makan-romantis')
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk kencan istimewa bersama pasangan.</p>
+      @elseif($vibeSlug == 'pertemuan-bisnis')
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">Untuk kesan profesional dan akrab.</p>
+      @endif
+
+      <span class="mt-4 text-sm font-semibold text-emerald-600 dark:text-emerald-400 group-hover:underline">Cari Minuman →</span>
     </a>
+    
     @empty
     <p class="text-xs text-slate-400 col-span-full">Pilihan vibe belum tersedia.</p>
     @endforelse

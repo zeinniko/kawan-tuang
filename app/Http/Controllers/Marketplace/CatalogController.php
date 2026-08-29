@@ -42,6 +42,7 @@ class CatalogController extends Controller
     public function show($slug)
     {
         $response = InternalApiService::get("products/{$slug}");
+        // dd($response['data']);
 
         if (!isset($response['data'])) {
             abort(404, 'Produk tidak ditemukan.');

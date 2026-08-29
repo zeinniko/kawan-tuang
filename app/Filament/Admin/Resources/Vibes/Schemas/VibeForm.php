@@ -25,12 +25,6 @@ class VibeForm
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state))),
 
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(50)
-                            ->unique(Vibe::class, 'slug', ignoreRecord: true),
-
                         FileUpload::make('icon_url')
                             ->label('Icon Custom Vibe (SVG / PNG)')
                             ->image()
