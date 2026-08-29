@@ -23,4 +23,25 @@ class HomeController extends Controller
             'stores'     => $data['stores'] ?? [],
         ]);
     }
+
+    public function terms()
+    {
+        $lastUpdated = '28 Agustus 2026';
+
+        return view('marketplace.pages.term-conditions', compact('lastUpdated'));
+    }
+    public function privacy()
+    {
+        $lastUpdated = '28 Agustus 2026';
+
+        return view('marketplace.pages.privacy-policy', compact('lastUpdated'));
+    }
+    public function pesan()
+    {
+        return view('marketplace.pages.order-guide');
+    }
+    public function kirim()
+    {
+        return view('marketplace.pages.tracking-guide');
+    }
 }

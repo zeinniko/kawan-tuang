@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 
 // --- Public & Catalog Routes ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/syarat-ketentuan', [HomeController::class, 'terms'])->name('terms');
+Route::get('/kebijakan-privasi', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('/cara-pemesanan', [HomeController::class, 'pesan'])->name('guide.order');
+Route::get('/pantau-pengiriman', [HomeController::class, 'kirim'])->name('guide.tracking');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/our-store', [StoreController::class, 'index'])->name('our-store.index');

@@ -227,9 +227,10 @@
                     <div>
                         <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Bantuan</h4>
                         <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                            <li><a href="#" class="hover:text-amber-500 transition-colors">Cara Pesan</a></li>
-                            <li><a href="#" class="hover:text-amber-500 transition-colors">Pengiriman</a></li>
-                            <li><a href="#" class="hover:text-amber-500 transition-colors">Syarat & Ketentuan</a></li>
+                            <li><a href="/cara-pemesanan" class="hover:text-amber-500 transition-colors">Cara Pesan</a></li>
+                            <li><a href="/pantau-pengiriman" class="hover:text-amber-500 transition-colors">Pengiriman</a></li>
+                            <li><a href="/syarat-ketentuan" class="hover:text-amber-500 transition-colors">Syarat & Ketentuan</a></li>
+                            <li><a href="/kebijakan-privasi" class="hover:text-amber-500 transition-colors">Kebijakan Privasi</a></li>
                         </ul>
                     </div>
                 </div>
