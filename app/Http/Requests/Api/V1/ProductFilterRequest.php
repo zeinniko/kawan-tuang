@@ -21,6 +21,7 @@ class ProductFilterRequest extends FormRequest
             'brand_slug'    => ['nullable', 'string'],
             'vibe'          => ['nullable', 'string'],
             'vibe_slug'     => ['nullable', 'string'],
+            'store_id'     => ['nullable', 'string'],
             'min_price'     => ['nullable', 'numeric', 'min:0'],
             'max_price'     => ['nullable', 'numeric', 'min:0'],
             'min_abv'       => ['nullable', 'numeric', 'min:0'],

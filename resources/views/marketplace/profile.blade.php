@@ -57,7 +57,7 @@
       </div>
       <div class="text-center">
         <span class="text-lg font-black text-amber-600 dark:text-amber-400 block">1.250</span>
-        <span class="text-[10px] text-slate-400 uppercase font-semibold">Poin KT</span>
+        <span class="text-[10px] text-slate-400 uppercase font-semibold">Poin Tipsy</span>
       </div>
     </div>
 
@@ -65,7 +65,7 @@
 
   <!-- AGE & ID VERIFICATION BANNER -->
   <!-- ACTIVE IF AVAILABLE TO VERIFICATION WITH ID CARD -->
-  <!-- <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 rounded-2xl p-4 flex items-center justify-between gap-4">
+  <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 rounded-2xl p-4 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg flex-shrink-0">
           <i class="fa-solid fa-id-card"></i>
@@ -80,7 +80,7 @@
       <button onclick="openAgeModal()" class="px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-amber-400 transition-colors flex-shrink-0">
         Cek Status
       </button>
-    </div> -->
+    </div>
 
   <!-- SESSION ALERTS -->
   @if(session('success'))

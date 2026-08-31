@@ -23,7 +23,7 @@ class CatalogService
             'categories' => Category::withCount('products')->get(),
             'vibes' => Vibe::all(),
             'featured_products' => Product::where('is_active', true)
-                ->with(['category', 'brand', 'primaryImage', 'images'])
+                ->with(['category', 'brand', 'primaryImage', 'images', 'storeStocks'])
                 ->latest()
                 ->take(8)
                 ->get(),
@@ -34,15 +34,16 @@ class CatalogService
 
     public function getFilteredProducts(array $filters): LengthAwarePaginator
     {
+        // PENTING: Tambahkan 'storeStocks' di relasi eager loading
         $query = Product::where('is_active', true)
-            ->with(['category', 'brand', 'vibes', 'primaryImage', 'images']);
+            ->with(['category', 'brand', 'vibes', 'primaryImage', 'images', 'storeStocks']);
 
-        // Search
+        // Search Filter
         if (!empty($filters['search'])) {
             $query->where('name', 'like', '%' . $filters['search'] . '%');
         }
 
-        // Category Filter (Mendukung slug atau category)
+        // Category Filter
         $categorySlug = $filters['category'] ?? $filters['category_slug'] ?? null;
         if (!empty($categorySlug)) {
             $query->whereHas('category', fn($q) => $q->where('slug', $categorySlug));
@@ -78,9 +79,9 @@ class CatalogService
 
         // Sorting
         match ($filters['sort_by'] ?? 'latest') {
-            'price_asc' => $query->orderBy('price', 'asc'),
+            'price_asc'  => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
-            default => $query->latest(),
+            default      => $query->latest(),
         };
 
         return $query->paginate($filters['per_page'] ?? 12);
