@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\WelcomeRegisterMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -11,16 +14,23 @@ class AuthService
     public function register(array $data): array
     {
         $user = User::create([
-            'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'phone_number' => $data['phone_number'],
-            'password' => Hash::make($data['password']),
-            'birth_date' => $data['birth_date'],
-            'role' => 'customer',
-            'is_age_verified' => false,
+            'full_name'       => $data['full_name'],
+            'email'           => $data['email'],
+            'phone_number'    => $data['phone_number'],
+            'password'        => Hash::make($data['password']),
+            'birth_date'      => $data['birth_date'],
+            'role'            => 'customer',
+            'is_age_verified' => true,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Kirim Welcome Email secara aman
+        try {
+            Mail::to($user->email)->send(new WelcomeRegisterMail($user));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email welcome registrasi: ' . $e->getMessage());
+        }
 
         return ['user' => $user, 'token' => $token];
     }

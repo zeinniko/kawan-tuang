@@ -13,18 +13,32 @@ $activeStore = collect($stores)->first(function($s) use ($currentStoreId) {
 
 $activeStoreId = data_get($activeStore, 'id');
 
-// 2. Filter produk agar hanya menampilkan produk yang stoknya > 0 di toko terpilih ($activeStoreId)
+// 2. Filter produk agar HANYA menampilkan produk yang stoknya > 0 di toko terpilih ($activeStoreId)
 $availableProducts = collect($products)->filter(function($product) use ($activeStoreId) {
-    $storeStocks = data_get($product, 'store_stocks', []);
-    
-    // Cari stok di toko yang sedang aktif (menggunakan perbandingan longgar ==)
-    $currentStoreStock = collect($storeStocks)->first(function($stock) use ($activeStoreId) {
-        return data_get($stock, 'store_id') == $activeStoreId;
-    });
+    // Cek apakah data store_stocks ada di dalam respons API
+    $hasStoreStocks = array_key_exists('store_stocks', (array) $product) && !is_null(data_get($product, 'store_stocks'));
 
-    $stockVal = $currentStoreStock 
-        ? (int) data_get($currentStoreStock, 'stock', 0) 
-        : (int) data_get($product, 'stock', 0);
+    if ($hasStoreStocks) {
+        $storeStocks = data_get($product, 'store_stocks', []);
+        
+        // Cari data stok khusus untuk toko yang sedang aktif
+        $currentStoreStock = collect($storeStocks)->first(function($stock) use ($activeStoreId) {
+            return data_get($stock, 'store_id') == $activeStoreId;
+        });
+
+        if ($currentStoreStock) {
+            // Hitung total stok toko (stok biasa + cold_stock jika ada)
+            $regStock = (int) data_get($currentStoreStock, 'stock', 0);
+            $coldStock = (int) data_get($currentStoreStock, 'cold_stock', 0);
+            $stockVal = $regStock + $coldStock;
+        } else {
+            // JIKA TOKO TIDAK DITEMUKAN DI STORE_STOCKS -> Stok di toko ini PASTI 0
+            $stockVal = 0;
+        }
+    } else {
+        // Fallback jika API backend belum mengirimkan array store_stocks
+        $stockVal = (int) data_get($product, 'stock', 0);
+    }
 
     return $stockVal > 0;
 });

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\WelcomeRegisterMail; // <-- TAMBAHAN: Import Mailable
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail; // <-- TAMBAHAN: Import Facade Mail
+use Illuminate\Support\Facades\Log;  // <-- TAMBAHAN: Import Facade Log
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password as PasswordBroker;
 use Illuminate\Support\Str;
@@ -75,6 +78,13 @@ class AuthController extends Controller
             'role'            => 'customer',
         ]);
 
+        // --- SKEMA PENGIRIMAN EMAIL SELAMAT DATANG ---
+        try {
+            Mail::to($user->email)->send(new WelcomeRegisterMail($user));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email welcome registrasi: ' . $e->getMessage());
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -116,38 +126,38 @@ class AuthController extends Controller
     }
 
     public function showResetPassword(Request $request, $token)
-{
-    return view('marketplace.auth.reset-password-form', [
-        'token' => $token,
-        'email' => $request->email
-    ]);
-}
-
-// 2. Eksekusi update password di database
-public function resetPassword(Request $request)
-{
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => ['required', 'confirmed', Password::min(8)],
-    ]);
-
-    $status = PasswordBroker::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->forceFill([
-                'password' => Hash::make($password)
-            ])->setRememberToken(Str::random(60));
-
-            $user->save();
-            event(new PasswordReset($user));
-        }
-    );
-
-    if ($status === PasswordBroker::PASSWORD_RESET) {
-        return redirect()->route('login')->with('success', 'Kata sandi berhasil diperbarui! Silakan masuk.');
+    {
+        return view('marketplace.auth.reset-password-form', [
+            'token' => $token,
+            'email' => $request->email
+        ]);
     }
 
-    return back()->withErrors(['email' => [__($status)]]);
-}
+    // 2. Eksekusi update password di database
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $status = PasswordBroker::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === PasswordBroker::PASSWORD_RESET) {
+            return redirect()->route('login')->with('success', 'Kata sandi berhasil diperbarui! Silakan masuk.');
+        }
+
+        return back()->withErrors(['email' => [__($status)]]);
+    }
 }
