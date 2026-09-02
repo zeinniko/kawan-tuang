@@ -3,12 +3,33 @@
 @section('title', ($address->is_edit ? 'Edit Alamat' : 'Tambah Alamat Baru') . ' - Tipsy More')
 
 @push('styles')
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Alpine JS CDN -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
-    .leaflet-container { z-index: 10 !important; }
+    /* Styling Dropdown Autocomplete Google Maps agar Match dengan UI Website */
+    .pac-container {
+      z-index: 9999 !important;
+      border-radius: 1rem !important;
+      margin-top: 6px !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+      border: 1px solid rgba(226, 232, 240, 0.8) !important;
+      font-family: inherit !important;
+      padding: 6px 0 !important;
+    }
+    .pac-item {
+      padding: 10px 14px !important;
+      cursor: pointer !important;
+      border-top: 1px solid #f1f5f9 !important;
+      font-size: 13px !important;
+    }
+    .pac-item:first-child {
+      border-top: none !important;
+    }
+    .pac-item-query {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #0f172a !important;
+    }
     
     /* Custom Backdrop Glassmorphism untuk Semua Modal */
     .custom-modal-backdrop {
@@ -71,10 +92,10 @@
         </div>
       </div>
 
-      <!-- MAP PICKER PINPOINT & SEARCH (ALPINE COMPONENT) -->
+      <!-- GOOGLE MAPS PICKER PINPOINT & SEARCH (ALPINE COMPONENT) -->
       <div x-data="locationPickerComponent({
-              initialLat: '{{ old('latitude', $address->latitude ?? '-2.9909') }}',
-              initialLng: '{{ old('longitude', $address->longitude ?? '104.7565') }}'
+             initialLat: '{{ old('latitude', $address->latitude ?? '-2.9909') }}',
+             initialLng: '{{ old('longitude', $address->longitude ?? '104.7565') }}'
            })" 
            x-init="initMap()" 
            class="space-y-3">
@@ -84,47 +105,26 @@
             Pinpoint Titik Lokasi Pengiriman <span class="text-rose-500">*</span>
           </label>
           <button type="button" @click="getCurrentLocation()" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer">
-            <i class="fa-solid fa-crosshairs"></i> Gunakan GPS Saat Ini
+            <i class="fa-solid fa-crosshairs" x-show="!isLocating"></i>
+            <i class="fa-solid fa-spinner animate-spin" x-show="isLocating"></i>
+            <span x-text="isLocating ? 'Mendeteksi...' : 'Gunakan GPS Saat Ini'"></span>
           </button>
         </div>
 
-        <!-- Search Input dengan Autocomplete Nominatim -->
-        <div class="relative w-full" @click.outside="showDropdown = false">
+        <!-- Search Input Google Places Autocomplete -->
+        <div class="relative w-full">
           <div class="relative flex items-center">
             <input 
+              x-ref="searchInput"
               type="text" 
-              x-model="searchQuery" 
-              @input.debounce.400ms="fetchSuggestions()"
-              @focus="if(suggestions.length > 0) showDropdown = true"
-              placeholder="Cari nama jalan, gedung, atau daerah..." 
-              class="w-full text-xs bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl pl-10 pr-10 py-3 text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 transition-all"
+              placeholder="Cari nama jalan, gedung, atau patokan lokasi..." 
+              class="w-full text-xs bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl pl-10 pr-4 py-3 text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 transition-all shadow-sm"
             >
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-xs"></i>
-            
-            <div x-show="isLoading" class="absolute right-3.5">
-              <i class="fa-solid fa-spinner animate-spin text-amber-500 text-xs"></i>
-            </div>
-          </div>
-
-          <!-- Dropdown Rekomendasi Lokasi -->
-          <div 
-            x-show="showDropdown" 
-            x-transition
-            class="absolute z-50 left-0 right-0 mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800"
-          >
-            <template x-for="item in suggestions" :key="item.place_id">
-              <div 
-                @click="selectLocation(item)" 
-                class="p-3 hover:bg-amber-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors text-xs text-slate-800 dark:text-slate-200 flex items-start gap-2.5"
-              >
-                <i class="fa-solid fa-location-dot text-amber-500 mt-0.5 shrink-0"></i>
-                <span x-text="item.display_name"></span>
-              </div>
-            </template>
           </div>
         </div>
 
-        <!-- Container Peta Leaflet -->
+        <!-- Container Peta Google Maps -->
         <div x-ref="map" class="w-full h-64 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner z-10"></div>
 
         <!-- Hidden Input Koordinat untuk Submit Form Laravel -->
@@ -132,7 +132,7 @@
         <input type="hidden" name="longitude" id="longitude" x-model="lng">
 
         <p class="text-[11px] text-slate-400 flex items-center gap-1">
-          <i class="fa-solid fa-circle-info"></i> Geser penanda peta ke posisi persis lokasi bangunan Anda.
+          <i class="fa-solid fa-circle-info"></i> Geser pin penanda pada peta ke posisi persis lokasi bangunan Anda.
         </p>
       </div>
 
@@ -203,7 +203,7 @@
     </div>
   @endif
 
-  <!-- 2. CUSTOM GENERAL ALERT MODAL (Menggantikan alert biasa/GPS error) -->
+  <!-- 2. CUSTOM GENERAL ALERT MODAL -->
   <div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 custom-modal-backdrop hidden transition-all duration-300">
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-4">
       
@@ -246,11 +246,11 @@
 </div>
 
 @push('scripts')
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Maps JavaScript API SDK -->
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&libraries=places" async defer></script>
 
   <script>
-    // Fungsi Menampilkan Custom Modal Alert
+    // Helper Modals
     function openCustomAlertModal(message) {
       const modal = document.getElementById('custom-alert-modal');
       const text = document.getElementById('custom-alert-modal-text');
@@ -275,56 +275,95 @@
       if (modal) modal.classList.add('hidden');
     }
 
+    // Alpine Component untuk Google Maps
     function locationPickerComponent(config) {
       return {
         lat: config.initialLat,
         lng: config.initialLng,
-        searchQuery: '',
-        suggestions: [],
-        isLoading: false,
-        showDropdown: false,
         map: null,
         marker: null,
+        geocoder: null,
+        autocomplete: null,
+        isLocating: false,
 
         initMap() {
           let parsedLat = parseFloat(this.lat) || -2.9909;
           let parsedLng = parseFloat(this.lng) || 104.7565;
+          const initialPos = { lat: parsedLat, lng: parsedLng };
 
-          this.lat = parsedLat.toFixed(8);
-          this.lng = parsedLng.toFixed(8);
+          this.setCoordinates(parsedLat, parsedLng);
 
-          this.map = L.map(this.$refs.map).setView([parsedLat, parsedLng], 15);
+          // Pengecekan Google Maps SDK
+          const checkGoogleLoaded = setInterval(() => {
+            if (typeof google !== 'undefined' && google.maps) {
+              clearInterval(checkGoogleLoaded);
+              this.renderGoogleMap(initialPos);
+            }
+          }, 100);
+        },
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap'
-          }).addTo(this.map);
-
-          const customIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-            iconSize: [36, 36],
-            iconAnchor: [18, 36],
+        renderGoogleMap(initialPos) {
+          // 1. Inisialisasi Peta & Geocoder
+          this.map = new google.maps.Map(this.$refs.map, {
+            center: initialPos,
+            zoom: 16,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
           });
 
-          this.marker = L.marker([parsedLat, parsedLng], {
+          this.geocoder = new google.maps.Geocoder();
+
+          // 2. Inisialisasi Marker Drag
+          this.marker = new google.maps.Marker({
+            position: initialPos,
+            map: this.map,
             draggable: true,
-            icon: customIcon
-          }).addTo(this.map);
-
-          // Event marker digeser
-          this.marker.on('dragend', (e) => {
-            let pos = e.target.getLatLng();
-            this.setCoordinates(pos.lat, pos.lng);
-            this.reverseGeocode(pos.lat, pos.lng);
+            animation: google.maps.Animation.DROP,
+            title: 'Geser titik ke lokasi Anda'
           });
 
-          // Event peta diklik
-          this.map.on('click', (e) => {
-            this.marker.setLatLng(e.latlng);
-            this.setCoordinates(e.latlng.lat, e.latlng.lng);
-            this.reverseGeocode(e.latlng.lat, e.latlng.lng);
+          // 3. Setup Autocomplete Google Places
+          this.autocomplete = new google.maps.places.Autocomplete(this.$refs.searchInput, {
+            types: ['geocode', 'establishment'],
+            componentRestrictions: { country: 'id' } // Batasi pencarian Indonesia
           });
 
-          setTimeout(() => { this.map.invalidateSize(); }, 300);
+          // Event saat lokasi dipilih dari dropdown Autocomplete
+          this.autocomplete.addListener('place_changed', () => {
+            const place = this.autocomplete.getPlace();
+            if (!place.geometry || !place.geometry.location) return;
+
+            const newLat = place.geometry.location.lat();
+            const newLng = place.geometry.location.lng();
+
+            this.marker.setPosition(place.geometry.location);
+            this.map.setCenter(place.geometry.location);
+            this.map.setZoom(17);
+
+            this.setCoordinates(newLat, newLng);
+            
+            if (place.formatted_address) {
+              this.updateFullAddress(place.formatted_address);
+            }
+          });
+
+          // Event Marker Digeser (Drag)
+          this.marker.addListener('dragend', (e) => {
+            const newLat = e.latLng.lat();
+            const newLng = e.latLng.lng();
+            this.setCoordinates(newLat, newLng);
+            this.reverseGeocode(newLat, newLng);
+          });
+
+          // Event Peta Diklik
+          this.map.addListener('click', (e) => {
+            const newLat = e.latLng.lat();
+            const newLng = e.latLng.lng();
+            this.marker.setPosition(e.latLng);
+            this.setCoordinates(newLat, newLng);
+            this.reverseGeocode(newLat, newLng);
+          });
         },
 
         setCoordinates(latitude, longitude) {
@@ -332,78 +371,56 @@
           this.lng = parseFloat(longitude).toFixed(8);
         },
 
-        fetchSuggestions() {
-          if (this.searchQuery.trim().length < 3) {
-            this.suggestions = [];
-            this.showDropdown = false;
+        updateFullAddress(addressText) {
+          const fullAddressArea = document.getElementById('full_address');
+          if (fullAddressArea) {
+            fullAddressArea.value = addressText;
+          }
+        },
+
+        // Reverse Geocoding: Mengubah Lat & Lng menjadi alamat teks
+        reverseGeocode(lat, lng) {
+          if (!this.geocoder) return;
+
+          this.geocoder.geocode({ location: { lat: parseFloat(lat), lng: parseFloat(lng) } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              this.updateFullAddress(results[0].formatted_address);
+              if (this.$refs.searchInput) {
+                this.$refs.searchInput.value = results[0].formatted_address;
+              }
+            }
+          });
+        },
+
+        // Tombol Ambil Lokasi GPS Pengguna
+        getCurrentLocation() {
+          if (!navigator.geolocation) {
+            openCustomAlertModal('Browser Anda tidak mendukung layanan lokasi GPS.');
             return;
           }
 
-          this.isLoading = true;
-          let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&addressdetails=1`;
-
-          fetch(url)
-            .then(res => res.json())
-            .then(data => {
-              this.suggestions = data || [];
-              this.showDropdown = this.suggestions.length > 0;
-              this.isLoading = false;
-            })
-            .catch(err => {
-              console.error(err);
-              this.isLoading = false;
-            });
-        },
-
-        selectLocation(item) {
-          let newLat = parseFloat(item.lat);
-          let newLng = parseFloat(item.lon);
-
-          this.searchQuery = item.display_name;
-          this.showDropdown = false;
-
-          this.marker.setLatLng([newLat, newLng]);
-          this.map.setView([newLat, newLng], 16);
-          this.setCoordinates(newLat, newLng);
-          
-          // Auto-fill textarea alamat
-          const fullAddressArea = document.getElementById('full_address');
-          if (fullAddressArea) {
-            fullAddressArea.value = item.display_name;
-          }
-        },
-
-        reverseGeocode(lat, lng) {
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data && data.display_name) {
-                const fullAddressArea = document.getElementById('full_address');
-                if (fullAddressArea && !fullAddressArea.value.trim()) {
-                  fullAddressArea.value = data.display_name;
-                }
-              }
-            })
-            .catch(err => console.error(err));
-        },
-
-        getCurrentLocation() {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
+          this.isLocating = true;
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
               const lat = position.coords.latitude;
               const lng = position.coords.longitude;
+              const latLng = new google.maps.LatLng(lat, lng);
 
-              this.map.setView([lat, lng], 16);
-              this.marker.setLatLng([lat, lng]);
+              if (this.marker && this.map) {
+                this.marker.setPosition(latLng);
+                this.map.setCenter(latLng);
+                this.map.setZoom(17);
+              }
 
               this.setCoordinates(lat, lng);
               this.reverseGeocode(lat, lng);
-            }, () => {
-              openCustomAlertModal('Gagal mengambil lokasi. Pastikan izin akses GPS pada browser telah diaktifkan.');
-            });
-          } else {
-            openCustomAlertModal('Browser Anda tidak mendukung layanan lokasi GPS.');
-          }
+              this.isLocating = false;
+            },
+            (error) => {
+              this.isLocating = false;
+              openCustomAlertModal('Gagal mengambil lokasi. Pastikan Anda mengizinkan akses GPS pada browser.');
+            }
+          );
         }
       }
     }

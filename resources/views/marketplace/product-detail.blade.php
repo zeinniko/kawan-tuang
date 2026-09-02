@@ -7,7 +7,7 @@
     $toUrl = function (?string $path) {
         if (!$path) return null;
         if (\Illuminate\Support\Str::startsWith($path, 'http')) return $path;
-        return asset('storage/' . ltrim($path, '/'));
+        return $path;
     };
 
     $defaultPath = $product['thumbnail_url'] ?? $product['image_url'] ?? null;

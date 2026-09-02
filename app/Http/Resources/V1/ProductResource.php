@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1;
 
+use App\Services\StorageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -9,13 +10,15 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $storageService = app(StorageService::class);
+
         $formattedImages = [];
 
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
-            $formattedImages = $this->images->map(function ($img) {
+            $formattedImages = $this->images->map(function ($img) use ($storageService) {
                 return [
                     'id'            => $img->id,
-                    'image_url'     => $img->image_url,
+                    'image_url'     => $storageService->getUrl($img->image_url, 'public'), // <--- URL Lengkap S3/Public
                     'is_primary'    => (bool) $img->is_primary,
                     'display_order' => (int) $img->display_order,
                 ];
@@ -39,7 +42,7 @@ class ProductResource extends JsonResource
             'volume_ml'          => (int) $this->volume_ml,
             'is_cold_ready'      => (bool) $this->is_cold_ready,
             'is_active'          => (bool) $this->is_active,
-            'thumbnail_url'      => $primaryImgPath,
+            'thumbnail_url'      => $storageService->getUrl($primaryImgPath, 'public'), // <--- URL Lengkap S3/Public
             'images'             => $formattedImages,
             'description'        => $this->description,
             'category'           => new CategoryResource($this->whenLoaded('category')),

@@ -37,6 +37,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'is_age_verified',
         'role',
         'avatar',
+        'points',
     ];
 
     /**
@@ -53,6 +54,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         'birth_date' => 'date',
         'is_age_verified' => 'boolean',
     ];
+
+    public function pointLogs(): HasMany
+    {
+        return $this->hasMany(PointLog::class)->latest();
+    }
 
     public function ktpVerification(): HasOne
     {

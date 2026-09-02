@@ -102,6 +102,7 @@
 
     if (initialStoreId) {
       syncItemsStockWithSelectedStore(initialStoreId);
+      syncStoreModalSelection(initialStoreId);
     }
 
     if (pLat && pLng) {
@@ -111,12 +112,32 @@
     }
   });
 
+  // ==========================================
+  // FUNGSI SINKRONISASI MODAL SELECTION
+  // ==========================================
+  function syncStoreModalSelection(storeId) {
+    if (!storeId) return;
+
+    const storeOptions = document.querySelectorAll('.store-option');
+    storeOptions.forEach(option => {
+      const radio = option.querySelector('.store-radio-input');
+      const optId = option.getAttribute('data-store-id') || (radio ? radio.value : null);
+
+      if (String(optId) === String(storeId)) {
+        if (radio) radio.checked = true;
+        option.classList.add('border-2', 'border-amber-500', 'bg-amber-500/5');
+        option.classList.remove('border-slate-200', 'dark:border-slate-800');
+      } else {
+        if (radio) radio.checked = false;
+        option.classList.remove('border-2', 'border-amber-500', 'bg-amber-500/5');
+        option.classList.add('border-slate-200', 'dark:border-slate-800');
+      }
+    });
+  }
+
   function checkStoreOperatingStatus(openTimeStr, closeTimeStr) {
     if (!openTimeStr || !closeTimeStr) {
-      return {
-        status: 'CLOSED',
-        message: 'Jam operasional tidak tersedia'
-      };
+      return { status: 'CLOSED', message: 'Jam operasional tidak tersedia' };
     }
 
     const now = new Date();
@@ -126,10 +147,7 @@
     const [cH, cM] = closeTimeStr.split(':').map(Number);
 
     if (isNaN(oH) || isNaN(oM) || isNaN(cH) || isNaN(cM)) {
-      return {
-        status: 'CLOSED',
-        message: 'Jam operasional tidak valid'
-      };
+      return { status: 'CLOSED', message: 'Jam operasional tidak valid' };
     }
 
     let openMinutes = oH * 60 + oM;
@@ -140,19 +158,13 @@
       closeMinutes += 24 * 60;
       if (currentMinutes < openMinutes) {
         if ((currentMinutes + 24 * 60) >= closeMinutes) {
-          return {
-            status: 'CLOSED',
-            message: 'Toko Sedang Tutup'
-          };
+          return { status: 'CLOSED', message: 'Toko Sedang Tutup' };
         }
       }
     }
 
     if (currentMinutes < openMinutes || currentMinutes >= closeMinutes) {
-      return {
-        status: 'CLOSED',
-        message: 'Toko Sedang Tutup'
-      };
+      return { status: 'CLOSED', message: 'Toko Sedang Tutup' };
     }
 
     if (currentMinutes >= pickupCutoffMinutes) {
@@ -162,10 +174,7 @@
       };
     }
 
-    return {
-      status: 'OPEN',
-      message: 'Toko Buka'
-    };
+    return { status: 'OPEN', message: 'Toko Buka' };
   }
 
   function refreshStoreModalStates() {
@@ -207,11 +216,15 @@
   }
 
   function openStoreModal() {
+    const currentStoreId = document.getElementById('selected-store-id')?.value;
+    syncStoreModalSelection(currentStoreId);
     refreshStoreModalStates();
+
     const modal = document.getElementById('store-modal');
     const modalContent = document.getElementById('store-modal-content');
     if (modal && modalContent) {
       modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
       modalContent.classList.remove('translate-y-full');
     }
   }
@@ -220,8 +233,11 @@
     const modal = document.getElementById('store-modal');
     const modalContent = document.getElementById('store-modal-content');
     if (modal && modalContent) {
-      modal.classList.add('opacity-0', 'pointer-events-none');
       modalContent.classList.add('translate-y-full');
+      modal.classList.remove('opacity-100');
+      setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
     }
   }
 
@@ -229,8 +245,7 @@
     const radio = labelEl.querySelector('.store-radio-input');
     if (radio && radio.disabled) return;
 
-    if (typeof highlightStoreOption === 'function') highlightStoreOption(labelEl);
-    if (radio) radio.checked = true;
+    syncStoreModalSelection(id);
     selectStore(id, name, address, hours, openTime, closeTime);
   }
 
@@ -455,6 +470,9 @@
     if (nameEl) nameEl.textContent = name;
     if (addressEl) addressEl.textContent = address;
     if (hoursEl) hoursEl.innerHTML = '<i class="fa-regular fa-clock me-1"></i> Jam Operasional: ' + hours + ' WIB';
+
+    // OTOMATIS SINKRONKAN TAMPILAN MODAL
+    syncStoreModalSelection(id);
 
     validatePickupConditions();
   }

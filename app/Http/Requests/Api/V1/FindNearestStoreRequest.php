@@ -14,9 +14,9 @@ class FindNearestStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'limit' => ['sometimes', 'integer', 'min:1', 'max:20'],
+            'latitude'  => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'limit'     => ['sometimes', 'integer', 'min:1', 'max:20'],
         ];
     }
 }

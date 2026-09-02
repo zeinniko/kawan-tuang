@@ -43,7 +43,7 @@ class CategoryForm
                         FileUpload::make('icon_url')
                             ->label('Icon Kategori')
                             ->image()
-                            ->disk('public')
+                            ->disk('s3')
                             ->visibility('public')
                             ->directory('categories')
                             ->helperText(function ($get) {

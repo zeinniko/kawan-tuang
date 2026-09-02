@@ -31,7 +31,7 @@ class BrandForm
                         FileUpload::make('logo_url')
                             ->label('Logo Brand')
                             ->image()
-                            ->disk('public')
+                            ->disk('s3')
                             ->visibility('public')
                             ->directory('brands')
                             ->imageEditor()

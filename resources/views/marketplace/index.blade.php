@@ -54,7 +54,7 @@
         <!-- Background Image Banner dari DB (dengan Fallback jika banner kosong) -->
         @php
         $bannerUrl = !empty($voucher['banner'])
-        ? asset('storage/' . $voucher['banner'])
+        ? $voucher['banner']
         : 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80';
         @endphp
         <img src="{{ $bannerUrl }}"
@@ -181,7 +181,7 @@
     @forelse($activeCategories as $category)
     @php
     $categoryIcon = data_get($category, 'icon_url');
-    $iconPath = $categoryIcon ? asset('storage/' . $categoryIcon) : null;
+    $iconPath = $categoryIcon ? $categoryIcon : null;
     @endphp
     <a href="{{ route('catalog.index', ['category_slug' => data_get($category, 'slug', '')]) }}"
       class="flex-shrink-0 snap-start group text-center w-20 sm:w-24">
@@ -222,29 +222,24 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
     @forelse($vibes as $vibe)
     @php
-      $vibeName = data_get($vibe, 'name');
-      $vibeSlug = data_get($vibe, 'slug');
+    $vibeName = data_get($vibe, 'name');
+    $vibeSlug = data_get($vibe, 'slug');
 
-      // Ambil path Icon & BG Image dengan penanganan URL yang aman
-      $vibeIcon = data_get($vibe, 'icon_url');
-      $iconUrl = $vibeIcon 
-        ? (\Illuminate\Support\Str::startsWith($vibeIcon, 'http') ? $vibeIcon : asset('storage/' . ltrim($vibeIcon, '/'))) 
-        : null;
+    // Ambil path Icon & BG Image dengan penanganan URL yang aman
+    $iconUrl = data_get($vibe, 'icon_url');
 
-      $vibeImg = data_get($vibe, 'image_url');
-      $bgImage = $vibeImg 
-        ? (\Illuminate\Support\Str::startsWith($vibeImg, 'http') ? $vibeImg : asset('storage/' . ltrim($vibeImg, '/'))) 
-        : 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
+    $vibeImg = data_get($vibe, 'image_url');
+    $bgImage = $vibeImg ?? 'https://images.unsplash.com/photo-1516997180214-3a5c2f829f8f?auto=format&fit=crop&w=500&q=80';
     @endphp
-    
-    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}" 
-       class="group relative h-48 sm:h-60 md:h-64 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-end p-3.5 sm:p-5">
-      
+
+    <a href="{{ route('catalog.index', ['vibe_slug' => $vibeSlug]) }}"
+      class="group relative h-48 sm:h-60 md:h-64 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-end p-3.5 sm:p-5">
+
       <!-- Background Image dengan Hover Zoom -->
-      <img src="{{ $bgImage }}" 
-           alt="{{ $vibeName }}" 
-           class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
-      
+      <img src="{{ $bgImage }}"
+        alt="{{ $vibeName }}"
+        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+
       <!-- Overlay Gradien Gelap untuk Kejelasan Teks -->
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 group-hover:from-black/95 transition-colors duration-300"></div>
 
@@ -252,9 +247,9 @@
       <div class="absolute top-1/2 -translate-y-1/2 right-3.5 sm:right-5 z-10">
         <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/20 dark:bg-black/40 backdrop-blur-md border border-white/30 dark:border-white/10 p-2.5 sm:p-3.5 flex items-center justify-center shadow-2xl group-hover:scale-125 group-hover:bg-amber-500 group-hover:border-amber-400 transition-all duration-300">
           @if($iconUrl)
-            <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-full h-full object-contain filter drop-shadow-md">
+          <img src="{{ $iconUrl }}" alt="{{ $vibeName }}" class="w-full h-full object-contain filter drop-shadow-md">
           @else
-            <i class="fa-solid fa-glass-cheers text-white text-xl sm:text-3xl"></i>
+          <i class="fa-solid fa-glass-cheers text-white text-xl sm:text-3xl"></i>
           @endif
         </div>
       </div>
@@ -270,7 +265,7 @@
       </div>
 
     </a>
-    
+
     @empty
     <p class="text-xs text-slate-400 col-span-full">Pilihan vibe belum tersedia.</p>
     @endforelse
@@ -341,7 +336,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />
@@ -357,7 +352,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />
@@ -377,7 +372,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />
@@ -393,7 +388,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />
@@ -413,7 +408,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />
@@ -429,7 +424,7 @@
         @endphp
         <a href="{{ url('/catalog?brand=' . $brandSlug) }}"
           class="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-md shrink-0 group">
-          <img src="{{ asset('storage/'.$logoUrl) }}"
+          <img src="{{ $logoUrl }}"
             alt="{{ $brandName }}"
             class="h-7 md:h-9 w-auto object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
             loading="lazy" />

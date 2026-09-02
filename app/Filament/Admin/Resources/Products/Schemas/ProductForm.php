@@ -116,7 +116,7 @@ class ProductForm
                                     ->directory('products')
                                     ->imageEditor()
                                     ->required()
-                                    ->disk('public')
+                                    ->disk('s3')
                                     ->visibility('public')
                                     ->columnSpanFull(),
 

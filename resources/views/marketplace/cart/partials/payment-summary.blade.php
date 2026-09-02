@@ -5,6 +5,9 @@
       Ringkasan Pembayaran
     </h2>
 
+    <!-- HIDDEN INPUT NILAI POIN -->
+    <input type="hidden" id="available-user-points" value="{{ $userPoints }}">
+
     <!-- VOUCHER PROMO -->
     <div>
       <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Kode Promo / Voucher</label>
@@ -16,6 +19,36 @@
       <p id="voucher-message" class="text-[11px] mt-1.5 hidden font-medium"></p>
     </div>
 
+    <!-- WIDGET POIN TIPSY -->
+    @if($userPoints > 0)
+    <div class="p-3 bg-amber-500/5 dark:bg-amber-500/10 rounded-xl border border-amber-500/20 space-y-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-coins text-xs"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-900 dark:text-white block leading-none">Poin Tipsy</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+              @if($isKycApproved)
+                Tersedia: <strong class="text-amber-600 dark:text-amber-400">{{ number_format($userPoints, 0, ',', '.') }} Poin</strong>
+              @else
+                <span class="text-rose-500 font-semibold"><i class="fa-solid fa-lock text-[9px] mr-0.5"></i> Verifikasi KTP 21+ untuk gunakan poin</span>
+              @endif
+            </span>
+          </div>
+        </div>
+
+        @if($isKycApproved && $userPoints > 0)
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="use-points-checkbox" onchange="recalculateSummary()" class="sr-only peer">
+          <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-amber-500"></div>
+        </label>
+        @endif
+      </div>
+    </div>
+    @endif
+
     <!-- COST BREAKDOWN -->
     <div class="space-y-2 text-xs text-slate-600 dark:text-slate-400 border-t border-b border-slate-200 dark:border-slate-800 py-3">
       <div class="flex justify-between">
@@ -25,7 +58,7 @@
         </span>
       </div>
       <div class="flex justify-between">
-        <span id="summary-shipping-label">Ongkos Kirim (Gojek Instant)</span>
+        <span id="summary-shipping-label">Ongkos Kirim</span>
         <span class="font-medium text-slate-900 dark:text-white">
           Rp <span id="summary-shipping-cost">25.000</span>
         </span>
@@ -37,6 +70,12 @@
       <div class="flex justify-between text-rose-500">
         <span>Diskon Voucher</span>
         <span class="font-medium">-Rp <span id="summary-discount">0</span></span>
+      </div>
+
+      <!-- DISKON POIN TIPSY (Sembunyi secara default, muncul jika toggle diaktifkan) -->
+      <div id="summary-point-row" class="flex justify-between text-amber-600 dark:text-amber-400 hidden">
+        <span class="flex items-center gap-1"><i class="fa-solid fa-coins text-[10px]"></i> Diskon Poin Tipsy</span>
+        <span class="font-bold">-Rp <span id="summary-point-discount">0</span></span>
       </div>
     </div>
 

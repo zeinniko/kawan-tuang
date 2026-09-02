@@ -25,15 +25,42 @@ class StoreController extends Controller
     public function nearest(FindNearestStoreRequest $request): JsonResponse
     {
         $limit = $request->input('limit', 5);
+        $lat   = $request->input('latitude');
+        $lng   = $request->input('longitude');
+
+        // Jika lat & lng tidak dikirim, ambil dari alamat user yang sedang login
+        if (is_null($lat) || is_null($lng)) {
+            $user = $request->user();
+
+            if ($user) {
+                // Ambil alamat utama (is_primary = true) atau fallback ke alamat pertama
+                $primaryAddress = $user->addresses()->where('is_primary', true)->first() 
+                    ?? $user->addresses()->first();
+
+                if ($primaryAddress) {
+                    $lat = $primaryAddress->latitude;
+                    $lng = $primaryAddress->longitude;
+                }
+            }
+        }
+
+        // Jika lat dan lng tetap tidak ada (Guest atau User belum set alamat)
+        if (is_null($lat) || is_null($lng)) {
+            return response()->json([
+                'message' => 'Koordinat lokasi tidak ditemukan.',
+                'data'    => [],
+            ]);
+        }
+
         $stores = $this->storeService->findNearestStores(
-            (float) $request->latitude,
-            (float) $request->longitude,
+            (float) $lat,
+            (float) $lng,
             (int) $limit
         );
 
         return response()->json([
             'message' => 'Daftar cabang terdekat berhasil didapatkan.',
-            'data' => StoreResource::collection($stores),
+            'data'    => StoreResource::collection($stores),
         ]);
     }
 

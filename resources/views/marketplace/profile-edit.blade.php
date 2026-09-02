@@ -1,5 +1,7 @@
 @extends('welcome')
 
+@inject('storageService', 'App\Services\StorageService')
+
 @section('title', 'Edit Profil - Tipsy More')
 
 @section('content')
@@ -35,12 +37,13 @@
     <!-- Avatar Upload Section -->
     <div class="flex flex-col items-center sm:flex-row sm:items-center gap-5 pb-6 border-b border-slate-100 dark:border-slate-800">
       <div class="relative group">
-        <div class="w-24 h-24 rounded-3xl overflow-hidden border-2 border-amber-500/30 bg-amber-500/10 flex items-center justify-center shadow-lg shadow-amber-500/10">
-          @if($user->avatar)
-            <img id="avatar-preview" src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->full_name }}" class="w-full h-full object-cover">
-          @else
-            <img id="avatar-preview" src="https://ui-avatars.com/api/?name={{ urlencode($user->full_name) }}&background=f59e0b&color=fff&bold=true" alt="{{ $user->full_name }}" class="w-full h-full object-cover">
-          @endif
+        <div class="w-24 h-24 rounded-3xl overflow-hidden border-2 border-amber-500/30 bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-lg shadow-amber-500/10">
+          @php
+            $avatarUrl = $user->avatar 
+              ? $storageService->getUrl($user->avatar, 'public') 
+              : "https://ui-avatars.com/api/?name=" . urlencode($user->full_name) . "&background=f59e0b&color=fff&bold=true";
+          @endphp
+          <img id="avatar-preview" src="{{ $avatarUrl }}" alt="{{ $user->full_name }}" class="w-full h-full object-cover">
         </div>
         
         <label for="avatar-input" class="absolute -bottom-2 -right-2 w-9 h-9 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center cursor-pointer shadow-md transition-transform group-hover:scale-110">
@@ -92,7 +95,7 @@
         </label>
       </div>
 
-      <!-- Section Input Password Baru (Tersembunyi secara default) -->
+      <!-- Section Input Password Baru -->
       <div id="password-section" class="mt-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-4 {{ old('change_password') ? '' : 'hidden' }}">
         
         <!-- Hint Box -->
@@ -130,7 +133,7 @@
 
     <!-- Submit Button -->
     <div class="pt-2">
-      <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-amber-500/20">
+      <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-amber-500/20 cursor-pointer">
         Simpan Perubahan
       </button>
     </div>

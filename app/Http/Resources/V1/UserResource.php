@@ -17,6 +17,7 @@ class UserResource extends JsonResource
             'birth_date' => $this->birth_date?->format('Y-m-d'),
             'is_age_verified' => (bool) $this->is_age_verified,
             'role' => $this->role,
+            'points' => $this->points,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -8,23 +8,32 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cartResponse    = InternalApiService::get('cart');
-        $storesResponse  = InternalApiService::get('stores');
+        $cartResponse      = InternalApiService::get('cart');
+        $storesResponse    = InternalApiService::get('stores');
         $addressesResponse = InternalApiService::get('addresses');
+        $kycResponse       = InternalApiService::get('kyc/status');
 
         $items     = $cartResponse['data']['items'] ?? $cartResponse['items'] ?? [];
         $stores    = $storesResponse['data'] ?? [];
         $addresses = $addressesResponse['data'] ?? [];
+        $kycData   = $kycResponse['data'] ?? null;
+
+        // Ambil data poin & status KYC user
+        $user          = $request->user()->fresh();
+        $userPoints    = $user ? (int) $user->points : 0;
+        $isKycApproved = ($kycData['status'] ?? null) === 'approved';
 
         $totalQty = collect($items)->sum('quantity');
         session(['cart_count' => $totalQty]);
 
         return view('marketplace.cart.index', [
-            'cart'      => $cartResponse['data'] ?? $cartResponse ?? [],
-            'stores'    => $stores,
-            'addresses' => $addresses,
+            'cart'          => $cartResponse['data'] ?? $cartResponse ?? [],
+            'stores'        => $stores,
+            'addresses'     => $addresses,
+            'userPoints'    => $userPoints,
+            'isKycApproved' => $isKycApproved,
         ]);
     }
 

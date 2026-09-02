@@ -159,33 +159,6 @@
             });
     }
 
-    function openStoreModal() {
-        const modal = document.getElementById('store-modal');
-        const content = document.getElementById('store-modal-content');
-        modal.classList.remove('pointer-events-none');
-        modal.classList.add('opacity-100');
-        content.classList.remove('translate-y-full');
-    }
-
-    function closeStoreModal() {
-        const modal = document.getElementById('store-modal');
-        const content = document.getElementById('store-modal-content');
-        content.classList.add('translate-y-full');
-        modal.classList.remove('opacity-100');
-        setTimeout(() => {
-            modal.classList.add('pointer-events-none');
-        }, 300);
-    }
-
-    function highlightStoreOption(element) {
-        document.querySelectorAll('.store-option').forEach(opt => {
-            opt.classList.remove('border-2', 'border-amber-500', 'bg-amber-500/5');
-            opt.classList.add('border-slate-200', 'dark:border-slate-800');
-        });
-        element.classList.remove('border-slate-200', 'dark:border-slate-800');
-        element.classList.add('border-2', 'border-amber-500', 'bg-amber-500/5');
-    }
-
     function openAddressModal() {
         const modal = document.getElementById('address-modal');
         const content = document.getElementById('address-modal-content');
@@ -220,7 +193,6 @@
         const labelEl = document.getElementById('display-address-label');
         if (labelEl) labelEl.innerText = label;
 
-        // BILA TOKO SUDAH DIPILIH MANUAL: Jangan reset toko, cukup hitung ulang ongkir saja
         if (window.isManualStoreSelected) {
             if (currentFulfillment === 'delivery' && typeof fetchShippingRates === 'function') {
                 fetchShippingRates();
@@ -413,7 +385,34 @@
 
         const effectiveShipping = (!hasSelectedItems || currentFulfillment === 'pickup') ? 0 : currentShippingCost;
         const effectiveDiscount = hasSelectedItems ? currentDiscount : 0;
-        const grandTotal = Math.max(0, subtotalSum + effectiveShipping - effectiveDiscount);
+
+        // --- PENYESUAIAN: LOGIKA HITUNG POTONGAN POIN TIPSY ---
+        let effectivePointDiscount = 0;
+        const usePointsCheckbox = document.getElementById('use-points-checkbox');
+        const availablePointsInput = document.getElementById('available-user-points');
+        const availablePoints = availablePointsInput ? parseInt(availablePointsInput.value || 0, 10) : 0;
+
+        if (usePointsCheckbox && usePointsCheckbox.checked && hasSelectedItems) {
+            // Hitung sisa tagihan sebelum dikurangi poin (Subtotal + Ongkir - Diskon Voucher)
+            const billBeforePoints = Math.max(0, subtotalSum + effectiveShipping - effectiveDiscount);
+            effectivePointDiscount = Math.min(availablePoints, billBeforePoints);
+        }
+
+        // Tampilkan / sembunyikan baris potongan poin di ringkasan
+        const pointRow = document.getElementById('summary-point-row');
+        const pointDiscountEl = document.getElementById('summary-point-discount');
+        if (pointRow && pointDiscountEl) {
+            if (effectivePointDiscount > 0) {
+                pointRow.classList.remove('hidden');
+                pointDiscountEl.innerText = formatRupiah(effectivePointDiscount);
+            } else {
+                pointRow.classList.add('hidden');
+                pointDiscountEl.innerText = '0';
+            }
+        }
+
+        // Grand Total = (Subtotal + Ongkir - Voucher - Diskon Poin)
+        const grandTotal = Math.max(0, subtotalSum + effectiveShipping - effectiveDiscount - effectivePointDiscount);
 
         document.getElementById('summary-subtotal').innerText = formatRupiah(subtotalSum);
         document.getElementById('summary-discount').innerText = formatRupiah(effectiveDiscount);
@@ -433,23 +432,6 @@
         } else {
             enableCheckoutBtn(btnCheckout);
             enableCheckoutBtn(mobileBtnCheckout);
-        }
-    }
-    function selectStoreOption(selectedLabel) {
-        document.querySelectorAll('.store-option-item').forEach(el => {
-            el.classList.remove('border-2', 'border-amber-500', 'bg-amber-500/5');
-            el.classList.add('border-slate-200', 'dark:border-slate-800', 'hover:border-amber-400');
-
-            const radioInput = el.querySelector('input[type="radio"]');
-            if (radioInput) radioInput.checked = false;
-        });
-
-        selectedLabel.classList.add('border-2', 'border-amber-500', 'bg-amber-500/5');
-        selectedLabel.classList.remove('border-slate-200', 'dark:border-slate-800', 'hover:border-amber-400');
-
-        const activeRadio = selectedLabel.querySelector('input[type="radio"]');
-        if (activeRadio) {
-            activeRadio.checked = true;
         }
     }
 
@@ -479,6 +461,10 @@
             return;
         }
 
+        // --- PENYESUAIAN: BACA STATUS USE_POINTS ---
+        const usePointsCheckbox = document.getElementById('use-points-checkbox');
+        const isUsingPoints = usePointsCheckbox ? usePointsCheckbox.checked : false;
+
         const payload = {
             fulfillment_type: currentFulfillment,
             shipping_cost: currentFulfillment === 'pickup' ? 0 : currentShippingCost,
@@ -488,6 +474,7 @@
             courier_type: selectedCourierType || 'instant',
             payment_method: 'midtrans',
             voucher_code: activeVoucherCode || null,
+            use_points: isUsingPoints, // <--- TAMBAHAN PARAMETER POIN
             notes: document.getElementById('delivery-note')?.value || ''
         };
 

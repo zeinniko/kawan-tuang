@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\InternalApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CatalogController extends Controller
 {
@@ -38,18 +39,25 @@ class CatalogController extends Controller
             $selectedStore = collect($stores)->firstWhere('id', (int) $selectedStoreId);
         }
 
-        // Priority 2: Jika User sudah LOGIN dan belum pilih toko, panggil API stores/nearest
+        // Priority 2: Jika User sudah LOGIN dan belum pilih toko manual
         if (!$selectedStore && Auth::check()) {
-            $nearestResponse = InternalApiService::get('stores/nearest');
-            $nearestData = $nearestResponse['data'] ?? $nearestResponse ?? null;
+            try {
+                // Panggil langsung API stores/nearest (Backend API akan otomatis mendeteksi alamat user login)
+                $nearestResponse = InternalApiService::get('stores/nearest');
+                $nearestStores = $nearestResponse['data'] ?? [];
 
-            if (!empty($nearestData) && isset($nearestData['id'])) {
-                // Cocokkan dengan data toko yang ada atau gunakan data toko terdekat tersebut
-                $selectedStore = collect($stores)->firstWhere('id', (int) $nearestData['id']) ?? $nearestData;
+                if (!empty($nearestStores)) {
+                    $nearestData = $nearestStores[0] ?? null;
+                    if ($nearestData && isset($nearestData['id'])) {
+                        $selectedStore = collect($stores)->firstWhere('id', (int) $nearestData['id']) ?? $nearestData;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error('[CATALOG] Gagal mengambil toko terdekat: ' . $e->getMessage());
             }
         }
 
-        // Priority 3: Fallback default (Guest / API Nearest kosong) -> ambil toko pertama
+        // Priority 3: Fallback default (Guest / Belum ada alamat / API Nearest kosong) -> Toko pertama
         if (!$selectedStore && !empty($stores)) {
             $selectedStore = $stores[0] ?? null;
         }

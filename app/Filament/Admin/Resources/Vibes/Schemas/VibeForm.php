@@ -28,7 +28,7 @@ class VibeForm
                         FileUpload::make('icon_url')
                             ->label('Icon Custom Vibe (SVG / PNG)')
                             ->image()
-                            ->disk('public')
+                            ->disk('s3')
                             ->visibility('public')
                             ->directory('vibes/icons')
                             ->columnSpanFull(),
@@ -36,7 +36,7 @@ class VibeForm
                         FileUpload::make('image_url')
                             ->label('Gambar Banner Vibe (Background)')
                             ->image()
-                            ->disk('public')
+                            ->disk('s3')
                             ->visibility('public')
                             ->directory('vibes/banners')
                             ->columnSpanFull(),
