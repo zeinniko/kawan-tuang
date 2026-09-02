@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Jobs\CreateBiteshipOrderJob;
 use App\Models\Order;
+use App\Models\Payment; // Import Model Payment
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MidtransPaymentService
 {
@@ -67,33 +69,72 @@ class MidtransPaymentService
         $statusCode        = $notification['status_code'] ?? null;
         $grossAmount       = $notification['gross_amount'] ?? null;
 
-        if (! $orderNumber) {
-            return;
+        if (!$orderNumber) {
+            throw new Exception('Order ID tidak ditemukan dalam payload notification.');
         }
 
+        // 1. Verifikasi Signature Key Midtrans
         $expectedSignature = hash('sha512', $orderNumber . $statusCode . $grossAmount . $this->serverKey);
         if ($signatureKey !== $expectedSignature) {
+            Log::error('[MIDTRANS SIGNATURE MISMATCH]', [
+                'received' => $signatureKey,
+                'expected' => $expectedSignature
+            ]);
             throw new Exception('Integritas Signature Key Midtrans tidak valid.');
         }
 
+        // 2. Cari Order di Database
         $order = Order::where('order_number', $orderNumber)->first();
-        if (! $order) {
-            return;
+        if (!$order) {
+            throw new Exception("Order dengan nomor {$orderNumber} tidak ditemukan.");
         }
 
+        $isPaid = false;
+        $paymentStatus = 'pending';
+
+        // 3. Tentukan Status Pembayaran
         if ($transactionStatus === 'capture') {
             if ($fraudStatus === 'accept') {
-                $order->update(['status' => Order::STATUS_PAID]);
-
-                // Dispatch job untuk auto request pickup Biteship
-                CreateBiteshipOrderJob::dispatch($order);
+                $isPaid = true;
+                $paymentStatus = 'settlement';
             }
         } elseif ($transactionStatus === 'settlement') {
-            $order->update(['status' => Order::STATUS_PAID]);
+            $isPaid = true;
+            $paymentStatus = 'settlement';
         } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+            $paymentStatus = $transactionStatus;
             $order->update(['status' => Order::STATUS_CANCELLED]);
         } elseif ($transactionStatus === 'pending') {
+            $paymentStatus = 'pending';
             $order->update(['status' => Order::STATUS_PENDING_PAYMENT]);
+        }
+
+        // 4. BIKIN / UPDATE RECORD DI TABEL PAYMENTS (Perbaikan Utama)
+        Payment::updateOrCreate(
+            ['order_id' => $order->id],
+            [
+                'payment_method'         => $notification['payment_type'] ?? 'midtrans',
+                'gateway_transaction_id' => $notification['transaction_id'] ?? null,
+                'payment_status'         => $paymentStatus,
+                'paid_at'                => $isPaid ? now() : null,
+                'raw_response'           => $notification,
+            ]
+        );
+
+        // 5. JIKA SUDAH LUNAS: Update Order & Trigger Biteship
+        if ($isPaid) {
+            // Mencegah eksekusi ganda jika sudah berstatus PAID
+            if ($order->status !== Order::STATUS_PAID) {
+                $order->update(['status' => Order::STATUS_PAID]);
+
+                Log::info("[ORDER PAID] Order {$order->order_number} berhasil dibayar.");
+
+                // Panggil Biteship HANYA JIKA tipe pengiriman adalah DELIVERY
+                if ($order->fulfillment_type === 'delivery') {
+                    Log::info("[BITESHIP DISPATCH] Memulai Job Biteship untuk order {$order->order_number}");
+                    CreateBiteshipOrderJob::dispatch($order);
+                }
+            }
         }
     }
 }

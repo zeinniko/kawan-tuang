@@ -174,7 +174,7 @@
         <i class="fa-solid fa-id-card"></i>
       </div>
       <div>
-        <h3 class="text-xs font-bold text-slate-900 dark:text-white">Verifikasi Usia Legal (Opsional)</h3>
+        <h3 class="text-xs font-bold text-slate-900 dark:text-white">Verifikasi Usia Legal</h3>
         <p class="text-[11px] text-slate-500 dark:text-slate-400">
           Upload KTP kapan saja untuk melengkapi profil dan mendapatkan badge terverifikasi.
         </p>
