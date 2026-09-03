@@ -16,6 +16,7 @@ class OrderController extends Controller
         $ordersResponse = InternalApiService::get('orders', [
             'status' => $request->query('status'),
         ]);
+        Log::info("Cari Order ; " . $ordersResponse);
 
         return view('marketplace.orders', [
             'orders' => $ordersResponse['data'] ?? [],
@@ -26,6 +27,7 @@ class OrderController extends Controller
     {
         $orderResponse = InternalApiService::get("orders/{$id}");
         $orderData = $orderResponse['data'] ?? (isset($orderResponse['id']) ? $orderResponse : null);
+        Log::info("Cari Order ; " . $orderData);
         return view('marketplace.orders-detail', [
             'order' => $orderData,
         ]);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Services\MidtransPaymentService;
 use Exception;
@@ -56,19 +57,22 @@ class WebhookController extends Controller
 
     public function handleBiteship(Request $request): JsonResponse
     {
-        $event = $request->input('event');
+        $payload         = $request->all();
         $biteshipOrderId = $request->input('order_id');
         $merchantOrderId = $request->input('merchant_order_id');
-        $payload = $request->all();
+        $statusRaw       = strtolower($request->input('status', ''));
+        $event           = strtolower($request->input('event', ''));
 
         Log::info('[WEBHOOK BITESHIP] Payload Received:', [
             'ip'                => $request->ip(),
             'event'             => $event,
+            'status'            => $statusRaw,
             'biteship_order_id' => $biteshipOrderId,
             'merchant_order_id' => $merchantOrderId,
             'payload'           => $payload,
         ]);
 
+        // 1. Cari Order
         $order = Order::where('biteship_order_id', $biteshipOrderId)
             ->orWhere('order_number', $merchantOrderId)
             ->first();
@@ -82,60 +86,52 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Order tidak ditemukan'], 404);
         }
 
-        $courierData = $request->input('courier', []);
-        $updateData = [];
+        // 2. Ekstrak Detail Kurir
+        $waybillNumber   = $request->input('courier_waybill_id') ?? $request->input('courier.waybill_id');
+        $driverName      = $request->input('courier_driver_name') ?? $request->input('courier.driver_name');
+        $driverPhone     = $request->input('courier_driver_phone') ?? $request->input('courier.driver_phone');
+        $liveTrackingUrl = $request->input('courier_link') ?? $request->input('courier_tracking_url') ?? $request->input('courier.tracking_url');
+        $courierCompany  = $request->input('courier_company') ?? $request->input('courier.company');
+        $courierType     = $request->input('courier_type') ?? $request->input('courier.type');
 
-        if (!empty($courierData['waybill_id'])) {
-            $updateData['waybill_number'] = $courierData['waybill_id'];
+        // 3. Susun data update untuk tabel orders
+        $orderUpdates = [];
+        if (empty($order->biteship_order_id) && !empty($biteshipOrderId)) {
+            $orderUpdates['biteship_order_id'] = $biteshipOrderId;
         }
-        if (!empty($courierData['driver_name'])) {
-            $updateData['driver_name'] = $courierData['driver_name'];
-        }
-        if (!empty($courierData['driver_phone'])) {
-            $updateData['driver_phone'] = $courierData['driver_phone'];
-        }
-        if (!empty($courierData['tracking_url'])) {
-            $updateData['live_tracking_url'] = $courierData['tracking_url'];
-        }
+        if ($waybillNumber)   $orderUpdates['waybill_number']    = $waybillNumber;
+        if ($driverName)      $orderUpdates['driver_name']       = $driverName;
+        if ($driverPhone)     $orderUpdates['driver_phone']      = $driverPhone;
+        if ($liveTrackingUrl) $orderUpdates['live_tracking_url'] = $liveTrackingUrl;
+        if ($courierCompany)  $orderUpdates['courier_company']   = strtolower($courierCompany);
+        if ($courierType)     $orderUpdates['courier_type']      = strtolower($courierType);
 
-        // Penanganan perubahan status berdasarkan Event Biteship
-        switch ($event) {
-            case 'order.courier.allocated':
-                $updateData['status'] = Order::STATUS_PROCESSING;
-                break;
-            case 'order.picking_up':
-            case 'order.dropping_off':
-                $updateData['status'] = Order::STATUS_DELIVERING;
-                break;
-            case 'order.delivered':
-                $updateData['status'] = Order::STATUS_COMPLETED;
-                break;
-            case 'order.cancelled':
-            case 'order.rejected':
-                $updateData['status'] = Order::STATUS_CANCELLED;
-                $updateData['cancel_reason'] = $request->input('cancellation_reason') 
+        // 4. Normalisasi Status
+        $statusKey = !empty($statusRaw) ? $statusRaw : $event;
+        $statusKey = str_replace('order.', '', $statusKey);
+
+        if (!empty($statusKey)) {
+            $orderUpdates['status'] = $statusKey;
+
+            if (in_array($statusKey, ['cancelled', 'rejected', 'courier_not_found'])) {
+                $orderUpdates['cancel_reason'] = $request->input('cancellation_reason')
+                    ?? $request->input('note')
                     ?? 'Pengiriman dibatalkan oleh pihak kurir/Biteship';
-                break;
-            default:
-                Log::info('[WEBHOOK BITESHIP] Unhandled or Informational Event:', ['event' => $event]);
-                break;
+            }
         }
 
-        if (!empty($updateData)) {
-            $oldStatus = $order->status;
-            $order->update($updateData);
-
-            Log::info('[WEBHOOK BITESHIP] Order Updated Successfully:', [
-                'order_number' => $order->order_number,
-                'old_status'   => $oldStatus,
-                'new_status'   => $order->status,
-                'updated_fields' => array_keys($updateData),
-            ]);
-        } else {
-            Log::info('[WEBHOOK BITESHIP] Payload received but no attributes updated.', [
-                'order_number' => $order->order_number
-            ]);
+        // 5. Update Langsung ke Tabel Orders
+        $oldStatus = $order->status;
+        if (!empty($orderUpdates)) {
+            $order->update($orderUpdates);
         }
+
+        Log::info('[WEBHOOK BITESHIP] Order updated successfully:', [
+            'order_number' => $order->order_number,
+            'old_status'   => $oldStatus,
+            'new_status'   => $order->status,
+            'tracking_url' => $liveTrackingUrl ?? $order->live_tracking_url,
+        ]);
 
         return response()->json(['message' => 'Webhook Biteship berhasil diproses']);
     }

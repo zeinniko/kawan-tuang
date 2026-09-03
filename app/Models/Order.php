@@ -16,6 +16,7 @@ class Order extends Model
     public const STATUS_PAID            = 'paid';
     public const STATUS_PROCESSING      = 'processing';
     public const STATUS_DELIVERING      = 'delivering';
+    public const STATUS_READY_FOR_PICKUP= 'ready_for_pickup';
     public const STATUS_COMPLETED       = 'completed';
     public const STATUS_CANCELLED       = 'cancelled';
     protected $fillable = [
@@ -80,11 +81,6 @@ class Order extends Model
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
-    }
-
-    public function delivery(): HasOne
-    {
-        return $this->hasOne(Delivery::class);
     }
 
     public function reviews(): HasMany
