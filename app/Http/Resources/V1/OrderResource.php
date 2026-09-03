@@ -10,24 +10,29 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'order_number' => $this->order_number,
-            'status' => $this->status,
-            'payment_status' => $this->payment->status,
-            'shipping_status' => $this->delivery->status,
-            'total_items_price' => (float) $this->total_items_price,
-            'subtotal' => (float) $this->subtotal,
-            'discount_amount' => (float) $this->discount_amount,
-            'delivery_fee' => (float) $this->delivery_fee,
-            'admin_fee' => (float) $this->admin_fee,
-            'total_amount' => (float) $this->total_amount,
-            'courier_company' => $this->courier_company,
-            'courier_type' => $this->courier_type,
-            'waybill_number' => $this->waybill_number,
-            'store' => new StoreResource($this->whenLoaded('store')),
-            'address' => $this->address_snapshot,
-            'items' => OrderItemResource::collection($this->whenLoaded('items')),
-            'created_at' => $this->created_at?->toIso8601String(),
+            'id'                => $this->id,
+            'order_number'      => $this->order_number,
+            'fulfillment_type'  => $this->fulfillment_type,
+            'status'            => $this->status,
+            'payment_status'    => $this->payment?->status,
+            'shipping_status'   => $this->fulfillment_type === 'delivery' 
+                                    ? ($this->delivery?->status ?? $this->status) 
+                                    : null,
+            'subtotal'          => (float) $this->subtotal,
+            'discount_amount'   => (float) $this->discount_amount,
+            'delivery_fee'      => (float) $this->delivery_fee,
+            'admin_fee'         => (float) $this->admin_fee,
+            'total_amount'      => (float) $this->total_amount,
+            'courier_company'   => $this->courier_company ?? $this->delivery?->courier_provider,
+            'courier_type'      => $this->courier_type ?? $this->delivery?->service_type,
+            'waybill_number'    => $this->waybill_number ?? $this->delivery?->waybill_number,
+            'driver_name'       => $this->driver_name ?? $this->delivery?->driver_name,
+            'driver_phone'      => $this->driver_phone ?? $this->delivery?->driver_phone,
+            'live_tracking_url' => $this->live_tracking_url ?? $this->delivery?->live_tracking_url,
+            'store'             => new StoreResource($this->whenLoaded('store')),
+            'address'           => $this->address_snapshot,
+            'items'             => OrderItemResource::collection($this->whenLoaded('items')),
+            'created_at'        => $this->created_at?->toIso8601String(),
         ];
     }
 }
