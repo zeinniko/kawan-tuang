@@ -180,9 +180,9 @@ class BiteshipService
                 'latitude'  => (float) $store->latitude,
                 'longitude' => (float) $store->longitude,
             ],
-            'destination_contact_name'  => $snapshot['recipient_name'] ?? $order->user->name,
+            'destination_contact_name'  => $snapshot['recipient_name'] ?? $order->user->full_name,
             'destination_contact_phone' => $snapshot['recipient_phone'] ?? $order->user->phone_number,
-            'destination_address'       => $snapshot['full_address'] ?? '',
+            'destination_address'       => $snapshot['full_address'],
             'destination_coordinate'    => [
                 'latitude'  => (float) ($snapshot['latitude'] ?? 0),
                 'longitude' => (float) ($snapshot['longitude'] ?? 0),
@@ -192,6 +192,7 @@ class BiteshipService
             'delivery_type'             => 'now',
             'items'                     => $items,
         ];
+        Log::info($payload);
 
         $response = $this->client()->post('/orders', $payload);
 

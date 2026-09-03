@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->string('biteship_order_id', 100)->nullable()->after('status');
-            $table->string('courier_company', 50)->nullable()->after('biteship_order_id'); // e.g. gojek, grab, jne
-            $table->string('courier_type', 50)->nullable()->after('courier_company');     // e.g. instant, same_day, reg
+            $table->string('courier_company', 50)->nullable()->after('biteship_order_id');
+            $table->string('courier_type', 50)->nullable()->after('courier_company');
             $table->string('waybill_number', 100)->nullable()->after('courier_type');
             $table->string('driver_name', 100)->nullable()->after('waybill_number');
             $table->string('driver_phone', 20)->nullable()->after('driver_name');

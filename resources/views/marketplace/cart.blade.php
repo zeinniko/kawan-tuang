@@ -948,8 +948,8 @@
       shipping_cost: currentFulfillment === 'pickup' ? 0 : currentShippingCost,
       store_id: finalStoreId,
       user_address_id: defaultAddressId,
-      courier_company: selectedCourierCompany || 'gojek',
-      courier_type: selectedCourierType || 'instant',
+      courier_company: selectedCourierCompany,
+      courier_type: selectedCourierType,
       payment_method: 'midtrans',
       voucher_code: activeVoucherCode || null,
       notes: document.getElementById('delivery-note')?.value || ''

@@ -106,7 +106,7 @@
                 <div>
                   <span class="text-xs font-bold text-slate-900 dark:text-white block">Metode Pengiriman</span>
                   <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                    {{ strtoupper($order['courier_company'] ?? 'Gojek') }} ({{ ucfirst($order['courier_type'] ?? 'Instant') }})
+                    {{ strtoupper($order['courier_company'] ?? 'Null') }} ({{ ucfirst($order['courier_type'] ?? 'Null') }})
                   </span>
                 </div>
               </div>

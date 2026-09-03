@@ -45,8 +45,8 @@ class OrderController extends Controller
         // Default value jika opsi pickup
         $validated['shipping_cost'] = $validated['fulfillment_type'] === 'pickup' ? 0 : ($validated['shipping_cost'] ?? 15000);
         $validated['payment_method'] = $validated['payment_method'] ?? 'midtrans';
-        $validated['courier_company'] = $validated['courier_company'] ?? 'instant';
-        $validated['courier_type'] = $validated['courier_type'] ?? 'gojek';
+        $validated['courier_company'] = $validated['courier_company'] ?? 'gojek';
+        $validated['courier_type'] = $validated['courier_type'] ?? 'instant';
 
         // 2. Buat Order di Database
         $order = $this->orderService->processCheckout($request->user(), $validated);

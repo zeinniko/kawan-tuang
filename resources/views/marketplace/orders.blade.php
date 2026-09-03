@@ -140,7 +140,7 @@
             <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/20 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span class="flex items-center gap-1.5">
                 <i class="fa-solid fa-truck text-amber-500"></i>
-                Pengiriman: <strong class="text-slate-700 dark:text-slate-300">{{ strtoupper($item['courier_company'] ?? 'Gojek') }} ({{ ucfirst($item['courier_type'] ?? 'Instant') }})</strong>
+                Pengiriman: <strong class="text-slate-700 dark:text-slate-300">{{ strtoupper($item['courier_company'] ?? 'Null') }} ({{ ucfirst($item['courier_type'] ?? 'Instant') }})</strong>
               </span>
               @if(!empty($item['waybill_number']))
                 <span class="font-mono bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200">
