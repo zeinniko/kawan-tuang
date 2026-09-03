@@ -117,6 +117,9 @@ class OrderService
 
             $fulfillmentType = $data['fulfillment_type'] ?? 'delivery';
 
+            $courierCompany = $fulfillmentType === 'delivery' ? ($data['courier_company']) : null;
+            $courierType    = $fulfillmentType === 'delivery' ? ($data['courier_type']) : null;
+
             $order = Order::create([
                 'order_number'     => 'TT-' . strtoupper(Str::random(4)) . '-' . date('YmdHis'),
                 'user_id'          => $user->id,
@@ -131,6 +134,8 @@ class OrderService
                 'total_amount'     => $preview['total_amount'],
                 'status'           => Order::STATUS_PENDING_PAYMENT,
                 'address_snapshot' => $addressSnapshot,
+                'courier_company'  => $courierCompany,
+                'courier_type'     => $courierType,
             ]);
 
             foreach ($cart->items as $item) {

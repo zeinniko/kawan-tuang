@@ -192,7 +192,6 @@ class BiteshipService
             'delivery_type'             => 'now',
             'items'                     => $items,
         ];
-        Log::info($payload);
 
         $response = $this->client()->post('/orders', $payload);
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\InternalApiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -32,6 +33,7 @@ class OrderController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        Log::info("Log checkoutRequest " . $request);
         $checkoutResponse = InternalApiService::post('checkout/process', [
             'fulfillment_type' => $request->input('fulfillment_type', 'delivery'),
             'shipping_cost'    => (float) $request->input('shipping_cost', 0),

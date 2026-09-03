@@ -10,6 +10,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         recalculateSummary();
+        if (currentFulfillment === 'delivery') {
+            fetchShippingRates();
+        }
     });
 
     function disableCheckoutBtn(btn) {
@@ -130,7 +133,10 @@
                     html += `
                 <label class="relative flex flex-col justify-between p-3.5 rounded-xl border ${isFirst ? 'border-2 border-amber-500 bg-amber-500/5' : 'border-slate-200 dark:border-slate-800 hover:border-amber-400'} cursor-pointer courier-option transition-all" 
                        onclick="selectCourier(${rate.price}, '${rate.courier_code}', '${rate.courier_service_code}', '${rate.courier_name} ${rate.service_name}', event)">
-                  <input type="radio" name="shipping" value="${rate.price}" ${isFirst ? 'checked' : ''} class="hidden">
+                  <input type="radio" name="shipping" value="${rate.price}" 
+                         data-courier-company="${rate.courier_code}" 
+                         data-courier-type="${rate.courier_service_code}" 
+                         ${isFirst ? 'checked' : ''} class="hidden">
                   <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-900 dark:text-white">${rate.courier_name} (${rate.service_name})</span>
                     <i class="fa-solid fa-circle-check text-amber-500 text-sm check-icon ${isFirst ? '' : 'hidden'}"></i>
@@ -454,11 +460,30 @@
         const selectedAddressRadio = document.querySelector('input[name="selected_address_id"]:checked');
         const defaultAddressId = selectedAddressRadio ? selectedAddressRadio.value : "{{ $primaryAddress['id'] ?? '' }}";
 
-        if (currentFulfillment === 'delivery' && !defaultAddressId) {
-            alert("Harap pilih atau tambahkan alamat pengiriman terlebih dahulu.");
-            btn.disabled = false;
-            btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
-            return;
+        if (currentFulfillment === 'delivery') {
+            if (!defaultAddressId) {
+                alert("Harap pilih atau tambahkan alamat pengiriman terlebih dahulu.");
+                btn.disabled = false;
+                btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
+                return;
+            }
+
+            // AMBIL KURIR DARI RADIO OPSI JIKA VARIABEL MASIH KOSONG
+            if (!selectedCourierCompany || !selectedCourierType) {
+                const activeRadio = document.querySelector('input[name="shipping"]:checked');
+                if (activeRadio) {
+                    selectedCourierCompany = activeRadio.getAttribute('data-courier-company');
+                    selectedCourierType = activeRadio.getAttribute('data-courier-type');
+                }
+            }
+
+            // JIKA KURIR MASIH KOSONG JUGA, TAMPILKAN PERINGATAN
+            if (!selectedCourierCompany || !selectedCourierType) {
+                alert("Harap pilih kurir pengiriman terlebih dahulu.");
+                btn.disabled = false;
+                btn.innerHTML = 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>';
+                return;
+            }
         }
 
         // --- PENYESUAIAN: BACA STATUS USE_POINTS ---

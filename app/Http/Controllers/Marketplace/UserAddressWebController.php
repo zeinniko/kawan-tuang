@@ -92,8 +92,8 @@ class UserAddressWebController extends Controller
         $address = (object) [
             'id'              => $data['id'] ?? $id,
             'label'           => $data['label'] ?? '',
-            'recipient_name'  => $data['recipient_name'] ?? $data['receiver_name'] ?? '',
-            'recipient_phone' => $data['recipient_phone'] ?? $data['receiver_phone'] ?? '',
+            'recipient_name'  => $data['recipient_name'],
+            'recipient_phone' => $data['recipient_phone'],
             'full_address'    => $data['full_address'] ?? '',
             'notes'           => $data['notes'] ?? '',
             'postal_code'     => $data['postal_code'] ?? '10110',

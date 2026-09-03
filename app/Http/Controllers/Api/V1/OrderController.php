@@ -27,54 +27,19 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
-    {
-        // 1. Validasi input dari frontend
-        $validated = $request->validate([
-            'fulfillment_type'  => 'required|in:delivery,pickup',
-            'shipping_cost'     => 'nullable|numeric|min:0',
-            'store_id'          => 'required_if:fulfillment_type,pickup',
-            'user_address_id'   => 'required_if:fulfillment_type,delivery',
-            'courier_company'   => 'nullable|string',
-            'courier_type'      => 'nullable|string',
-            'payment_method'    => 'nullable|string',
-            'notes'             => 'nullable|string',
-            'voucher_code'      => 'nullable|string',
-        ]);
-
-        // Default value jika opsi pickup
-        $validated['shipping_cost'] = $validated['fulfillment_type'] === 'pickup' ? 0 : ($validated['shipping_cost'] ?? 15000);
-        $validated['payment_method'] = $validated['payment_method'] ?? 'midtrans';
-        $validated['courier_company'] = $validated['courier_company'] ?? 'gojek';
-        $validated['courier_type'] = $validated['courier_type'] ?? 'instant';
-
-        // 2. Buat Order di Database
-        $order = $this->orderService->processCheckout($request->user(), $validated);
-
-        // 3. Generate Snap Token dari Midtrans
-        $paymentData = $this->paymentService->createSnapToken($order);
-
-        return response()->json([
-            'message' => 'Order berhasil dibuat.',
-            'order' => new OrderResource($order),
-            'snap_token' => $paymentData['snap_token'],
-            'redirect_url' => $paymentData['redirect_url'],
-        ], 201);
-    }
-
     public function show(Request $request, string $id): JsonResponse
     {
         $order = Order::with(['store', 'address', 'items.product'])
             ->where('id', $id)
             ->where('user_id', $request->user()->id)
             ->first();
-    
+
         if (! $order) {
             return response()->json([
                 'message' => 'Pesanan tidak ditemukan atau akses ditolak.',
             ], 404);
         }
-    
+
         return response()->json([
             'data' => new OrderResource($order),
         ]);
