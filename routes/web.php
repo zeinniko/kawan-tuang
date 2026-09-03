@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
     // Orders Routes (Daftar & Tracking Pesanan) <-- TAMBAHKAN DI SINI
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{orderId}/review/{productId}', [OrderController::class, 'storeReview'])
+        ->name('orders.review.store');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');

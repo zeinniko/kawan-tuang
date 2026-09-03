@@ -29,7 +29,7 @@ class OrderController extends Controller
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $order = Order::with(['store', 'payment', 'items.product', 'delivery'])
+        $order = Order::with(['store', 'payment', 'items.product', 'delivery', 'reviews'])
             ->where('id', $id)
             ->where('user_id', $request->user()->id)
             ->first();

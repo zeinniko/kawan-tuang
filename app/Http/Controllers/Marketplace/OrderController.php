@@ -32,6 +32,30 @@ class OrderController extends Controller
         ]);
     }
 
+    public function storeReview(Request $request, string $orderId, string $productId)
+    {
+        $request->validate([
+            'rating'      => 'required|integer|min:1|max:5',
+            'review_text' => 'required|string|max:1000',
+            'photo_url'   => 'nullable|url',
+        ]);
+
+        $response = InternalApiService::post("products/{$productId}/reviews", [
+            'order_id'    => $orderId,
+            'rating'      => (int) $request->input('rating'),
+            'review_text' => $request->input('review_text'),
+            'photo_url'   => $request->input('photo_url'),
+        ]);
+
+        if (isset($response['errors']) || isset($response['message']) && str_contains(strtolower($response['message']), 'gagal')) {
+            return back()->withErrors([
+                'review' => $response['message'] ?? 'Gagal mengirimkan ulasan produk.'
+            ])->withInput();
+        }
+
+        return back()->with('success', 'Ulasan produk berhasil dikirim. Terima kasih!');
+    }
+
     public function store(Request $request): JsonResponse
     {
         Log::info("Log checkoutRequest " . $request);

@@ -20,6 +20,9 @@ class OrderItemResource extends JsonResource
             'quantity'              => (int) $this->quantity,
             'subtotal'              => $subtotal,
             'subtotal_price'        => $subtotal,
+            'review'                => $this->relationLoaded('review') && $this->review 
+                                        ? new ProductReviewResource($this->review) 
+                                        : null,
         ];
     }
 }
