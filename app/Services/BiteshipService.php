@@ -176,6 +176,8 @@ class BiteshipService
             'merchant_order_id'         => $order->order_number,
             'shipper_contact_name'      => $store->name,
             'shipper_contact_phone'     => $store->phone_number,
+            'origin_contact_name'      => $store->name,
+            'origin_contact_phone'     => $store->phone_number,
             'origin_address'            => $store->address,
             'origin_coordinate'         => [
                 'latitude'  => (float) $store->latitude,
