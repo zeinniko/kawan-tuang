@@ -167,7 +167,7 @@ class OrderService
 
     public function getUserOrders(User $user, ?string $status = null): Collection
     {
-        $query = $user->orders()->with(['store', 'items', 'payment'])->latest();
+        $query = $user->orders()->with(['store', 'payment', 'items.product', 'delivery'])->latest();
 
         if ($status) {
             $query->where('status', $status);

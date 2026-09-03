@@ -37,14 +37,15 @@ class CreateBiteshipOrderJob implements ShouldQueue
             $driverPhone     = $result['courier']['driver_phone'] ?? null;
             $courierCompany  = $result['courier']['company'] ?? $this->order->courier_company;
             $courierType     = $result['courier']['type'] ?? $this->order->courier_type;
-            
+            $biteshipStatus  = strtolower($result['status'] ?? 'allocated');
+
             $liveTrackingUrl = $result['courier']['link'] 
                 ?? $result['courier']['tracking_url'] 
                 ?? $result['link'] 
                 ?? $result['courier_link'] 
                 ?? null;
 
-            // Update langsung ke Tabel Orders
+            // 1. Update status internal di Tabel Orders
             $this->order->update([
                 'biteship_order_id' => $biteshipOrderId,
                 'courier_company'   => $courierCompany,
@@ -53,12 +54,27 @@ class CreateBiteshipOrderJob implements ShouldQueue
                 'driver_name'       => $driverName,
                 'driver_phone'      => $driverPhone,
                 'live_tracking_url' => $liveTrackingUrl,
-                'status'            => $result['status'] ?? Order::STATUS_PROCESSING,
+                'status'            => Order::STATUS_PROCESSING,
             ]);
 
-            Log::info('[BITESHIP JOB SUCCESS] Order record updated:', [
+            // 2. Buat Record Pengiriman di Tabel Deliveries
+            Delivery::updateOrCreate(
+                ['order_id' => $this->order->id],
+                [
+                    'courier_provider'  => strtolower($courierCompany),
+                    'service_type'      => strtolower($courierType),
+                    'waybill_number'    => $waybillNumber,
+                    'driver_name'       => $driverName,
+                    'driver_phone'      => $driverPhone,
+                    'live_tracking_url' => $liveTrackingUrl,
+                    'status'            => $biteshipStatus,
+                ]
+            );
+
+            Log::info('[BITESHIP JOB SUCCESS] Order & Delivery record updated:', [
                 'order_number'      => $this->order->order_number,
                 'biteship_order_id' => $biteshipOrderId,
+                'delivery_status'   => $biteshipStatus,
             ]);
 
         } catch (Exception $e) {

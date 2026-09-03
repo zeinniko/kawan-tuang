@@ -72,7 +72,7 @@ class WebhookController extends Controller
             'payload'           => $payload,
         ]);
 
-        // 1. Cari Order
+        // 1. Cari Order berdasarkan ID Biteship atau Nomor Pesanan
         $order = Order::where('biteship_order_id', $biteshipOrderId)
             ->orWhere('order_number', $merchantOrderId)
             ->first();
@@ -108,29 +108,60 @@ class WebhookController extends Controller
 
         // 4. Normalisasi Status
         $statusKey = !empty($statusRaw) ? $statusRaw : $event;
-        $statusKey = str_replace('order.', '', $statusKey);
+        $statusKey = str_replace('order.', '', $statusKey); // contoh: 'picking_up', 'delivered'
 
-        if (!empty($statusKey)) {
-            $orderUpdates['status'] = $statusKey;
+        // Mapping Status Internal untuk Order (ENUM / General Status)
+        switch ($statusKey) {
+            case 'allocated':
+            case 'courier_not_found':
+                $orderUpdates['status'] = Order::STATUS_PROCESSING;
+                break;
 
-            if (in_array($statusKey, ['cancelled', 'rejected', 'courier_not_found'])) {
+            case 'picking_up':
+            case 'picked':
+            case 'in_transit':
+            case 'dropping_off':
+            case 'delivered': // Sampai di konsumen, tetap 'delivering' sampai konfirmasi/cron 24 jam
+                $orderUpdates['status'] = Order::STATUS_DELIVERING;
+                break;
+
+            case 'cancelled':
+            case 'rejected':
+                $orderUpdates['status']        = Order::STATUS_CANCELLED;
                 $orderUpdates['cancel_reason'] = $request->input('cancellation_reason')
                     ?? $request->input('note')
                     ?? 'Pengiriman dibatalkan oleh pihak kurir/Biteship';
-            }
+                break;
         }
 
-        // 5. Update Langsung ke Tabel Orders
-        $oldStatus = $order->status;
+        // Eksekusi Update Tabel Orders
+        $oldOrderStatus = $order->status;
         if (!empty($orderUpdates)) {
             $order->update($orderUpdates);
         }
 
-        Log::info('[WEBHOOK BITESHIP] Order updated successfully:', [
-            'order_number' => $order->order_number,
-            'old_status'   => $oldStatus,
-            'new_status'   => $order->status,
-            'tracking_url' => $liveTrackingUrl ?? $order->live_tracking_url,
+        // 5. Simpan / Update Detail Pengiriman Real-Time ke Tabel Deliveries (Model Delivery)
+        $deliveryData = array_filter([
+            'courier_provider'  => strtolower($courierCompany ?? $order->courier_company ?? 'gojek'),
+            'service_type'      => strtolower($courierType ?? $order->courier_type ?? 'instant'),
+            'waybill_number'    => $waybillNumber ?? $order->waybill_number,
+            'driver_name'       => $driverName ?? $order->driver_name,
+            'driver_phone'      => $driverPhone ?? $order->driver_phone,
+            'live_tracking_url' => $liveTrackingUrl ?? $order->live_tracking_url,
+            'status'            => $statusKey, // Status spesifik dari Biteship (allocated, picking_up, delivered, dll)
+        ], fn ($val) => !is_null($val));
+
+        Delivery::updateOrCreate(
+            ['order_id' => $order->id],
+            $deliveryData
+        );
+
+        Log::info('[WEBHOOK BITESHIP] Order & Delivery updated successfully:', [
+            'order_number'    => $order->order_number,
+            'old_order_status'=> $oldOrderStatus,
+            'new_order_status'=> $order->status,
+            'delivery_status' => $statusKey,
+            'tracking_url'    => $liveTrackingUrl ?? $order->live_tracking_url,
         ]);
 
         return response()->json(['message' => 'Webhook Biteship berhasil diproses']);

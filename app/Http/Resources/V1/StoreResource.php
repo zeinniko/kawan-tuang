@@ -12,7 +12,7 @@ class StoreResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'code' => $this->code,
+            'store_code' => $this->store_code,
             'address' => $this->address,
             'latitude' => (float) $this->latitude,
             'longitude' => (float) $this->longitude,

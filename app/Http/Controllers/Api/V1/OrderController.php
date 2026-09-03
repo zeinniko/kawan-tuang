@@ -22,7 +22,6 @@ class OrderController extends Controller
     {
         $status = $request->query('status');
         $orders = $this->orderService->getUserOrders($request->user(), $status);
-
         return response()->json([
             'data' => OrderResource::collection($orders),
         ]);
@@ -30,7 +29,7 @@ class OrderController extends Controller
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $order = Order::with(['store', 'address', 'items.product'])
+        $order = Order::with(['store', 'payment', 'items.product', 'delivery'])
             ->where('id', $id)
             ->where('user_id', $request->user()->id)
             ->first();
