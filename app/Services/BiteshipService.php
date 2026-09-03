@@ -155,6 +155,7 @@ class BiteshipService
      */
     public function createOrder(Order $order): array
     {
+        $order->loadMissing(['store', 'items.product', 'user']);
         $store = $order->store;
         $snapshot = $order->address_snapshot;
 
