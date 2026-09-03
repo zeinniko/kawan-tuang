@@ -19,8 +19,8 @@ class BiteshipService
 
     public function __construct()
     {
-        $this->apiKey = config('services.biteship.api_key');
-        $this->baseUrl = config('services.biteship.base_url', 'https://api.biteship.com/v1');
+        $this->apiKey  = (string) config('services.biteship.api_key', '');
+        $this->baseUrl = (string) config('services.biteship.base_url', 'https://api.biteship.com/v1');
     }
 
     protected function client()

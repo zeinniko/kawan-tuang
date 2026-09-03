@@ -104,8 +104,8 @@ class OrderService
                 $address = UserAddress::find($data['user_address_id']);
                 if ($address) {
                     $addressSnapshot = [
-                        'recipient_name'  => $address->recipient_name ?? $address->receiver_name,
-                        'recipient_phone' => $address->recipient_phone ?? $address->receiver_phone,
+                        'recipient_name'  => $address->recipient_name,
+                        'recipient_phone' => $address->recipient_phone,
                         'full_address'    => $address->full_address,
                         'postal_code'     => $address->postal_code,
                         'latitude'        => $address->latitude,

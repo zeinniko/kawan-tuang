@@ -26,8 +26,8 @@
   <div class="space-y-4">
     @forelse($addresses as $address)
       @php
-        $name = data_get($address, 'recipient_name') ?? data_get($address, 'receiver_name') ?? '-';
-        $phone = data_get($address, 'recipient_phone') ?? data_get($address, 'receiver_phone') ?? '-';
+        $name = data_get($address, 'recipient_name') ?? '-';
+        $phone = data_get($address, 'recipient_phone') ?? '-';
         $isPrimary = data_get($address, 'is_primary', false);
       @endphp
       
@@ -196,7 +196,7 @@
 @push('scripts')
 <script>
   function openBottomSheet(address) {
-    const name = address.recipient_name || address.receiver_name || '-';
+    const name = address.recipient_name || '-';
     
     document.getElementById('sheet-title').innerText = (address.label || 'Alamat') + ' (' + name + ')';
     document.getElementById('sheet-subtitle').innerText = address.full_address || '';

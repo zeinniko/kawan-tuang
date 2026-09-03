@@ -34,7 +34,7 @@ class MidtransPaymentService
                 'gross_amount' => $grossAmount,
             ],
             'customer_details' => [
-                'first_name' => $order->user->full_name ?? $order->user->name ?? 'Customer',
+                'first_name' => $order->user->full_name ?? 'Customer',
                 'email'      => $order->user->email ?? '',
                 'phone'      => $order->user->phone_number ?? '',
             ],
@@ -92,20 +92,23 @@ class MidtransPaymentService
         $isPaid = false;
         $paymentStatus = 'pending';
 
-        // 3. Tentukan Status Pembayaran
+        // 3. Tentukan Status Pembayaran Pemetaan status Midtrans ke ENUM Database: ['unpaid', 'paid', 'expired', 'failed']
         if ($transactionStatus === 'capture') {
             if ($fraudStatus === 'accept') {
                 $isPaid = true;
-                $paymentStatus = 'settlement';
+                $paymentStatus = 'paid';
             }
         } elseif ($transactionStatus === 'settlement') {
             $isPaid = true;
-            $paymentStatus = 'settlement';
-        } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-            $paymentStatus = $transactionStatus;
+            $paymentStatus = 'paid';
+        } elseif ($transactionStatus === 'expire') {
+            $paymentStatus = 'expired'; // Disesuaikan dengan ENUM 'expired'
+            $order->update(['status' => Order::STATUS_CANCELLED]);
+        } elseif (in_array($transactionStatus, ['cancel', 'deny'])) {
+            $paymentStatus = 'failed';  // Disesuaikan dengan ENUM 'failed'
             $order->update(['status' => Order::STATUS_CANCELLED]);
         } elseif ($transactionStatus === 'pending') {
-            $paymentStatus = 'pending';
+            $paymentStatus = 'unpaid';  // Disesuaikan dengan ENUM 'unpaid'
             $order->update(['status' => Order::STATUS_PENDING_PAYMENT]);
         }
 
