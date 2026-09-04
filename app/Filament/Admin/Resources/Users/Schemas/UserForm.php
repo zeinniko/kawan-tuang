@@ -41,13 +41,36 @@ class UserForm
                         TextInput::make('password')
                             ->label('Password')
                             ->password()
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
                             ->maxLength(255),
                     ])->columns(2),
 
-                Section::make('Verifikasi Usia (KYC 21+) & Hak Akses')
+                Section::make('Hak Akses & Penugasan Cabang')
+                    ->schema([
+                        Select::make('role')
+                            ->label('Role Akses')
+                            ->options([
+                                'admin'           => 'Admin Panel',
+                                'warehouse_staff' => 'Warehouse Staff',
+                            ])
+                            ->default('admin')
+                            ->live()
+                            ->required(),
+
+                        // SELECT PENUGASAN CABANG (STORE)
+                        Select::make('store_id')
+                            ->label('Cabang / Store Penugasan')
+                            ->relationship('store', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->helperText('Wajib dipilih jika pengguna ini bertindak sebagai Admin Cabang.')
+                            ->required(fn($get) => $get('role') === 'admin'),
+                    ])->columns(2),
+
+                Section::make('Verifikasi Usia (KYC 21+)')
                     ->schema([
                         DatePicker::make('birth_date')
                             ->label('Tanggal Lahir')
@@ -56,15 +79,6 @@ class UserForm
                             ->validationMessages([
                                 'max_date' => 'Pengguna harus berusia minimal 21 tahun untuk mendaftar.',
                             ]),
-
-                        Select::make('role')
-                            ->label('Role Akses')
-                            ->options([
-                                'customer' => 'Customer',
-                                'admin' => 'Admin Panel',
-                            ])
-                            ->default('customer')
-                            ->required(),
 
                         Toggle::make('is_age_verified')
                             ->label('Status Terverifikasi (KYC 21+)')

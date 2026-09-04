@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Pages;
 
 use App\Enums\NavigationGroup;
 use App\Models\Order;
+use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use UnitEnum;
@@ -29,7 +30,21 @@ class StorePickupScanner extends Page
 
     public string $pickupCodeInput = '';
     public ?Order $scannedOrder = null;
+/**
+     * Otorisasi Mengakses Halaman Store Pickup Scanner
+     */
+    public static function canAccess(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
 
+        if (! $user) {
+            return false;
+        }
+
+        // Superadmin, Admin Cabang, dan Warehouse Staff dapat mengakses Scanner ini
+        return $user->isSuperAdmin() || $user->isAdmin() || $user->isWarehouseStaff();
+    }
     public function searchOrder(): void
     {
         $this->scannedOrder = null;

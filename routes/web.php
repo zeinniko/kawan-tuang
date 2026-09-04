@@ -63,6 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{orderId}/review/{productId}', [OrderController::class, 'storeReview'])
         ->name('orders.review.store');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/orders/{id}/pay', [OrderController::class, 'pay'])->name('orders.pay');
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{id}/complete', [OrderController::class, 'complete'])->name('orders.complete');
 
     Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 

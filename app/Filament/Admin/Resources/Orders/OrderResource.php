@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use App\Enums\NavigationGroup;
 use App\Filament\Admin\Resources\Orders\Pages\ViewOrder;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderResource extends Resource
 {
@@ -38,6 +39,75 @@ class OrderResource extends Resource
     public static function getRecordTitle(?Model $record): string
     {
         return $record ? "Pesanan #{$record->order_number}" : 'Detail Pesanan';
+    }
+
+    /**
+     * Scope Eloquent Query berdasarkan Role User
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        // Superadmin: Akses seluruh data dari semua toko
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        // Admin Cabang: Hanya data order dari tokonya sendiri
+        if ($user->isAdmin()) {
+            return $query->where('store_id', $user->store_id);
+        }
+
+        // Role lain (misal: Warehouse Staff): Tidak mendapatkan data
+        return $query->whereRaw('1 = 0');
+    }
+
+    /**
+     * Otorisasi Menampilkan Menu & Halaman List Order
+     */
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        // Superadmin & Admin Cabang boleh melihat menu Orders. Staff tidak boleh.
+        return $user->isSuperAdmin() || $user->isAdmin();
+    }
+
+    /**
+     * Otorisasi Menampilkan Detail Record Order
+     */
+    public static function canView(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        // Superadmin: Boleh lihat semua detail order
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        // Admin Cabang: Boleh lihat jika order berasal dari tokonya
+        if ($user->isAdmin()) {
+            return $record->store_id === $user->store_id;
+        }
+
+        return false;
     }
 
     public static function form(Schema $schema): Schema
@@ -75,5 +145,14 @@ class OrderResource extends Resource
     public static function canEdit($record): bool
     {
         return false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        // Hanya Superadmin yang diizinkan menghapus data order (jika diperlukan)
+        return $user?->isSuperAdmin() ?? false;
     }
 }

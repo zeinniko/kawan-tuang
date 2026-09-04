@@ -105,4 +105,44 @@ class OrderController extends Controller
             'message'    => 'Pesanan berhasil dibuat.',
         ], 201);
     }
+
+    /**
+     * Membatalkan pesanan (sebelum kurir melakukan picked)
+     */
+    public function cancel($id)
+    {
+        $response = InternalApiService::post("orders/{$id}/cancel");
+
+        if (isset($response['errors']) || isset($response['message']) && str_contains(strtolower($response['message']), 'gagal')) {
+            return back()->withErrors(['error' => $response['message'] ?? 'Gagal membatalkan pesanan.']);
+        }
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    /**
+     * Menyelesaikan pesanan (setelah barang diterima / delivered)
+     */
+    public function complete($id)
+    {
+        $response = InternalApiService::post("orders/{$id}/complete");
+
+        if (isset($response['errors']) || isset($response['message']) && str_contains(strtolower($response['message']), 'gagal')) {
+            return back()->withErrors(['error' => $response['message'] ?? 'Gagal menyelesaikan pesanan.']);
+        }
+
+        return back()->with('success', 'Pesanan telah selesai. Terima kasih!');
+    }
+
+    /**
+     * Ambil Snap Token untuk pembayaran ulang jika token lama belum tergenerasi
+     */
+    public function pay($id)
+    {
+        $response = InternalApiService::post('payments/snap-token', [
+            'order_id' => $id,
+        ]);
+
+        return response()->json($response);
+    }
 }

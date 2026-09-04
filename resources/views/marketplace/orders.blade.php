@@ -17,12 +17,12 @@
     @php
       $currentStatus = request('status');
       $tabs = [
-          ''                 => ['label' => 'Semua Pesanan', 'icon' => 'fa-list'],
-          'pending_payment'  => ['label' => 'Menunggu Bayar', 'icon' => 'fa-clock'],
-          'processing'       => ['label' => 'Diproses', 'icon' => 'fa-boxes-packing'],
-          'shipped'          => ['label' => 'Dalam Pengiriman', 'icon' => 'fa-truck-fast'],
-          'completed'        => ['label' => 'Selesai', 'icon' => 'fa-circle-check'],
-          'cancelled'        => ['label' => 'Dibatalkan', 'icon' => 'fa-circle-xmark'],
+          ''                => ['label' => 'Semua Pesanan', 'icon' => 'fa-list'],
+          'pending_payment' => ['label' => 'Menunggu Bayar', 'icon' => 'fa-clock'],
+          'processing'      => ['label' => 'Diproses', 'icon' => 'fa-boxes-packing'],
+          'shipped'         => ['label' => 'Dalam Pengiriman', 'icon' => 'fa-truck-fast'],
+          'completed'       => ['label' => 'Selesai', 'icon' => 'fa-circle-check'],
+          'cancelled'       => ['label' => 'Dibatalkan', 'icon' => 'fa-circle-xmark'],
       ];
     @endphp
 
@@ -40,7 +40,7 @@
     </div>
 
     <!-- LIST ORDERS CONTAINER -->
-    <div class="space-y-5">
+    <div class="space-y-6">
       @forelse($orders as $item)
         @php
           $rawStatus = strtolower($item['status'] ?? 'pending_payment');
@@ -48,20 +48,23 @@
               'pending_payment' => ['bg' => 'bg-amber-500/10', 'text' => 'text-amber-600 dark:text-amber-400', 'border' => 'border-amber-500/20', 'label' => 'Menunggu Pembayaran', 'icon' => 'fa-clock'],
               'processing'      => ['bg' => 'bg-blue-500/10', 'text' => 'text-blue-600 dark:text-blue-400', 'border' => 'border-blue-500/20', 'label' => 'Diproses Penjual', 'icon' => 'fa-box-open'],
               'shipped'         => ['bg' => 'bg-indigo-500/10', 'text' => 'text-indigo-600 dark:text-indigo-400', 'border' => 'border-indigo-500/20', 'label' => 'Dalam Pengiriman', 'icon' => 'fa-motorcycle'],
+              'delivering'      => ['bg' => 'bg-indigo-500/10', 'text' => 'text-indigo-600 dark:text-indigo-400', 'border' => 'border-indigo-500/20', 'label' => 'Dalam Pengiriman', 'icon' => 'fa-motorcycle'],
               'completed'       => ['bg' => 'bg-emerald-500/10', 'text' => 'text-emerald-600 dark:text-emerald-400', 'border' => 'border-emerald-500/20', 'label' => 'Selesai', 'icon' => 'fa-circle-check'],
               'cancelled'       => ['bg' => 'bg-rose-500/10', 'text' => 'text-rose-600 dark:text-rose-400', 'border' => 'border-rose-500/20', 'label' => 'Dibatalkan', 'icon' => 'fa-circle-xmark'],
           ];
-          $badge = $statusConfig[$rawStatus] ?? ['bg' => 'bg-slate-500/10', 'text' => 'text-slate-600 dark:text-slate-400', 'border' => 'border-slate-500/20', 'label' => ucfirst($rawStatus), 'icon' => 'fa-info-circle'];
+          $badge = $statusConfig[$rawStatus] ?? ['bg' => 'bg-slate-500/10', 'text' => 'text-slate-600 dark:text-slate-400', 'border' => 'border-slate-500/20', 'label' => ucfirst(str_replace('_', ' ', $rawStatus)), 'icon' => 'fa-info-circle'];
 
           $items = $item['items'] ?? [];
-          $firstItem = $items[0] ?? null;
-          $remainingItemsCount = count($items) - 1;
+          $totalItemsCount = count($items);
+          $displayLimit = 3; // Maksimal produk yang ditampilkan langsung di kartu
+          $visibleItems = array_slice($items, 0, $displayLimit);
+          $remainingCount = $totalItemsCount - $displayLimit;
         @endphp
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/40 dark:hover:border-amber-500/30 transition-all overflow-hidden">
           
           <!-- CARD HEADER: STORE NAME, DATE & STATUS -->
-          <div class="p-4 bg-slate-50/50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="p-4 bg-slate-50/70 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
               <!-- Outlet / Store Badge -->
               <span class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -87,63 +90,97 @@
             </span>
           </div>
 
-          <!-- CARD BODY: PRODUCT PREVIEW & TOTAL -->
-          <div class="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <!-- CARD BODY: MULTI-PRODUCT LIST & SUMMARY -->
+          <div class="p-5 flex flex-col lg:flex-row items-stretch justify-between gap-6">
             
-            <!-- LEFT: PRODUCT INFORMATION -->
-            <div class="flex items-start gap-4 flex-1 min-w-0">
-              <!-- Item Icon Snapshot -->
-              <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center flex-shrink-0 text-xl font-bold">
-                <i class="fa-solid fa-wine-bottle"></i>
-              </div>
+            <!-- LEFT: PRODUCT LIST (MENAMPILKAN HINGGA 3 PRODUK) -->
+            <div class="flex-1 min-w-0 space-y-3 divide-y divide-slate-100 dark:divide-slate-800/60">
+              @forelse($visibleItems as $index => $prod)
+                @php
+                  $prodName = $prod['product_name_snapshot'] ?? $prod['product_name'] ?? ($prod['product']['name'] ?? 'Produk Tipsy More');
+                  $unitPrice = $prod['unit_price'] ?? 0;
+                  $qty = $prod['quantity'] ?? 1;
+                  $subtotal = $prod['subtotal_price'] ?? $prod['subtotal'] ?? ($unitPrice * $qty);
+                  $thumbnail = $prod['thumbnail_url'] ?? $prod['product']['image_url'] ?? null;
+                @endphp
 
-              <div class="space-y-1 min-w-0 flex-1">
-                @if($firstItem)
-                  <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {{ $firstItem['product_name_snapshot'] ?? ($firstItem['product']['name'] ?? 'Produk Tipsy More') }}
-                  </h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">
-                    {{ $firstItem['quantity'] }} barang x Rp {{ number_format($firstItem['unit_price'] ?? 0, 0, ',', '.') }}
-                  </p>
-                @else
-                  <h3 class="text-sm font-bold text-slate-900 dark:text-white">Rincian Produk Pesanan</h3>
-                  <p class="text-xs text-slate-500">Lihat detail untuk daftar lengkap</p>
-                @endif
+                <div class="{{ $index > 0 ? 'pt-3' : '' }} flex items-center gap-3.5">
+                  <!-- Foto / Thumbnail Produk -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    @if(!empty($thumbnail))
+                      <img src="{{ $thumbnail }}" alt="{{ $prodName }}" class="w-full h-full object-cover">
+                    @else
+                      <i class="fa-solid fa-wine-bottle text-amber-500 text-lg"></i>
+                    @endif
+                  </div>
 
-                @if($remainingItemsCount > 0)
-                  <span class="inline-block text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md mt-1">
-                    +{{ $remainingItemsCount }} produk lainnya
-                  </span>
-                @endif
-              </div>
+                  <!-- Informasi Produk -->
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate" title="{{ $prodName }}">
+                      {{ $prodName }}
+                    </h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      {{ $qty }} barang x <span class="font-medium text-slate-700 dark:text-slate-300">Rp {{ number_format($unitPrice, 0, ',', '.') }}</span>
+                    </p>
+                  </div>
+
+                  <!-- Subtotal Per Produk (Desktop View) -->
+                  <div class="text-right hidden sm:block">
+                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                      Rp {{ number_format($subtotal, 0, ',', '.') }}
+                    </span>
+                  </div>
+                </div>
+              @empty
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-amber-500">
+                    <i class="fa-solid fa-wine-bottle"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white">Rincian Produk Pesanan</h4>
+                    <p class="text-[11px] text-slate-400">Klik detail untuk melihat item produk</p>
+                  </div>
+                </div>
+              @endforelse
+
+              <!-- INDIKATOR JIKA PRODUK LEBIH DARI 3 -->
+              @if($remainingCount > 0)
+                <div class="pt-2">
+                  <a href="{{ route('orders.show', $item['id']) }}" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                    <i class="fa-solid fa-layer-group"></i>
+                    +{{ $remainingCount }} produk lainnya dalam pesanan ini
+                  </a>
+                </div>
+              @endif
             </div>
 
-            <!-- RIGHT: TOTAL PRICE & ACTION BUTTON -->
-            <div class="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 gap-3">
-              <div class="text-left md:text-right">
+            <!-- RIGHT: TOTAL HARGA & TOMBOL AKSI -->
+            <div class="flex flex-row lg:flex-col items-center lg:items-end justify-between w-full lg:w-52 pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-slate-800 lg:pl-6 gap-3 flex-shrink-0">
+              <div class="text-left lg:text-right">
                 <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Total Belanja</span>
                 <span class="text-base font-black text-amber-600 dark:text-amber-400">
                   Rp {{ number_format($item['total_amount'] ?? 0, 0, ',', '.') }}
                 </span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">({{ $totalItemsCount }} {{ $totalItemsCount > 1 ? 'Produk' : 'Item' }})</span>
               </div>
 
               <a href="{{ route('orders.show', $item['id']) }}" 
                  class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl text-xs transition-all shadow-md shadow-amber-500/10 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-map-location-dot"></i> Lihat Status & Tracking
+                <i class="fa-solid fa-map-location-dot"></i> Detail Pesanan
               </a>
             </div>
 
           </div>
 
-          <!-- CARD FOOTER: COURIER & WAYBILL INFO (IF AVAILABLE) -->
+          <!-- CARD FOOTER: COURIER & WAYBILL INFO (JIKA TERSEDIA) -->
           @if(!empty($item['courier_company']) || !empty($item['waybill_number']))
-            <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/20 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+            <div class="px-5 py-2.5 bg-slate-50/80 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span class="flex items-center gap-1.5">
                 <i class="fa-solid fa-truck text-amber-500"></i>
-                Pengiriman: <strong class="text-slate-700 dark:text-slate-300">{{ strtoupper($item['courier_company'] ?? 'Null') }} ({{ ucfirst($item['courier_type'] ?? 'Instant') }})</strong>
+                Pengiriman: <strong class="text-slate-700 dark:text-slate-300">{{ strtoupper($item['courier_company'] ?? 'Kurir') }} ({{ ucfirst($item['courier_type'] ?? 'Reguler') }})</strong>
               </span>
               @if(!empty($item['waybill_number']))
-                <span class="font-mono bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200">
+                <span class="font-mono bg-slate-200/70 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200">
                   Resi: {{ $item['waybill_number'] }}
                 </span>
               @endif

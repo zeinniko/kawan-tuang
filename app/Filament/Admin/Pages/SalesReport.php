@@ -6,6 +6,7 @@ use App\Enums\NavigationGroup;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Store;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -44,21 +45,44 @@ class SalesReport extends Page implements HasForms, HasTable
     // Form Filter State Array
     public ?array $data = [];
 
+    /**
+     * Otorisasi Mengakses Halaman Sales Report
+     */
+    public static function canAccess(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        // Hanya Superadmin dan Admin Cabang yang bisa mengakses. Staff tidak bisa.
+        return $user->isSuperAdmin() || $user->isAdmin();
+    }
+
     public function mount(): void
     {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        // Jika Admin Cabang, kunci pilihan cabang ke store_id miliknya
+        $defaultStoreId = $user?->isAdmin() ? $user->store_id : null;
+
         $this->form->fill([
-            'start_date' => now()->startOfMonth()->toDateString(),
-            'end_date' => now()->toDateString(),
-            'store_id' => null,
+            'start_date'  => now()->startOfMonth()->toDateString(),
+            'end_date'    => now()->toDateString(),
+            'store_id'    => $defaultStoreId,
             'category_id' => null,
         ]);
     }
 
-    /**
-     * Di Filament v4, parameter bertipe Schema / FormSchema
-     */
     public function form(Schema $form): Schema
     {
+        /** @var User|null $user */
+        $user = auth()->user();
+        $isAdmin = $user?->isAdmin() ?? false;
+
         return $form
             ->schema([
                 DatePicker::make('start_date')
@@ -73,6 +97,8 @@ class SalesReport extends Page implements HasForms, HasTable
                     ->label('Cabang Toko')
                     ->options(Store::pluck('name', 'id'))
                     ->placeholder('Semua Cabang')
+                    ->disabled($isAdmin) // Admin Cabang tidak dapat memilih cabang lain
+                    ->dehydrated()
                     ->live(),
 
                 Select::make('category_id')
@@ -85,29 +111,42 @@ class SalesReport extends Page implements HasForms, HasTable
             ->columns(4);
     }
 
+    /**
+     * Build Base Query untuk Laporan Penjualan (Mengikuti Otorisasi Role)
+     */
+    private function getFilteredOrdersQuery(array $formData): Builder
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return Order::query()
+            ->with(['store'])
+            ->whereIn('status', [
+                Order::STATUS_PAID,
+                Order::STATUS_PROCESSING,
+                Order::STATUS_DELIVERING,
+                Order::STATUS_COMPLETED,
+            ])
+            ->when($formData['start_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($formData['end_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date))
+            // Proteksi Role: Admin Cabang HANYA dapat melihat data tokonya sendiri
+            ->when($user?->isAdmin(), function (Builder $q) use ($user) {
+                $q->where('store_id', $user->store_id);
+            }, function (Builder $q) use ($formData) {
+                // Superadmin bebas menggunakan filter store_id
+                $q->when($formData['store_id'] ?? null, fn (Builder $sq, $storeId) => $sq->where('store_id', $storeId));
+            })
+            ->when($formData['category_id'] ?? null, function (Builder $q, $categoryId) {
+                $q->whereHas('items.product', function (Builder $pq) use ($categoryId) {
+                    $pq->where('category_id', $categoryId);
+                });
+            });
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(function () {
-                $formData = $this->data ?? [];
-
-                return Order::query()
-                    ->with(['store'])
-                    ->whereIn('status', [
-                        Order::STATUS_PAID,
-                        Order::STATUS_PROCESSING,
-                        Order::STATUS_DELIVERING,
-                        Order::STATUS_COMPLETED,
-                    ])
-                    ->when($formData['start_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '>=', $date))
-                    ->when($formData['end_date'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date))
-                    ->when($formData['store_id'] ?? null, fn (Builder $q, $storeId) => $q->where('store_id', $storeId))
-                    ->when($formData['category_id'] ?? null, function (Builder $q, $categoryId) {
-                        $q->whereHas('items.product', function (Builder $pq) use ($categoryId) {
-                            $pq->where('category_id', $categoryId);
-                        });
-                    });
-            })
+            ->query(fn () => $this->getFilteredOrdersQuery($this->data ?? []))
             ->columns([
                 TextColumn::make('order_number')
                     ->label('No. Order')
@@ -151,23 +190,7 @@ class SalesReport extends Page implements HasForms, HasTable
                     ->icon('heroicon-m-arrow-down-tray')
                     ->color('success')
                     ->action(function () {
-                        $formData = $this->data ?? [];
-
-                        $orders = Order::query()
-                            ->with(['store'])
-                            ->whereIn('status', [
-                                Order::STATUS_PAID,
-                                Order::STATUS_PROCESSING,
-                                Order::STATUS_DELIVERING,
-                                Order::STATUS_COMPLETED,
-                            ])
-                            ->when($formData['start_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
-                            ->when($formData['end_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
-                            ->when($formData['store_id'] ?? null, fn ($q, $storeId) => $q->where('store_id', $storeId))
-                            ->when($formData['category_id'] ?? null, function ($q, $categoryId) {
-                                $q->whereHas('items.product', fn ($pq) => $pq->where('category_id', $categoryId));
-                            })
-                            ->get();
+                        $orders = $this->getFilteredOrdersQuery($this->data ?? [])->get();
 
                         $filename = 'sales-report-' . now()->format('Y-m-d-His') . '.csv';
 

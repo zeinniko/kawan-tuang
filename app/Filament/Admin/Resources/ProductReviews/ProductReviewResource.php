@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Enums\NavigationGroup;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductReviewResource extends Resource
 {
@@ -34,6 +35,61 @@ class ProductReviewResource extends Resource
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'id';
 
+    
+    /**
+     * Menampilkan menu di sidebar & izin akses list page
+     */
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user?->isSuperAdmin() ?? false;
+    }
+
+    /**
+     * Menampilkan detail record produk
+     */
+    public static function canView(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user?->isSuperAdmin() ?? false;
+    }
+
+    /**
+     * Izin membuat produk baru
+     */
+    public static function canCreate(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user?->isSuperAdmin() ?? false;
+    }
+
+    /**
+     * Izin mengedit produk
+     */
+    public static function canEdit(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user?->isSuperAdmin() ?? false;
+    }
+
+    /**
+     * Izin menghapus produk
+     */
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        return $user?->isSuperAdmin() ?? false;
+    }
     public static function form(Schema $schema): Schema
     {
         return ProductReviewForm::configure($schema);
@@ -58,15 +114,5 @@ class ProductReviewResource extends Resource
             'create' => CreateProductReview::route('/create'),
             'edit' => EditProductReview::route('/{record}/edit'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function canEdit($record): bool
-    {
-        return false;
     }
 }

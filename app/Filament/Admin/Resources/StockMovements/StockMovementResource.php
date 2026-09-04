@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class StockMovementResource extends Resource
 {
@@ -33,6 +35,70 @@ class StockMovementResource extends Resource
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'reference_id';
 
+    /**
+     * Scoping Eloquent Query berdasarkan Role User
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        // Superadmin: Akses seluruh pergerakan stok dari semua toko
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        // Admin Cabang & Warehouse Staff: Hanya pergerakan stok di tokonya sendiri
+        if (($user->isAdmin() || $user->isWarehouseStaff()) && $user->store_id) {
+            return $query->where('store_id', $user->store_id);
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
+    public static function canViewAny(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        // Superadmin, Admin Cabang, dan Warehouse Staff diizinkan mengakses menu ini
+        return $user?->isSuperAdmin() || $user?->isAdmin() || $user?->isWarehouseStaff();
+    }
+
+    public static function canView(Model $record): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if (($user->isAdmin() || $user->isWarehouseStaff()) && $user->store_id) {
+            return $record->store_id === $user->store_id;
+        }
+
+        return false;
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        // Superadmin, Admin, dan Staff dapat mencatat penyesuaian/mutasi stok
+        return $user?->isSuperAdmin() || $user?->isAdmin() || $user?->isWarehouseStaff();
+    }
     public static function form(Schema $schema): Schema
     {
         return StockMovementForm::configure($schema);

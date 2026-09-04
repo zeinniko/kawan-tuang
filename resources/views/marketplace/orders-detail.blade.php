@@ -304,10 +304,55 @@
           </div>
         </div>
 
-        <!-- ACTION BUTTONS -->
-        <div class="pt-2 space-y-2">
-          <a href="{{ route('catalog.index') }}" class="block w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-center text-xs transition-all shadow-md shadow-amber-500/10">
-            Belanja Lagi
+<!-- ACTION BUTTONS -->
+<div class="pt-2 space-y-2">
+          @php
+            $status = strtolower($order['status'] ?? 'pending_payment');
+            $deliveryStatus = strtolower($order['shipping_status'] ?? $order['delivery']['status'] ?? $status);
+
+            // Kondisi Batal: Sebelum status delivery mencapai 'picked' (misal: pending_payment, processing, allocated, picking_up)
+            $canCancel = in_array($status, ['pending_payment', 'processing', 'allocated', 'picking_up']) 
+                         && !in_array($deliveryStatus, ['picked', 'in_transit', 'dropping_off', 'delivered', 'completed', 'cancelled']);
+
+            // Kondisi Selesai: Jika delivery status sudah 'delivered' dan order belum 'completed'
+            $canComplete = (in_array($deliveryStatus, ['delivered', 'dropping_off']) || $status === 'delivering') 
+                           && $status !== 'completed' 
+                           && $status !== 'cancelled';
+          @endphp
+
+          {{-- 1. Tombol Bayar Sekarang (Muncul jika status 'pending_payment') --}}
+          @if($status === 'pending_payment')
+            <button type="button" id="btn-pay-now" onclick="payNow()" 
+                    class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-center text-xs transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-credit-card"></i> Bayar Sekarang
+            </button>
+          @endif
+
+          {{-- 2. Tombol Selesaikan Pesanan (Muncul jika delivery status 'delivered') --}}
+          @if($canComplete)
+            <form action="{{ route('orders.complete', $order['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda sudah menerima pesanan ini dengan baik?')">
+              @csrf
+              <button type="submit" 
+                      class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-2.5 rounded-xl text-center text-xs transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> Selesaikan Pesanan
+              </button>
+            </form>
+          @endif
+
+          {{-- 3. Tombol Batalkan Pesanan (Muncul sebelum kurir 'picked' barang) --}}
+          @if($canCancel)
+            <form action="{{ route('orders.cancel', $order['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+              @csrf
+              <button type="submit" 
+                      class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-bold py-2.5 rounded-xl text-center text-xs transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-ban"></i> Batalkan Pesanan
+              </button>
+            </form>
+          @endif
+
+          {{-- 4. Explore Produk Lainnya (Pengganti 'Belanja Lagi') --}}
+          <a href="{{ route('catalog.index') }}" class="block w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-center text-xs transition-all">
+            Explore Produk lainnya
           </a>
         </div>
       </div>
@@ -425,3 +470,43 @@
   @endif
 </div>
 @endsection
+
+@if(strtolower($order['status'] ?? '') === 'pending_payment')
+  @push('scripts')
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    <script>
+      function payNow() {
+        const snapToken = "{{ $order['payment']['snap_token'] ?? $order['snap_token'] ?? '' }}";
+        
+        if (snapToken) {
+          snap.pay(snapToken, {
+            onSuccess: function(result) { location.reload(); },
+            onPending: function(result) { location.reload(); },
+            onError: function(result) { alert('Pembayaran gagal, silakan coba lagi.'); }
+          });
+        } else {
+          // Fallback: Minta token baru ke backend jika belum ada di data order
+          fetch("{{ route('orders.pay', $order['id']) }}", {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.snap_token) {
+              snap.pay(data.snap_token, {
+                onSuccess: function(result) { location.reload(); },
+                onPending: function(result) { location.reload(); },
+                onError: function(result) { alert('Pembayaran gagal.'); }
+              });
+            } else {
+              alert(data.message || 'Gagal memuat token pembayaran.');
+            }
+          });
+        }
+      }
+    </script>
+  @endpush
+@endif

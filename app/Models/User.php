@@ -21,6 +21,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     use HasUuids, HasFactory, Notifiable;
     public $incrementing = false;
     protected $keyType = 'string';
+    public const ROLE_SUPERADMIN      = 'superadmin';
+    public const ROLE_ADMIN          = 'admin';
+    public const ROLE_WAREHOUSE_STAFF = 'warehouse_staff';
+    public const ROLE_CUSTOMER        = 'customer';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -89,10 +94,34 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsTo(Store::class);
     }
 
+public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPERADMIN;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isWarehouseStaff(): bool
+    {
+        return $this->role === self::ROLE_WAREHOUSE_STAFF;
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === self::ROLE_CUSTOMER;
+    }
+
+    // Akses ke Panel Admin Filament (Superadmin, Admin, dan Warehouse Staff boleh masuk)
     public function canAccessPanel(Panel $panel): bool
     {
-        // Izinkan hanya jika role bernilai 'admin'
-        return $this->role === 'admin';
+        return in_array($this->role, [
+            self::ROLE_SUPERADMIN,
+            self::ROLE_ADMIN,
+            self::ROLE_WAREHOUSE_STAFF,
+        ]);
     }
     public function getFilamentName(): string
     {

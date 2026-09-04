@@ -12,6 +12,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use App\Models\User;
 
 class StsTable
 {
@@ -66,15 +67,37 @@ class StsTable
                     ->label('Status Pick Up'),
             ])
             ->actions([
-                // Pada bagian actions di StsTable.php:
+                // Kelola Stok: Superadmin, Admin Cabang, & Warehouse Staff
                 Action::make('manage_inventory')
                     ->label('Kelola Stok')
                     ->icon('heroicon-o-cube')
                     ->color('warning')
-                    ->url(fn($record) => StResource::getUrl('branch-inventory-manager', ['record' => $record])),
+                    ->url(fn ($record) => StResource::getUrl('branch-inventory-manager', ['record' => $record]))
+                    ->visible(function ($record) {
+                        /** @var User|null $user */
+                        $user = auth()->user();
 
-                EditAction::make(),
-                DeleteAction::make(),
+                        if (! $user) return false;
+                        if ($user->isSuperAdmin()) return true;
+
+                        return ($user->isAdmin() || $user->isWarehouseStaff()) && $user->store_id === $record->id;
+                    }),
+
+                // Edit Toko: Superadmin & Admin Cabang (Staff disembunyikan)
+                EditAction::make()
+                    ->visible(function ($record) {
+                        /** @var User|null $user */
+                        $user = auth()->user();
+
+                        if (! $user) return false;
+                        if ($user->isSuperAdmin()) return true;
+
+                        return $user->isAdmin() && $user->store_id === $record->id;
+                    }),
+
+                // Hapus Toko: Hanya Superadmin
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->isSuperAdmin() ?? false),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
