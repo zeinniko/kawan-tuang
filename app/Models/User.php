@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens; 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class User extends Authenticatable implements FilamentUser, HasName
 {
     /** @use HasFactory<UserFactory> */
-    use HasUuids, HasFactory, Notifiable;
+    use HasApiTokens, HasUuids, HasFactory, Notifiable;
     public $incrementing = false;
     protected $keyType = 'string';
     public const ROLE_SUPERADMIN      = 'superadmin';
@@ -94,7 +95,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsTo(Store::class);
     }
 
-public function isSuperAdmin(): bool
+    public function isSuperAdmin(): bool
     {
         return $this->role === self::ROLE_SUPERADMIN;
     }
