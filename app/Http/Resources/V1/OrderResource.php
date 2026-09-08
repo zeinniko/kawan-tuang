@@ -14,6 +14,8 @@ class OrderResource extends JsonResource
             'order_number'      => $this->order_number,
             'fulfillment_type'  => $this->fulfillment_type,
             'status'            => $this->status,
+            'pickup_code'       => $this->pickup_code ?? '',
+            'pickup_qr_url'     => $this->pickup_qr_url ?? '',
             'payment_status'    => $this->payment?->payment_status,
             'shipping_status'   => $this->fulfillment_type === 'delivery' ? $this->delivery?->status : null,
             'subtotal'          => (float) $this->subtotal,
@@ -32,7 +34,7 @@ class OrderResource extends JsonResource
             'items' => OrderItemResource::collection(
                 $this->whenLoaded('items', function () {
                     $reviews = $this->whenLoaded('reviews');
-                    
+
                     return $this->items->map(function ($item) use ($reviews) {
                         if ($reviews && !($reviews instanceof \Illuminate\Http\Resources\MissingValue)) {
                             $item->setRelation('review', $reviews->firstWhere('product_id', $item->product_id));

@@ -38,13 +38,17 @@ class CartController extends Controller
         ], 201);
     }
 
-    public function update(UpdateCartItemRequest $request, CartItem $cartItem): JsonResponse
+    public function update(UpdateCartItemRequest $request, $cartItem): JsonResponse
     {
+        if (is_string($cartItem)) {
+            $cartItem = CartItem::findOrFail($cartItem);
+        }
+    
         $cart = $this->cartService->updateItemQuantity($cartItem, (int) $request->quantity);
-
+    
         return response()->json([
             'message' => 'Jumlah item berhasil diperbarui.',
-            'data' => new CartResource($cart),
+            'data'    => new CartResource($cart),
         ]);
     }
 

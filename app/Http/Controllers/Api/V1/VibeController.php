@@ -11,7 +11,7 @@ class VibeController extends Controller
 {
     public function index(): JsonResponse
     {
-        $vibes = Vibe::where('is_active', true)->get();
+        $vibes = Vibe::all();
 
         return response()->json([
             'data' => VibeResource::collection($vibes),

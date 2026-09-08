@@ -5,6 +5,8 @@
     let currentShippingCost = 25000;
     let currentDiscount = 0;
     let activeVoucherCode = '';
+    let isShippingLoading = false;
+    let shippingDebounceTimer = null;
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -14,6 +16,20 @@
             fetchShippingRates();
         }
     });
+
+    function setCheckoutBtnState(enabled, htmlContent) {
+        const btnCheckout = document.getElementById('btn-checkout');
+        const mobileBtnCheckout = document.querySelector('div.fixed button[onclick="processCheckout()"]');
+
+        [btnCheckout, mobileBtnCheckout].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !enabled;
+            btn.classList.toggle('opacity-50', !enabled);
+            btn.classList.toggle('cursor-not-allowed', !enabled);
+            btn.classList.toggle('pointer-events-none', !enabled);
+            if (htmlContent) btn.innerHTML = htmlContent;
+        });
+    }
 
     function disableCheckoutBtn(btn) {
         if (!btn) return;
@@ -30,6 +46,9 @@
     function fetchShippingRates() {
         const container = document.getElementById('courier-options-container');
         if (!container) return;
+
+        isShippingLoading = true;
+        recalculateSummary();
 
         const selectedAddressRadio = document.querySelector('input[name="selected_address_id"]:checked');
         const addressId = selectedAddressRadio ? selectedAddressRadio.value : "{{ $primaryAddress['id'] ?? '' }}";
@@ -94,6 +113,7 @@
                 body: data
             })))
             .then(res => {
+                isShippingLoading = false;
                 if (!res.ok || res.body.error || (res.body.message && !res.body.data)) {
                     const errorDetail = res.body.error || res.body.message || 'Gagal menghitung tarif pengiriman.';
                     container.innerHTML = `
@@ -157,11 +177,13 @@
                 recalculateSummary();
             })
             .catch(err => {
+                isShippingLoading = false;
                 console.error('Error fetching shipping rates:', err);
                 container.innerHTML = `
             <div class="col-span-full p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs text-center font-medium">
                 Gagal mengambil tarif pengiriman. Silakan coba klik 'Hitung Ulang'.
             </div>`;
+                recalculateSummary();
             });
     }
 
@@ -433,11 +455,11 @@
         const mobileBtnCheckout = document.querySelector('div.fixed button[onclick="processCheckout()"]');
 
         if (!hasSelectedItems) {
-            disableCheckoutBtn(btnCheckout);
-            disableCheckoutBtn(mobileBtnCheckout);
+            setCheckoutBtnState(false, 'Pilih Produk <i class="fa-solid fa-arrow-right"></i>');
+        } else if (currentFulfillment === 'delivery' && isShippingLoading) {
+            setCheckoutBtnState(false, '<i class="fa-solid fa-circle-notch fa-spin"></i> Menghitung Ongkir...');
         } else {
-            enableCheckoutBtn(btnCheckout);
-            enableCheckoutBtn(mobileBtnCheckout);
+            setCheckoutBtnState(true, 'Bayar Sekarang <i class="fa-solid fa-arrow-right"></i>');
         }
     }
 
@@ -446,6 +468,10 @@
     }
 
     function processCheckout() {
+        if (currentFulfillment === 'delivery' && isShippingLoading) {
+            alert("Sedang menghitung tarif pengiriman. Mohon tunggu sebentar.");
+            return;
+        }
         const selectedCheckboxes = document.querySelectorAll('.cart-item-checkbox:checked:not(:disabled)');
         if (selectedCheckboxes.length === 0) {
             alert("Silakan pilih minimal satu produk yang tersedia untuk diproses.");
@@ -547,5 +573,21 @@
                 console.error('Checkout error:', err);
                 alert("Terjadi kesalahan koneksi saat memproses pesanan.");
             });
+    }
+
+
+    function debouncedFetchShippingRates() {
+        clearTimeout(shippingDebounceTimer);
+
+        if (currentFulfillment === 'delivery') {
+            isShippingLoading = true;
+            recalculateSummary();
+        }
+
+        shippingDebounceTimer = setTimeout(() => {
+            if (typeof fetchShippingRates === 'function') {
+                fetchShippingRates();
+            }
+        }, 800);
     }
 </script>

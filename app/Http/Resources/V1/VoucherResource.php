@@ -13,17 +13,16 @@ class VoucherResource extends JsonResource
         $storageService = app(StorageService::class);
 
         return [
-            'id'             => $this->id,
-            'code'           => $this->code,
-            'title'          => $this->title,
-            'banner'         => $storageService->getUrl($this->banner, 'public'),
-            'description'    => $this->description,
-            'discount_type'  => $this->discount_type, // 'percentage' | 'fixed'
-            'discount_value' => (float) $this->discount_value,
-            'min_spend'      => (float) $this->min_spend,
-            'max_discount'   => $this->max_discount ? (float) $this->max_discount : null,
-            'expired_at'     => $this->expired_at?->toIso8601String(),
-            'is_active'      => (bool) $this->is_active,
+            'id'                  => $this->id,
+            'code'                => $this->code,
+            'banner'          => $this->banner ? $storageService->getUrl($this->banner, 'public') : null,
+            'discount_type'       => $this->discount_type, // 'percentage' | 'fixed'
+            'discount_value'      => (float) $this->discount_value,
+            'min_order_amount'    => (float) ($this->min_order_amount ?? 0),
+            'max_discount_amount' => $this->max_discount_amount ? (float) $this->max_discount_amount : null,
+            'valid_from'          => $this->valid_from?->toIso8601String(),
+            'valid_until'         => $this->valid_until?->toIso8601String(),
+            'usage_limit'         => $this->usage_limit !== null ? (int) $this->usage_limit : null,
         ];
     }
 }

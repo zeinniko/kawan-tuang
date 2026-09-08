@@ -14,13 +14,15 @@ class CartItemResource extends JsonResource
         $subtotal = $price * $qty;
 
         return [
-            'id' => $this->id,
-            'product_id' => $this->product_id,
-            'product' => new ProductResource($this->product),
-            'quantity' => $qty,
-            'unit_price' => $price,
-            'subtotal' => $subtotal,
-            'created_at' => $this->created_at?->toIso8601String(),
+            'id'                 => $this->id,
+            'product_id'         => $this->product_id,
+            'product'            => new ProductResource($this->product),
+            'quantity'           => $qty,
+            'unit_price'         => $price,
+            'subtotal'           => $subtotal,
+            'temperature_option' => $this->temperature_option, // <--- Ditambahkan
+            'is_selected'         => (bool) $this->is_selected, // <--- Ditambahkan
+            'created_at'          => $this->created_at?->toIso8601String(),
         ];
     }
 }

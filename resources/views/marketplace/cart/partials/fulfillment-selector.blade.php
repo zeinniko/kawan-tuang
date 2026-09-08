@@ -137,7 +137,10 @@
 
   function checkStoreOperatingStatus(openTimeStr, closeTimeStr) {
     if (!openTimeStr || !closeTimeStr) {
-      return { status: 'CLOSED', message: 'Jam operasional tidak tersedia' };
+      return {
+        status: 'CLOSED',
+        message: 'Jam operasional tidak tersedia'
+      };
     }
 
     const now = new Date();
@@ -147,7 +150,10 @@
     const [cH, cM] = closeTimeStr.split(':').map(Number);
 
     if (isNaN(oH) || isNaN(oM) || isNaN(cH) || isNaN(cM)) {
-      return { status: 'CLOSED', message: 'Jam operasional tidak valid' };
+      return {
+        status: 'CLOSED',
+        message: 'Jam operasional tidak valid'
+      };
     }
 
     let openMinutes = oH * 60 + oM;
@@ -158,13 +164,19 @@
       closeMinutes += 24 * 60;
       if (currentMinutes < openMinutes) {
         if ((currentMinutes + 24 * 60) >= closeMinutes) {
-          return { status: 'CLOSED', message: 'Toko Sedang Tutup' };
+          return {
+            status: 'CLOSED',
+            message: 'Toko Sedang Tutup'
+          };
         }
       }
     }
 
     if (currentMinutes < openMinutes || currentMinutes >= closeMinutes) {
-      return { status: 'CLOSED', message: 'Toko Sedang Tutup' };
+      return {
+        status: 'CLOSED',
+        message: 'Toko Sedang Tutup'
+      };
     }
 
     if (currentMinutes >= pickupCutoffMinutes) {
@@ -174,7 +186,10 @@
       };
     }
 
-    return { status: 'OPEN', message: 'Toko Buka' };
+    return {
+      status: 'OPEN',
+      message: 'Toko Buka'
+    };
   }
 
   function refreshStoreModalStates() {
@@ -477,10 +492,12 @@
     validatePickupConditions();
   }
 
-  function syncItemsStockWithSelectedStore(storeId) {
+  async function syncItemsStockWithSelectedStore(storeId) {
     if (!storeId) return;
     const itemRows = document.querySelectorAll('.cart-item-row');
     if (!itemRows.length) return;
+
+    const syncTasks = [];
 
     itemRows.forEach(row => {
       const itemId = row.getAttribute('data-item-id');
@@ -506,36 +523,86 @@
         stockInStore = parseInt(storeStocks[Number(storeId)]);
       }
 
+      const wasChecked = checkbox ? checkbox.checked : false;
+
+      // JIKA STOK HABIS / KURANG DARI QTY
       if (stockInStore <= 0 || stockInStore < qty) {
         if (checkbox) {
           checkbox.checked = false;
           checkbox.disabled = true;
         }
         row.classList.add('opacity-50');
+
         if (warningBadge) {
           warningBadge.classList.remove('hidden');
           warningBadge.innerText = stockInStore <= 0 ? 'Stok Habis di Toko Ini' : `Stok Kurang (Sisa: ${stockInStore})`;
         }
+
+        // PERBAIKAN 1: Jika sebelumnya item ini dicentang, sync ke BE agar is_selected = false!
+        if (wasChecked) {
+          const toggleUrl = "{{ route('cart.toggle-select', ':id') }}".replace(':id', itemId);
+          syncTasks.push(
+            fetch(toggleUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                is_selected: false
+              })
+            })
+          );
+        }
       } else {
+        // JIKA STOK MENCUKUPI
         if (checkbox) {
           checkbox.disabled = false;
-          checkbox.checked = true;
+          // PERBAIKAN 2: Hanya buka disabled. Jangan paksa checkbox.checked = true 
+          // agar tidak membatalkan uncheck manual yang dilakukan user.
         }
         row.classList.remove('opacity-50');
+
         if (warningBadge) {
           warningBadge.classList.add('hidden');
         }
       }
     });
 
-    validatePickupConditions();
-
+    // Update status master checkbox "Pilih Semua"
     const masterCheckbox = document.getElementById('select-all-items');
     if (masterCheckbox) {
       const activeCbs = document.querySelectorAll('.cart-item-checkbox:not(:disabled)');
       const checkedCbs = document.querySelectorAll('.cart-item-checkbox:checked:not(:disabled)');
       masterCheckbox.checked = activeCbs.length > 0 && activeCbs.length === checkedCbs.length;
       masterCheckbox.disabled = activeCbs.length === 0;
+    }
+
+    // Hitung ulang ringkasan harga di tampilan
+    if (typeof recalculateSummary === 'function') {
+      recalculateSummary();
+    }
+
+    if (typeof validatePickupConditions === 'function') {
+      validatePickupConditions();
+    }
+
+    // Eksekusi kirim update status is_selected = false ke backend secara sejajar (parallel)
+    if (syncTasks.length > 0) {
+      try {
+        await Promise.all(syncTasks);
+        // Recalculate ongkir jika dalam mode delivery setelah status di DB diperbarui
+        if (typeof currentFulfillment !== 'undefined' && currentFulfillment === 'delivery' && typeof fetchShippingRates === 'function') {
+          fetchShippingRates();
+        }
+      } catch (err) {
+        console.error('Gagal sinkronisasi uncheck otomatis ke server:', err);
+      }
+    } else {
+      if (typeof currentFulfillment !== 'undefined' && currentFulfillment === 'delivery' && typeof fetchShippingRates === 'function') {
+        fetchShippingRates();
+      }
     }
   }
 </script>

@@ -14,14 +14,17 @@ class CheckoutProcessRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => ['required', 'string', 'exists:stores,id'],
-            'user_address_id' => ['required', 'string', 'exists:user_addresses,id'],
-            'courier_company' => ['required', 'string'],
-            'courier_type' => ['required', 'string'],
-            'shipping_cost' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'string'], // e.g. qris, gopay, bank_transfer
-            'voucher_code' => ['nullable', 'string', 'exists:vouchers,code'],
-            'notes' => ['nullable', 'string', 'max:255'],
+            'fulfillment_type' => ['required', 'string', 'in:delivery,pickup'],
+            'store_id'         => ['required', 'string', 'exists:stores,id'],
+            
+            'user_address_id'  => ['required_if:fulfillment_type,delivery', 'nullable', 'string', 'exists:user_addresses,id'],
+            'courier_company'  => ['required_if:fulfillment_type,delivery', 'nullable', 'string'],
+            'courier_type'     => ['required_if:fulfillment_type,delivery', 'nullable', 'string'],
+            'shipping_cost'    => ['required_if:fulfillment_type,delivery', 'nullable', 'numeric', 'min:0'],
+            
+            'payment_method'   => ['required', 'string'],
+            'voucher_code'     => ['nullable', 'string', 'exists:vouchers,code'],
+            'notes'            => ['nullable', 'string', 'max:255'],
         ];
     }
 }

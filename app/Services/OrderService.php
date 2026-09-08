@@ -15,7 +15,13 @@ class OrderService
 {
     public function previewCheckout(User $user, array $data): array
     {
-        $cart = $user->cart()->with('items.product')->first();
+        $cart = $user->cart()->with(['items' => function ($query) use ($data) {
+            $query->where('is_selected', true)
+                ->whereHas('product.storeStocks', function ($q) use ($data) {
+                    $q->where('store_id', $data['store_id'])
+                        ->where('stock', '>', 0);
+                });
+        }])->first();
 
         if (! $cart || $cart->items->isEmpty()) {
             throw ValidationException::withMessages([
@@ -38,7 +44,7 @@ class OrderService
             $now = now();
 
             // Validasi voucher aktif & tanggal
-            $isValid = $voucher 
+            $isValid = $voucher
                 && (! $voucher->valid_from || $voucher->valid_from->isPast())
                 && (! $voucher->valid_until || $voucher->valid_until->isFuture())
                 && ($voucher->usage_limit === null || $voucher->usage_limit > 0);
@@ -86,9 +92,13 @@ class OrderService
                 'age_verification' => ['Akun Anda belum terverifikasi 21+. Harap selesaikan KYC terlebih dahulu.'],
             ]);
         }
-
-        $cart = $user->cart()->with('items.product')->first();
-
+        $cart = $user->cart()->with(['items' => function ($query) use ($data) {
+            $query->where('is_selected', true)
+                ->whereHas('product.storeStocks', function ($q) use ($data) {
+                    $q->where('store_id', $data['store_id'])
+                        ->where('stock', '>', 0);
+                });
+        }])->first();
         if (! $cart || $cart->items->isEmpty()) {
             throw ValidationException::withMessages([
                 'cart' => ['Keranjang belanja Anda kosong.'],
@@ -141,7 +151,7 @@ class OrderService
             foreach ($cart->items as $item) {
                 $unitPrice = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
                 $qty = (int) $item->quantity;
-            
+
                 $order->items()->create([
                     'product_id'            => $item->product_id,
                     'product_name_snapshot' => optional($item->product)->name ?? 'Produk',
@@ -159,7 +169,7 @@ class OrderService
                 }
             }
 
-            $cart->items()->delete();
+            $cart->items()->where('is_selected', true)->delete();
 
             return $order->load(['store', 'items', 'voucher']);
         });

@@ -3,6 +3,12 @@
 @section('title', 'Detail Pesanan #' . ($order['order_number'] ?? '---') . ' - Tipsy More')
 
 @section('content')
+@php
+  $fulfillmentType = strtolower($order['fulfillment_type'] ?? 'delivery');
+  $isPickup = $fulfillmentType === 'pickup';
+  $status = strtolower($order['status'] ?? 'pending_payment');
+@endphp
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
   <!-- BREADCRUMB / BACK LINK -->
@@ -21,22 +27,30 @@
   @else
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-    <!-- LEFT COLUMN: TRACKING, MAP & COURIER INFO (7 Cols) -->
+    <!-- LEFT COLUMN: TRACKING, PICKUP INFO / MAP (7 Cols) -->
     <div class="lg:col-span-7 space-y-6">
 
       <!-- ORDER HEADER CARD -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
         <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-200 dark:border-slate-800">
           <div>
-            <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">ID Pesanan</span>
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">ID Pesanan</span>
+              <!-- BADGE FULFILLMENT TYPE -->
+              <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-md {{ $isPickup ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' }}">
+                <i class="fa-solid {{ $isPickup ? 'fa-store me-1' : 'fa-truck-fast me-1' }}"></i>
+                {{ $isPickup ? 'AMBIL DI TOKO (PICKUP)' : 'PENGIRIMAN (DELIVERY)' }}
+              </span>
+            </div>
             <span class="text-sm font-extrabold text-slate-900 dark:text-white font-mono">#{{ $order['order_number'] ?? $order['id'] }}</span>
           </div>
+
           <div class="flex items-center gap-2">
             @php
-            $status = strtolower($order['status'] ?? 'pending_payment');
             $statusConfig = [
                 'pending_payment' => ['label' => 'Menunggu Pembayaran', 'color' => 'bg-amber-500/10 text-amber-600 border-amber-500/20'],
-                'processing'      => ['label' => 'Diproses Penjual', 'color' => 'bg-blue-500/10 text-blue-600 border-blue-500/20'],
+                'processing'      => ['label' => $isPickup ? 'Pesanan Disiapkan' : 'Diproses Penjual', 'color' => 'bg-blue-500/10 text-blue-600 border-blue-500/20'],
+                'ready_for_pickup'=> ['label' => 'Siap Diambil di Outlet', 'color' => 'bg-purple-500/10 text-purple-600 border-purple-500/20'],
                 'allocated'       => ['label' => 'Kurir Dialokasikan', 'color' => 'bg-blue-500/10 text-blue-600 border-blue-500/20'],
                 'picking_up'      => ['label' => 'Kurir Menjemput Barang', 'color' => 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'],
                 'dropping_off'    => ['label' => 'Kurir Menuju Lokasi', 'color' => 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20'],
@@ -53,13 +67,13 @@
           </div>
         </div>
 
-        <!-- STEPPER STATUS TRACKER -->
+        <!-- STEPPER STATUS TRACKER (DINAMIS PICKUP / DELIVERY) -->
         <div class="py-6">
           <div class="relative flex items-center justify-between">
             <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 w-full bg-slate-200 dark:bg-slate-800 z-0"></div>
             @php
-            $isShippingActive = in_array($status, ['shipped', 'delivering', 'picking_up', 'dropping_off']);
-            $isProcessingActive = in_array($status, ['processing', 'allocated', 'shipped', 'delivering', 'picking_up', 'dropping_off', 'completed']);
+            $isShippingActive = in_array($status, ['shipped', 'delivering', 'picking_up', 'dropping_off', 'ready_for_pickup']);
+            $isProcessingActive = in_array($status, ['processing', 'allocated', 'shipped', 'delivering', 'picking_up', 'dropping_off', 'ready_for_pickup', 'completed']);
 
             $lineWidth = match(true) {
                 $status === 'completed' => 'w-full',
@@ -70,7 +84,7 @@
             @endphp
             <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 {{ $lineWidth }} bg-amber-500 z-0 transition-all duration-300"></div>
 
-            <!-- Step 1: Diterima -->
+            <!-- Step 1: Dibuat -->
             <div class="relative z-10 flex flex-col items-center">
               <div class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs shadow-md">
                 <i class="fa-solid fa-check"></i>
@@ -86,12 +100,14 @@
               <span class="text-[10px] font-bold text-slate-900 dark:text-white mt-2">Diproses</span>
             </div>
 
-            <!-- Step 3: Dikirim -->
+            <!-- Step 3: Dikirim / Siap Diambil -->
             <div class="relative z-10 flex flex-col items-center">
               <div class="w-8 h-8 rounded-full {{ ($isShippingActive || $status === 'completed') ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 ring-4 ring-amber-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-400' }} font-bold flex items-center justify-center text-xs">
-                <i class="fa-solid fa-motorcycle"></i>
+                <i class="fa-solid {{ $isPickup ? 'fa-store' : 'fa-motorcycle' }}"></i>
               </div>
-              <span class="text-[10px] font-bold text-slate-900 dark:text-white mt-2">Dikirim</span>
+              <span class="text-[10px] font-bold text-slate-900 dark:text-white mt-2">
+                {{ $isPickup ? 'Siap Diambil' : 'Dikirim' }}
+              </span>
             </div>
 
             <!-- Step 4: Selesai -->
@@ -105,120 +121,190 @@
         </div>
       </div>
 
-      <!-- METODE PENGIRIMAN & ALAMAT PENGIRIMAN CONTAINER -->
-      <div class="space-y-3">
-        <!-- ESTIMATED ARRIVAL & COURIER INFO -->
-        <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-base border border-amber-500/30 flex-shrink-0">
-              <i class="fa-solid fa-truck-fast"></i>
-            </div>
+      <!-- KONDISIONAL TAMPILAN KHUSUS PICKUP vs DELIVERY -->
+      @if($isPickup)
+        <!-- ==================== PICKUP DISPLAY ==================== -->
+        
+        <!-- CARD KODE PICKUP USER -->
+        @if(!empty($order['pickup_code']))
+        <div class="bg-gradient-to-r from-purple-950 via-slate-900 to-slate-900 border-2 border-purple-500/40 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 opacity-10 text-purple-400 text-8xl pointer-events-none">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+
+          <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <div>
-              <span class="text-xs font-bold text-slate-900 dark:text-white block">Metode Pengiriman</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                {{ strtoupper($order['courier_company'] ?? 'Kurir') }} ({{ ucfirst($order['courier_type'] ?? 'Reguler') }})
+              <span class="text-[11px] font-bold text-purple-300 uppercase tracking-widest block mb-1">
+                <i class="fa-solid fa-ticket me-1"></i> Kode Pengambilan Pesanan
               </span>
+              <p class="text-xs text-slate-300">Tunjukkan kode unik ini kepada kasir outlet saat mengambil pesanan Anda.</p>
+            </div>
+
+            <div class="bg-slate-950/90 border border-purple-500/50 rounded-xl px-5 py-3 flex items-center gap-3 shrink-0 shadow-inner">
+              <span class="text-2xl font-black font-mono tracking-widest text-amber-400">{{ $order['pickup_code'] }}</span>
+              <button type="button" onclick="navigator.clipboard.writeText('{{ $order['pickup_code'] }}'); alert('Kode pickup berhasil disalin!')" class="text-slate-400 hover:text-white text-xs p-1" title="Salin Kode">
+                <i class="fa-solid fa-copy"></i>
+              </button>
             </div>
           </div>
-          @if(!empty($order['waybill_number']))
-          <span class="text-xs font-bold font-mono bg-amber-500/20 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-lg">
-            Resi: {{ $order['waybill_number'] }}
-          </span>
+        </div>
+        @endif
+
+        <!-- OUTLET PICKUP LOCATION CARD -->
+        @if(!empty($order['store']))
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <span class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-solid fa-store text-amber-500 text-sm"></i> Lokasi Outlet Pengambilan (Pickup)
+            </span>
+            <span class="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-2 py-0.5 rounded">
+              Buka Jam Operational Toko
+            </span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">{{ $order['store']['name'] }}</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ $order['store']['address'] ?? '-' }}</p>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              @if(!empty($order['store']['phone_number']))
+              <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order['store']['phone_number']) }}" target="_blank" 
+                 class="flex-1 sm:flex-initial bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Outlet
+              </a>
+              @endif
+
+              @if(!empty($order['store']['latitude']) && !empty($order['store']['longitude']))
+              <a href="https://www.google.com/maps/search/?api=1&query={{ $order['store']['latitude'] }},{{ $order['store']['longitude'] }}" target="_blank"
+                 class="flex-1 sm:flex-initial bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
+                <i class="fa-solid fa-diamond-turn-right text-sm"></i> Petunjuk Arah
+              </a>
+              @endif
+            </div>
+          </div>
+        </div>
+        @endif
+
+      @else
+        <!-- ==================== DELIVERY DISPLAY ==================== -->
+        
+        <div class="space-y-3">
+          <!-- ESTIMATED ARRIVAL & COURIER INFO -->
+          <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-base border border-amber-500/30 flex-shrink-0">
+                <i class="fa-solid fa-truck-fast"></i>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white block">Metode Pengiriman</span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400">
+                  {{ strtoupper($order['courier_company'] ?? 'Kurir') }} ({{ ucfirst($order['courier_type'] ?? 'Reguler') }})
+                </span>
+              </div>
+            </div>
+            @if(!empty($order['waybill_number']))
+            <span class="text-xs font-bold font-mono bg-amber-500/20 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-lg">
+              Resi: {{ $order['waybill_number'] }}
+            </span>
+            @endif
+          </div>
+
+          @if(!empty($order['live_tracking_url']))
+          <div>
+            <a href="{{ $order['live_tracking_url'] }}" target="_blank" rel="noopener noreferrer"
+              class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-amber-500/20">
+              <i class="fa-solid fa-map-location-dot"></i> Buka Pelacakan Kurir Live
+            </a>
+          </div>
+          @endif
+
+          <!-- ALAMAT PENGIRIMAN -->
+          @if(!empty($order['address']))
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-location-dot text-rose-500"></i> Alamat Pengiriman
+            </span>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">
+              {{ $order['address']['recipient_name'] ?? '' }}
+              <span class="text-slate-400 font-normal">({{ $order['address']['recipient_phone'] ?? '' }})</span>
+            </p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              {{ $order['address']['full_address'] ?? '' }}
+            </p>
+          </div>
           @endif
         </div>
 
-        @if(!empty($order['live_tracking_url']))
-        <div>
-          <a href="{{ $order['live_tracking_url'] }}" target="_blank" rel="noopener noreferrer"
-            class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-amber-500/20">
-            <i class="fa-solid fa-map-location-dot"></i> Buka Pelacakan Kurir Live
-          </a>
+        <!-- LIVE MAP TRACKING MOCKUP (KHUSUS DELIVERY) -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+          <div class="p-3 bg-slate-100 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-amber-500"></i> Peta Lokasi Pengiriman
+            </span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded">GPS Aktif</span>
+          </div>
+
+          <div class="relative h-56 bg-slate-200 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+            <svg class="absolute inset-0 w-full h-full stroke-amber-500" stroke-width="3" stroke-dasharray="6,6">
+              <path d="M 80 160 Q 180 80 320 120" fill="none" />
+            </svg>
+
+            <!-- Store Marker -->
+            <div class="absolute left-16 bottom-10 flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-xs font-bold shadow-lg border border-amber-500">
+                <i class="fa-solid fa-store"></i>
+              </div>
+              <span class="text-[9px] font-bold bg-slate-900/90 text-white px-2 py-0.5 rounded mt-1 shadow truncate max-w-[100px]">
+                {{ $order['store']['name'] ?? 'Toko' }}
+              </span>
+            </div>
+
+            <!-- Driver Marker -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce">
+              <div class="w-10 h-10 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-sm font-bold shadow-xl ring-4 ring-amber-500/30">
+                <i class="fa-solid fa-motorcycle"></i>
+              </div>
+              <span class="text-[9px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded mt-1 shadow">
+                {{ $order['driver_name'] ?? 'Kurir' }}
+              </span>
+            </div>
+
+            <!-- Destination Marker -->
+            <div class="absolute right-16 top-16 flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-lg">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <span class="text-[9px] font-bold bg-slate-900/90 text-white px-2 py-0.5 rounded mt-1 shadow truncate max-w-[100px]">
+                {{ $order['address']['recipient_name'] ?? 'Lokasi Anda' }}
+              </span>
+            </div>
+          </div>
         </div>
-        @endif
 
-        <!-- ALAMAT PENGIRIMAN (TEPAT DIBAWAH METODE PENGIRIMAN) -->
-        @if(!empty($order['address']))
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-            <i class="fa-solid fa-location-dot text-rose-500"></i> Alamat Pengiriman
-          </span>
-          <p class="text-xs font-bold text-slate-900 dark:text-white">
-            {{ $order['address']['recipient_name'] ?? '' }}
-            <span class="text-slate-400 font-normal">({{ $order['address']['recipient_phone'] ?? '' }})</span>
-          </p>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-            {{ $order['address']['full_address'] ?? '' }}
-          </p>
-        </div>
-        @endif
-      </div>
-
-      <!-- LIVE MAP TRACKING MOCKUP -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-        <div class="p-3 bg-slate-100 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <span class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-map-location-dot text-amber-500"></i> Peta Lokasi Pengiriman
-          </span>
-          <span class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded">GPS Aktif</span>
-        </div>
-
-        <div class="relative h-56 bg-slate-200 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
-          <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]"></div>
-
-          <svg class="absolute inset-0 w-full h-full stroke-amber-500" stroke-width="3" stroke-dasharray="6,6">
-            <path d="M 80 160 Q 180 80 320 120" fill="none" />
-          </svg>
-
-          <!-- Store Marker -->
-          <div class="absolute left-16 bottom-10 flex flex-col items-center">
-            <div class="w-8 h-8 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-xs font-bold shadow-lg border border-amber-500">
+        <!-- OUTLET & STORE INFO CARD (DELIVERY) -->
+        @if(!empty($order['store']))
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-base border border-amber-500/30">
               <i class="fa-solid fa-store"></i>
             </div>
-            <span class="text-[9px] font-bold bg-slate-900/90 text-white px-2 py-0.5 rounded mt-1 shadow truncate max-w-[100px]">
-              {{ $order['store']['name'] ?? 'Toko' }}
-            </span>
-          </div>
-
-          <!-- Driver Marker -->
-          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce">
-            <div class="w-10 h-10 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-sm font-bold shadow-xl ring-4 ring-amber-500/30">
-              <i class="fa-solid fa-motorcycle"></i>
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ $order['store']['name'] }}</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{{ $order['store']['address'] ?? '-' }}</p>
             </div>
-            <span class="text-[9px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded mt-1 shadow">
-              {{ $order['driver_name'] ?? 'Kurir' }}
-            </span>
           </div>
-
-          <!-- Destination Marker -->
-          <div class="absolute right-16 top-16 flex flex-col items-center">
-            <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-lg">
-              <i class="fa-solid fa-location-dot"></i>
-            </div>
-            <span class="text-[9px] font-bold bg-slate-900/90 text-white px-2 py-0.5 rounded mt-1 shadow truncate max-w-[100px]">
-              {{ $order['address']['recipient_name'] ?? 'Lokasi Anda' }}
-            </span>
-          </div>
+          @if(!empty($order['store']['phone_number']))
+          <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order['store']['phone_number']) }}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors flex-shrink-0" title="Hubungi Toko">
+            <i class="fa-solid fa-phone text-xs"></i>
+          </a>
+          @endif
         </div>
-      </div>
-
-      <!-- OUTLET & STORE INFO CARD -->
-      @if(!empty($order['store']))
-      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-base border border-amber-500/30">
-            <i class="fa-solid fa-store"></i>
-          </div>
-          <div>
-            <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ $order['store']['name'] }}</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{{ $order['store']['address'] ?? '-' }}</p>
-          </div>
-        </div>
-        @if(!empty($order['store']['phone_number']))
-        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order['store']['phone_number']) }}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors flex-shrink-0" title="Hubungi Toko">
-          <i class="fa-solid fa-phone text-xs"></i>
-        </a>
         @endif
-      </div>
+
       @endif
 
     </div>
@@ -273,10 +359,15 @@
             </span>
           </div>
 
+          <!-- DYNAMIC ONGKIR / PICKUP FEE -->
           <div class="flex justify-between">
-            <span>Biaya Pengiriman</span>
-            <span class="font-medium text-slate-900 dark:text-white">
-              Rp {{ number_format($order['delivery_fee'] ?? $order['shipping_cost'] ?? 0, 0, ',', '.') }}
+            <span>{{ $isPickup ? 'Biaya Pengiriman (Pickup)' : 'Biaya Pengiriman' }}</span>
+            <span class="font-medium {{ $isPickup ? 'text-emerald-500 font-bold' : 'text-slate-900 dark:text-white' }}">
+              @if($isPickup || empty($order['delivery_fee']))
+                GRATIS
+              @else
+                Rp {{ number_format($order['delivery_fee'] ?? $order['shipping_cost'] ?? 0, 0, ',', '.') }}
+              @endif
             </span>
           </div>
 
@@ -304,23 +395,24 @@
           </div>
         </div>
 
-<!-- ACTION BUTTONS -->
-<div class="pt-2 space-y-2">
+        <!-- ACTION BUTTONS -->
+        <div class="pt-2 space-y-2">
           @php
-            $status = strtolower($order['status'] ?? 'pending_payment');
             $deliveryStatus = strtolower($order['shipping_status'] ?? $order['delivery']['status'] ?? $status);
 
-            // Kondisi Batal: Sebelum status delivery mencapai 'picked' (misal: pending_payment, processing, allocated, picking_up)
+            // Kondisi Batal: Sebelum status delivery/pickup diproses lanjut
             $canCancel = in_array($status, ['pending_payment', 'processing', 'allocated', 'picking_up']) 
-                         && !in_array($deliveryStatus, ['picked', 'in_transit', 'dropping_off', 'delivered', 'completed', 'cancelled']);
+                         && !in_array($deliveryStatus, ['picked', 'in_transit', 'dropping_off', 'delivered', 'ready_for_pickup', 'completed', 'cancelled']);
 
-            // Kondisi Selesai: Jika delivery status sudah 'delivered' dan order belum 'completed'
-            $canComplete = (in_array($deliveryStatus, ['delivered', 'dropping_off']) || $status === 'delivering') 
+            // Kondisi Selesai:
+            // Pickup: jika status sudah 'ready_for_pickup' / 'processing'
+            // Delivery: jika status 'delivered' / 'delivering'
+            $canComplete = ($isPickup ? in_array($status, ['ready_for_pickup', 'processing']) : (in_array($deliveryStatus, ['delivered', 'dropping_off']) || $status === 'delivering'))
                            && $status !== 'completed' 
                            && $status !== 'cancelled';
           @endphp
 
-          {{-- 1. Tombol Bayar Sekarang (Muncul jika status 'pending_payment') --}}
+          {{-- 1. Tombol Bayar Sekarang --}}
           @if($status === 'pending_payment')
             <button type="button" id="btn-pay-now" onclick="payNow()" 
                     class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-center text-xs transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2">
@@ -328,18 +420,18 @@
             </button>
           @endif
 
-          {{-- 2. Tombol Selesaikan Pesanan (Muncul jika delivery status 'delivered') --}}
+          {{-- 2. Tombol Selesaikan Pesanan --}}
           @if($canComplete)
-            <form action="{{ route('orders.complete', $order['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda sudah menerima pesanan ini dengan baik?')">
+            <form action="{{ route('orders.complete', $order['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda sudah menerima/mengambil pesanan ini dengan baik?')">
               @csrf
               <button type="submit" 
                       class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-2.5 rounded-xl text-center text-xs transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-check"></i> Selesaikan Pesanan
+                <i class="fa-solid fa-circle-check"></i> {{ $isPickup ? 'Konfirmasi Sudah Diambil' : 'Selesaikan Pesanan' }}
               </button>
             </form>
           @endif
 
-          {{-- 3. Tombol Batalkan Pesanan (Muncul sebelum kurir 'picked' barang) --}}
+          {{-- 3. Tombol Batalkan Pesanan --}}
           @if($canCancel)
             <form action="{{ route('orders.cancel', $order['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
               @csrf
@@ -350,7 +442,7 @@
             </form>
           @endif
 
-          {{-- 4. Explore Produk Lainnya (Pengganti 'Belanja Lagi') --}}
+          {{-- 4. Explore Produk Lainnya --}}
           <a href="{{ route('catalog.index') }}" class="block w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-center text-xs transition-all">
             Explore Produk lainnya
           </a>
@@ -369,7 +461,6 @@
           </span>
         </div>
 
-        {{-- Alert Notifikasi Sukses / Error --}}
         @if(session('success'))
         <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold rounded-xl flex items-center gap-2">
           <i class="fa-solid fa-circle-check text-sm"></i> {{ session('success') }}
@@ -410,13 +501,11 @@
             </div>
 
             @if(!empty($existingReview))
-            <!-- TAMPILAN JIKA PRODUK SUDAH DIULAS -->
             <div class="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <i class="fa-solid fa-circle-check"></i> Sudah Diulas
                 </span>
-                <!-- Rating Bintang -->
                 <div class="flex items-center gap-0.5 text-amber-500 text-xs">
                   @for($s = 1; $s <= 5; $s++)
                   <i class="fa-{{ $s <= ($existingReview['rating'] ?? 0) ? 'solid' : 'regular' }} fa-star"></i>
@@ -429,12 +518,10 @@
               </p>
             </div>
             @else
-            <!-- FORM KIRIM ULASAN (TANPA PHOTO) -->
             <form action="{{ route('orders.review.store', ['orderId' => $order['id'], 'productId' => $productId]) }}" method="POST" class="space-y-3 bg-slate-50 dark:bg-slate-950/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
               @csrf
               <input type="hidden" name="order_id" value="{{ $order['id'] }}">
 
-              <!-- INPUT RATING BINTANG -->
               <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Rating Produk</label>
                 <div class="flex items-center gap-1 flex-row-reverse justify-end">
@@ -447,7 +534,6 @@
                 </div>
               </div>
 
-              <!-- TEXTAREA ULASAN -->
               <div>
                 <textarea name="review_text" rows="2" placeholder="Tuliskan ulasan mengenai rasa, kemasan, atau pengalaman produk..." class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-400" required></textarea>
               </div>
@@ -485,7 +571,6 @@
             onError: function(result) { alert('Pembayaran gagal, silakan coba lagi.'); }
           });
         } else {
-          // Fallback: Minta token baru ke backend jika belum ada di data order
           fetch("{{ route('orders.pay', $order['id']) }}", {
             method: 'POST',
             headers: {

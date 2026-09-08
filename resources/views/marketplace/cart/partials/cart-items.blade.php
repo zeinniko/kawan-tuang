@@ -212,19 +212,16 @@ $allSelected = collect($items)->count() > 0 && collect($items)->every(fn($i) => 
     if (newQty < 1) return;
 
     const unitPrice = parseFloat(qtyElement.getAttribute('data-unit-price'));
+    const oldQty = currentQty; // Simpan qty lama untuk rollback jika error
+
+    // 1. Update UI sementara
     qtyElement.innerText = newQty;
     const newSubtotal = unitPrice * newQty;
     const subtotalEl = document.getElementById(`subtotal-${itemId}`);
     subtotalEl.innerText = formatRupiah(newSubtotal);
     subtotalEl.setAttribute('data-raw', newSubtotal);
 
-    // Re-check stok item terhadap toko yang aktif setelah QTY berubah
-    const currentStoreId = document.getElementById('selected-store-id')?.value;
-    if (currentStoreId && typeof syncItemsStockWithSelectedStore === 'function') {
-      syncItemsStockWithSelectedStore(currentStoreId);
-    } else {
-      recalculateSummary();
-    }
+    recalculateSummary();
 
     const updateUrl = "{{ route('cart.update', ':id') }}".replace(':id', itemId);
     try {
@@ -240,10 +237,36 @@ $allSelected = collect($items)->count() > 0 && collect($items)->every(fn($i) => 
         })
       });
 
-      if (response.ok && activeVoucherCode) {
+      const resData = await response.json();
+
+      // 2. Jika BE menolak (misal qty melebihi stok di DB)
+      if (!response.ok) {
+        // Rollback UI ke Qty awal
+        qtyElement.innerText = oldQty;
+        const oldSubtotal = unitPrice * oldQty;
+        subtotalEl.innerText = formatRupiah(oldSubtotal);
+        subtotalEl.setAttribute('data-raw', oldSubtotal);
+        recalculateSummary();
+
+        alert(resData.message || 'Gagal mengubah kuantitas. Stok tidak mencukupi.');
+        return;
+      }
+
+      // 3. Jika BERHASIL: Hitung ulang ongkir karena berat total bertambah!
+      if (currentFulfillment === 'delivery') {
+        debouncedFetchShippingRates();
+      }
+
+      if (activeVoucherCode) {
         applyVoucher(true);
       }
     } catch (err) {
+      // Rollback jika terjadi masalah jaringan
+      qtyElement.innerText = oldQty;
+      const oldSubtotal = unitPrice * oldQty;
+      subtotalEl.innerText = formatRupiah(oldSubtotal);
+      subtotalEl.setAttribute('data-raw', oldSubtotal);
+      recalculateSummary();
       console.error('Error updating cart quantity on server:', err);
     }
   }

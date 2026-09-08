@@ -68,6 +68,7 @@ class OrderController extends Controller
             'courier_type'     => $request->input('courier_type'),
             'payment_method'   => $request->input('payment_method', 'midtrans'),
             'voucher_code'     => $request->input('voucher_code'),
+            'use_points'     => $request->input('use_points'),
             'notes'            => $request->input('notes'),
         ]);
 
