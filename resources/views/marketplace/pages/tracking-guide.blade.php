@@ -72,7 +72,7 @@
 
         <!-- PLACEHOLDER GAMBAR 1 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/track-step-1-history.png') }}" alt="[GAMBAR 1]: Screenshot Daftar Riwayat Transaksi Mengeset Filter Status Pesanan Aktif" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/12.png') }}" alt="[GAMBAR 1]: Screenshot Daftar Riwayat Transaksi Mengeset Filter Status Pesanan Aktif" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
 
         <!-- PLACEHOLDER GAMBAR 2 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/track-step-2-live-map.png') }}" alt="[GAMBAR 2]: Screenshot Halaman Detail Pesanan Menampilkan Peta Live Tracking Kurir Biteship dan Info Nama Driver" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/14.png') }}" alt="[GAMBAR 2]: Screenshot Halaman Detail Pesanan Menampilkan Peta Live Tracking Kurir Biteship dan Info Nama Driver" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@
 
         <!-- PLACEHOLDER GAMBAR 3 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/track-step-3-pickup-qr.png') }}" alt="[GAMBAR 3]: Screenshot Tampilan QR Code Pengambilan Toko dan Kode PIN Pickup pada Halaman Detail Pesanan" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/15.png') }}" alt="[GAMBAR 3]: Screenshot Tampilan QR Code Pengambilan Toko dan Kode PIN Pickup pada Halaman Detail Pesanan" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>

@@ -72,7 +72,7 @@
         
         <!-- PLACEHOLDER GAMBAR 1 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-1-location.png') }}" alt="[GAMBAR 1]: Screenshot Halaman Pemilihan Alamat & Cabang Toko Terdekat dengan Peta Pin-point GPS" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/7.png') }}" alt="[GAMBAR 1]: Screenshot Halaman Pemilihan Alamat & Cabang Toko Terdekat dengan Peta Pin-point GPS" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
 
         <!-- PLACEHOLDER GAMBAR 2 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-2-product.png') }}" alt="[GAMBAR 2]: Screenshot Halaman Detail Produk (PDP) Menampilkan Opsi Suhu Cold Ready dan Button Tambah ke Keranjang" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/8.png') }}" alt="[GAMBAR 2]: Screenshot Halaman Detail Produk (PDP) Menampilkan Opsi Suhu Cold Ready dan Button Tambah ke Keranjang" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@
 
         <!-- PLACEHOLDER GAMBAR 3 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-3-cart.png') }}" alt="[GAMBAR 3]: Screenshot Halaman Keranjang Belanja dengan Input Kode Voucher dan Subtotal" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/9.png') }}" alt="[GAMBAR 3]: Screenshot Halaman Keranjang Belanja dengan Input Kode Voucher dan Subtotal" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -134,7 +134,7 @@
 
         <!-- PLACEHOLDER GAMBAR 4 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-4-fulfillment.png') }}" alt="[GAMBAR 4]: Screenshot Halaman Checkout Opsi Instant Delivery vs Pick Up Store" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/9.png') }}" alt="[GAMBAR 4]: Screenshot Halaman Checkout Opsi Instant Delivery vs Pick Up Store" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -154,7 +154,7 @@
 
         <!-- PLACEHOLDER GAMBAR 5 -->
         <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-5-payment.png') }}" alt="[GAMBAR 5]: Screenshot Pilihan Metode Pembayaran Payment Gateway (QRIS, VA, E-Wallet) dan Timer Kadaluarsa" class="w-full h-auto rounded-xl object-cover">
+          <img src="{{ asset('modul/10.png') }}" alt="[GAMBAR 5]: Screenshot Pilihan Metode Pembayaran Payment Gateway (QRIS, VA, E-Wallet) dan Timer Kadaluarsa" class="w-full h-auto rounded-xl object-cover">
         </div>
       </div>
     </div>
@@ -171,11 +171,6 @@
         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
           Saat kurir tiba atau saat mengambil barang di outlet, siapkan dokumen identitas fisik (KTP/SIM/Paspor) asli Anda. Kurir/staf wajib memverifikasi bahwa penerima barang berusia minimal 21 tahun.
         </p>
-
-        <!-- PLACEHOLDER GAMBAR 6 -->
-        <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-2">
-          <img src="{{ asset('images/guides/step-6-receive.png') }}" alt="[GAMBAR 6]: Grafik Ilustrasi Penyerahan Paket oleh Kurir dengan Pemeriksaan Fisik KTP Pengguna Usia 21+" class="w-full h-auto rounded-xl object-cover">
-        </div>
       </div>
     </div>
 
