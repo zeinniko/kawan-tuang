@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1;
 
+use App\Services\StorageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -9,6 +10,8 @@ class UserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $storageService = app(StorageService::class);
+
         return [
             'id' => $this->id,
             'full_name' => $this->full_name,
@@ -16,6 +19,7 @@ class UserResource extends JsonResource
             'phone_number' => $this->phone_number,
             'birth_date' => $this->birth_date?->format('Y-m-d'),
             'is_age_verified' => (bool) $this->is_age_verified,
+            'avatar' => $storageService->getUrl($this->avatar, 'private'),
             'role' => $this->role,
             'points' => $this->points,
             'created_at' => $this->created_at?->toIso8601String(),

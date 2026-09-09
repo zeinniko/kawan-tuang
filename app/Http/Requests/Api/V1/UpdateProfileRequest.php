@@ -16,9 +16,10 @@ class UpdateProfileRequest extends FormRequest
         $userId = $this->user()->id;
 
         return [
-            'full_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:150', "unique:users,email,{$userId}"],
+            'full_name'    => ['required', 'string', 'max:100'],
+            'email'        => ['required', 'string', 'email', 'max:150', "unique:users,email,{$userId}"],
             'phone_number' => ['required', 'string', 'max:20', "unique:users,phone_number,{$userId}"],
+            'avatar'       => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'], // <-- TAMBAHKAN INI
         ];
     }
 }

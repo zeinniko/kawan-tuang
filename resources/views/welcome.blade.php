@@ -75,7 +75,7 @@
     @stack('styles')
 </head>
 
-<body class="bg-[#F8F9FA] text-slate-800 dark:bg-[#0B0F19] dark:text-slate-200 font-sans transition-colors duration-500 selection:bg-amber-500 selection:text-white overflow-x-hidden pb-24 md:pb-0">
+<body class="bg-[#F8F9FA] text-slate-800 dark:bg-[#0B0F19] dark:text-slate-200 font-sans transition-colors duration-500 selection:bg-amber-500 selection:text-white overflow-x-hidden {{ request()->has('app_view') ? 'pb-0' : 'pb-24 md:pb-0' }}">
 
     <!-- CUSTOM TAILWIND TOAST NOTIFICATION (Pengganti alert bawaan) -->
     <div id="custom-alert-toast" class="fixed top-6 right-6 z-[60] hidden transition-all duration-300 transform translate-y-0">
@@ -85,6 +85,7 @@
         </div>
     </div>
 
+    @if(!request()->has('app_view'))
     <!-- 21+ AGE VERIFICATION MODAL / POP-UP (GLOBAL OVERLAY) -->
     <div id="age-verification-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-5">
@@ -127,6 +128,7 @@
 
         </div>
     </div>
+    
 
     <!-- 21+ Verification Banner -->
     <div class="bg-amber-100 text-amber-900 dark:bg-amber-500/10 dark:text-amber-400 px-4 py-2 text-[11px] sm:text-xs text-center font-medium tracking-wide">
@@ -186,12 +188,14 @@
 
         </div>
     </header>
+    @endif
 
     <!-- MAIN CONTENT INJECTION -->
     <main>
         @yield('content')
     </main>
 
+    @if(!request()->has('app_view'))
     <!-- FOOTER -->
     <footer class="bg-white dark:bg-[#060910] border-t border-slate-200/50 dark:border-slate-800/50 mt-4 pt-8 md:pt-16 pb-6 md:pb-12 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -348,6 +352,7 @@
         <span class="absolute -inset-1 rounded-full bg-emerald-500/40 animate-ping pointer-events-none"></span>
         <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
     </a>
+    @endif
 
     <!-- JAVASCRIPT GLOBAL LOGIC & AGE MODAL -->
     <script>
