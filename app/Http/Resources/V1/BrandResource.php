@@ -16,6 +16,7 @@ class BrandResource extends JsonResource
             'id'       => $this->id,
             'name'     => $this->name,
             'slug'     => $this->slug,
+            'country_origin'     => $this->country_origin,
             'logo_url' => $storageService->getUrl($this->logo_url, 'public'),
         ];
     }
