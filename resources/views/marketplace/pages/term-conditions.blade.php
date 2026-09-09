@@ -6,12 +6,14 @@
 <!-- MAIN CONTAINER -->
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
+  @if(!request()->has('app_view'))
   <!-- BREADCRUMB / BACK LINK -->
   <div>
     <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
       <i class="fa-solid fa-arrow-left"></i> Kembali
     </a>
   </div>
+  @endif
 
   <!-- PAGE HEADER CARD -->
   <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 transition-colors">
