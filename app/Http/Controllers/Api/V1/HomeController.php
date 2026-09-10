@@ -13,14 +13,16 @@ use App\Http\Resources\V1\VibeResource;
 use App\Http\Resources\V1\VoucherResource;
 use App\Services\CatalogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     public function __construct(protected CatalogService $catalogService) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $data = $this->catalogService->getHomeData();
+        $user = $request->user();
+        $data = $this->catalogService->getHomeData($user);
 
         return response()->json([
             'vouchers'          => VoucherResource::collection($data['vouchers']),
