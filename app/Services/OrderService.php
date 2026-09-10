@@ -143,7 +143,7 @@ class OrderService
                 'admin_fee'        => $preview['admin_fee'],
                 'total_amount'     => $preview['total_amount'],
                 'status'           => Order::STATUS_PENDING_PAYMENT,
-                'address_snapshot' => $addressSnapshot,
+                'address_snapshot' => $addressSnapshot ?? [],
                 'courier_company'  => $courierCompany,
                 'courier_type'     => $courierType,
             ]);
