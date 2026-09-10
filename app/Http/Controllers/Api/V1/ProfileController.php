@@ -29,24 +29,27 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $validated = $request->validated();
-
-        // Jika ada berkas avatar yang diunggah
+    
+        // Jika ada berkas avatar baru yang diunggah
         if ($request->hasFile('avatar')) {
-            // Hapus avatar lama dari storage private jika ada
-            if ($user->avatar) {
-                $this->storageService->delete($user->avatar, 'private');
+            // Hapus avatar lama dari S3 private (gunakan path asli di DB)
+            $oldAvatarPath = $user->getRawOriginal('avatar');
+            if ($oldAvatarPath) {
+                $this->storageService->delete($oldAvatarPath, 'private');
             }
-
-            // Unggah avatar baru ke folder 'avatars' dengan visibilitas 'private'
+    
+            // Unggah avatar baru ke folder 'avatars'
             $validated['avatar'] = $this->storageService->upload(
                 file: $request->file('avatar'),
                 directory: 'avatars',
                 visibility: 'private'
             );
+        } else {
+            unset($validated['avatar']);
         }
-
+    
         $user->update($validated);
-
+    
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
             'data' => new UserResource($user->fresh()),
