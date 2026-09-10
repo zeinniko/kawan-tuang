@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->authGuard('web')
             ->login()
+            ->favicon(asset('images/logo_app.png'))
             ->sidebarWidth('17rem')
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
