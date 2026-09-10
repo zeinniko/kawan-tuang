@@ -14,7 +14,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CatalogService
 {
-/**
+    /**
      * Mengambil data halaman beranda (Home)
      * 
      * @param User|null $user
@@ -66,7 +66,14 @@ class CatalogService
     {
         // PENTING: Tambahkan 'storeStocks' di relasi eager loading
         $query = Product::where('is_active', true)
-            ->with(['category', 'brand', 'vibes', 'primaryImage', 'images', 'storeStocks']);
+            ->with([
+                'category',
+                'brand',
+                'vibes',
+                'primaryImage',
+                'images',
+                'storeStocks',
+            ]);
 
         // Search Filter
         if (!empty($filters['search'])) {
@@ -89,6 +96,13 @@ class CatalogService
         $vibeSlug = $filters['vibe'] ?? $filters['vibe_slug'] ?? null;
         if (!empty($vibeSlug)) {
             $query->whereHas('vibes', fn($q) => $q->where('slug', $vibeSlug));
+        }
+
+        if (!empty($filters['store_id'])) {
+            $query->whereHas('storeStocks', function ($q) use ($filters) {
+                $q->where('store_id', $filters['store_id'])
+                    ->where('stock', '>', 0);
+            });
         }
 
         // Price Filter
