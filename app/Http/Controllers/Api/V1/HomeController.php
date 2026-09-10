@@ -21,7 +21,7 @@ class HomeController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user = auth('sanctum')->user();
         $data = $this->catalogService->getHomeData($user);
 
         return response()->json([
