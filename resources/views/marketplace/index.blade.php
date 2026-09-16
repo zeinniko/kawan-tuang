@@ -131,31 +131,81 @@
 </section>
 
 <!-- ================= 2. EVENT LIGHT PROMO / BEST DEAL ================= -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-  <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-5 sm:p-6 md:p-8 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 shadow-xl">
+<section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-10">
+  <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 md:gap-6 shadow-xl">
 
-    <div class="space-y-1.5 text-center md:text-left w-full md:w-auto">
-      <span class="bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+    <!-- Konten Teks -->
+    <div class="space-y-1 sm:space-y-1.5 text-center md:text-left w-full md:w-auto">
+      <span class="bg-slate-950 text-amber-400 text-[9px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase tracking-wider inline-block">
         🔥 Best Deal Hari Ini
       </span>
-      <h2 class="text-xl sm:text-2xl md:text-3xl font-serif font-bold leading-tight">Lagi Cari yang Segar dengan Harga Spesial?</h2>
-      <p class="text-xs sm:text-sm text-slate-900 font-medium">Jangan sampai kelewatan potongan harga khusus minggu ini!</p>
+      <h2 class="text-base sm:text-2xl md:text-3xl font-serif font-bold leading-tight">
+        Lagi Cari yang Segar dengan Harga Spesial?
+      </h2>
+      <p class="text-[11px] sm:text-sm text-slate-900 font-medium leading-tight sm:leading-normal">
+        Jangan sampai kelewatan potongan harga khusus minggu ini!
+      </p>
     </div>
 
-    <!-- Disesuaikan Layout Jam & Tombol Agar Kompak di Mobile -->
-    <div class="flex flex-row items-center justify-between sm:justify-end gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t border-slate-950/10 md:border-t-0">
-      <div class="bg-slate-950 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-center shrink-0">
-        <span class="block text-[9px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider">Berakhir Dalam</span>
-        <span id="countdown" class="font-mono text-sm sm:text-base font-bold text-white">04 : 32 : 18</span>
+    <!-- Timer & Tombol CTA -->
+    <div class="flex flex-row items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t border-slate-950/10 md:border-t-0">
+      
+      <!-- Box Countdown -->
+      <div class="bg-slate-950 text-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-center shrink-0 flex-1 sm:flex-none">
+        <span class="block text-[8px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5 sm:mb-1">
+          Berakhir Dalam
+        </span>
+        <span id="countdown" class="font-mono text-[10px] xs:text-xs sm:text-sm md:text-base font-bold text-white tracking-tight sm:tracking-wider whitespace-nowrap">
+          00d : 00h : 00m : 00s
+        </span>
       </div>
-      <a href="{{ route('catalog.index') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold px-4 py-3 sm:px-6 sm:py-3.5 rounded-2xl text-xs sm:text-sm transition-colors whitespace-nowrap shadow-md flex items-center justify-center gap-2 flex-1 sm:flex-initial">
-        <span>Sikat Sekarang</span>
-        <i class="fa-solid fa-arrow-right text-xs"></i>
+
+      <!-- Tombol CTA (Ikon saja di mobile, Teks + Ikon di tablet/PC) -->
+      <a href="{{ route('catalog.index') }}" 
+         title="Sikat Sekarang"
+         class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold p-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all whitespace-nowrap shadow-md flex items-center justify-center gap-2 shrink-0">
+        <span class="hidden sm:inline">Sikat Sekarang</span>
+        <i class="fa-solid fa-arrow-right text-xs sm:text-sm"></i>
       </a>
+      
     </div>
 
   </div>
 </section>
+
+<!-- Script Logic Countdown Otomatis Bulanan -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function startMonthlyCountdown() {
+      const countdownEl = document.getElementById('countdown');
+      if (!countdownEl) return;
+
+      function updateTimer() {
+        const now = new Date();
+
+        // Target: Detik terakhir di bulan berjalan (23:59:59)
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const distance = endOfMonth - now;
+
+        if (distance < 0) return;
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const pad = (num) => String(num).padStart(2, '0');
+
+        countdownEl.textContent = `${pad(days)}d : ${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`;
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    startMonthlyCountdown();
+  });
+</script>
 
 <!-- ================= 3. PILIH SELERA ANDA (Category) ================= -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

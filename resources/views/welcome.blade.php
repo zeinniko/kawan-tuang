@@ -76,363 +76,363 @@
 </head>
 
 <body class="bg-[#F8F9FA] text-slate-800 dark:bg-[#0B0F19] dark:text-slate-200 font-sans transition-colors duration-500 selection:bg-amber-500 selection:text-white overflow-x-hidden {{ request()->has('app_view') ? 'pb-0' : 'pb-24 md:pb-0' }}">
-
-    <!-- CUSTOM TAILWIND TOAST NOTIFICATION (Pengganti alert bawaan) -->
-    <div id="custom-alert-toast" class="fixed top-6 right-6 z-[60] hidden transition-all duration-300 transform translate-y-0">
-        <div class="bg-rose-500 text-white font-semibold text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-rose-400/30">
-            <i class="fa-solid fa-triangle-exclamation text-base"></i>
-            <span id="custom-alert-message">Silakan centang persetujuan batas usia terlebih dahulu.</span>
-        </div>
-    </div>
-
-    @if(!request()->has('app_view'))
-    <!-- 21+ AGE VERIFICATION MODAL / POP-UP (GLOBAL OVERLAY) -->
-    <div id="age-verification-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-5">
-
-            <!-- Icon & Badge -->
-            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-amber-500/10">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-
-            <!-- Title & Description -->
-            <div class="space-y-2">
-                <span class="px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-[10px] rounded-full uppercase tracking-wider">
-                    Peringatan Kepatuhan Hukum
-                </span>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white">Apakah Anda Berusia 21+?</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Sesuai dengan peraturan perundang-undangan di Indonesia, penjualan minuman beralkohol hanya diperuntukkan bagi konsumen yang telah berusia 21 tahun ke atas dan tidak sedang hamil.
-                </p>
-            </div>
-
-            <!-- Age Input / Check Option -->
-            <div class="p-3 bg-slate-100 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs space-y-2">
-                <label class="flex items-start gap-2.5 cursor-pointer">
-                    <input type="checkbox" id="age-confirm-checkbox" class="mt-0.5 rounded text-amber-500 focus:ring-amber-500">
-                    <span class="text-slate-600 dark:text-slate-400 text-[11px]">
-                        Saya mengonfirmasi bahwa saya lahir sebelum tahun {{ date('Y') - 21 }} dan menyetujui Syarat & Ketentuan.
-                    </span>
-                </label>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="space-y-2 pt-2">
-                <button id="btn-confirm-age" onclick="closeAgeModal()" class="w-full bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20">
-                    Ya, Saya Berusia 21+
-                </button>
-                <button onclick="rejectAgeModal()" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl text-xs transition-colors">
-                    Saya Belum Berusia 21 Tahun
-                </button>
-            </div>
-
-        </div>
-    </div>
     
-
-    <!-- 21+ Verification Banner -->
-    <div class="bg-amber-100 text-amber-900 dark:bg-amber-500/10 dark:text-amber-400 px-4 py-2 text-[11px] sm:text-xs text-center font-medium tracking-wide">
-        <i class="fa-solid fa-triangle-exclamation me-1"></i> Halo Sobat TM! Pastikan usia kamu sudah 21+ ya sebelum menjelajah. Nikmati minuman secara bertanggung jawab.
-    </div>
-
-    <!-- HEADER NAVBAR -->
-    <header class="sticky top-0 z-40 bg-white/70 dark:bg-[#0B0F19]/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-
-            <!-- Brand Logo TM -->
-            <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-xl shadow-lg shadow-amber-500/30 group-hover:rotate-12 transition-transform duration-300">
-                    TM
+            <!-- CUSTOM TAILWIND TOAST NOTIFICATION (Pengganti alert bawaan) -->
+            <div id="custom-alert-toast" class="fixed top-6 right-6 z-[60] hidden transition-all duration-300 transform translate-y-0">
+                <div class="bg-rose-500 text-white font-semibold text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-rose-400/30">
+                    <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                    <span id="custom-alert-message">Silakan centang persetujuan batas usia terlebih dahulu.</span>
                 </div>
-                <span class="text-2xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">
-                    Tipsy<span class="text-amber-500 dark:text-amber-400 italic">More</span>
-                </span>
-            </a>
-
-            <!-- Search Bar -->
-            <form action="{{ route('catalog.index') }}" method="GET" class="hidden md:flex flex-1 max-w-md relative group">
-                <input type="text" name="search" placeholder="Mau cari teman minum apa malam ini? (Contoh: Whiskey, Wine)"
-                    class="w-full bg-slate-100/50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-full py-2.5 pl-12 pr-4 outline-none border border-transparent focus:border-amber-500/50 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300">
-                <button type="submit" class="absolute left-4 top-3 text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </form>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2 sm:gap-4">
-                <!-- Theme Toggle -->
-                <button id="theme-toggle" class="p-2.5 rounded-full text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800 transition-all" title="Ubah Tema">
-                    <i id="theme-toggle-light-icon" class="fa-solid fa-sun text-amber-400 text-lg hidden"></i>
-                    <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-lg"></i>
-                </button>
-
-                <!-- Cart Icon -->
-                <a href="{{ route('cart.index') }}" class="relative p-2.5 text-slate-400 hover:text-amber-500 transition-colors" title="Keranjang">
-                    <i class="fa-solid fa-bag-shopping text-xl"></i>
-                    <span class="absolute top-1 right-0 bg-amber-500 text-slate-950 font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm shadow-amber-500/50">
-                        {{ session('cart_count', 0) }}
-                    </span>
-                </a>
-
-                <!-- Auth Button (Login / Profile) -->
-                @auth
-                <a href="{{ route('profile.index') }}" class="hidden md:flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-semibold px-5 py-2.5 rounded-full text-sm hover:bg-amber-500 hover:text-slate-950 transition-all">
-                    <i class="fa-regular fa-user"></i> {{ Auth::user()->full_name }}
-                </a>
-                @else
-                <a href="{{ route('login') }}" class="hidden md:flex items-center gap-2 bg-slate-900 hover:bg-amber-500 dark:bg-white dark:hover:bg-amber-400 text-white hover:text-slate-900 dark:text-slate-900 font-semibold px-6 py-2.5 rounded-full text-sm transition-all duration-300 shadow-md">
-                    Masuk
-                </a>
-                @endauth
             </div>
 
-        </div>
-    </header>
-    @endif
+            @if(!request()->has('app_view'))
+            <!-- 21+ AGE VERIFICATION MODAL / POP-UP (GLOBAL OVERLAY) -->
+            <div id="age-verification-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-5">
 
-    <!-- MAIN CONTENT INJECTION -->
-    <main>
-        @yield('content')
-    </main>
+                    <!-- Icon & Badge -->
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-amber-500/10">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
 
-    @if(!request()->has('app_view'))
-    <!-- FOOTER -->
-    <footer class="bg-white dark:bg-[#060910] border-t border-slate-200/50 dark:border-slate-800/50 mt-4 pt-8 md:pt-16 pb-6 md:pb-12 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Title & Description -->
+                    <div class="space-y-2">
+                        <span class="px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-[10px] rounded-full uppercase tracking-wider">
+                            Peringatan Kepatuhan Hukum
+                        </span>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Apakah Anda Berusia 21+?</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Sesuai dengan peraturan perundang-undangan di Indonesia, penjualan minuman beralkohol hanya diperuntukkan bagi konsumen yang telah berusia 21 tahun ke atas dan tidak sedang hamil.
+                        </p>
+                    </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 mb-6 md:mb-12">
+                    <!-- Age Input / Check Option -->
+                    <div class="p-3 bg-slate-100 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 text-left text-xs space-y-2">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="age-confirm-checkbox" class="mt-0.5 rounded text-amber-500 focus:ring-amber-500">
+                            <span class="text-slate-600 dark:text-slate-400 text-[11px]">
+                                Saya mengonfirmasi bahwa saya lahir sebelum tahun {{ date('Y') - 21 }} dan menyetujui Syarat & Ketentuan.
+                            </span>
+                        </label>
+                    </div>
 
-                <!-- Brand Info -->
-                <div class="sm:col-span-2 md:col-span-1 border-b sm:border-0 border-slate-100 dark:border-slate-800/60 pb-5 sm:pb-0">
-                    <a href="{{ route('home') }}" class="flex items-center gap-2 mb-3 md:mb-6">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-sm shadow-md shadow-amber-500/20">
+                    <!-- Action Buttons -->
+                    <div class="space-y-2 pt-2">
+                        <button id="btn-confirm-age" onclick="closeAgeModal()" class="w-full bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-500 text-slate-950 font-extrabold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20">
+                            Ya, Saya Berusia 21+
+                        </button>
+                        <button onclick="rejectAgeModal()" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl text-xs transition-colors">
+                            Saya Belum Berusia 21 Tahun
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- 21+ Verification Banner -->
+            <div class="bg-amber-100 text-amber-900 dark:bg-amber-500/10 dark:text-amber-400 px-4 py-2 text-[11px] sm:text-xs text-center font-medium tracking-wide">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> Halo Sobat Tipsy! Pastikan usia kamu sudah 21+ ya sebelum menjelajah. Nikmati minuman secara bertanggung jawab.
+            </div>
+
+            <!-- HEADER NAVBAR -->
+            <header class="sticky top-0 z-40 bg-white/70 dark:bg-[#0B0F19]/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-colors">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+
+                    <!-- Brand Logo TM -->
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-xl shadow-lg shadow-amber-500/30 group-hover:rotate-12 transition-transform duration-300">
                             TM
                         </div>
-                        <span class="text-xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">Tipsy<span class="text-amber-500 italic">More</span></span>
+                        <span class="text-2xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">
+                            Tipsy<span class="text-amber-500 dark:text-amber-400 italic">More</span>
+                        </span>
                     </a>
-                    <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Penyedia minuman premium, fine wine, dan craft beer terpercaya. Selalu siap nemenin setiap momen berharga kamu.
-                    </p>
-                </div>
 
-                <!-- Wrapper Grid 2 Kolom khusus Mobile -->
-                <div class="grid grid-cols-2 sm:contents gap-4">
-                    <!-- Katalog Produk -->
-                    <div>
-                        <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Katalog</h4>
-                        <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                            <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Whiskey & Malt</a></li>
-                            <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Wine & Champagne</a></li>
-                            <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Promo Spesial</a></li>
-                        </ul>
+                    <!-- Search Bar -->
+                    <form action="{{ route('catalog.index') }}" method="GET" class="hidden md:flex flex-1 max-w-md relative group">
+                        <input type="text" name="search" placeholder="Mau cari teman minum apa malam ini? (Contoh: Whiskey, Wine)"
+                            class="w-full bg-slate-100/50 dark:bg-slate-800/50 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-full py-2.5 pl-12 pr-4 outline-none border border-transparent focus:border-amber-500/50 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300">
+                        <button type="submit" class="absolute left-4 top-3 text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <!-- Theme Toggle -->
+                        <button id="theme-toggle" class="p-2.5 rounded-full text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800 transition-all" title="Ubah Tema">
+                            <i id="theme-toggle-light-icon" class="fa-solid fa-sun text-amber-400 text-lg hidden"></i>
+                            <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-lg"></i>
+                        </button>
+
+                        <!-- Cart Icon -->
+                        <a href="{{ route('cart.index') }}" class="relative p-2.5 text-slate-400 hover:text-amber-500 transition-colors" title="Keranjang">
+                            <i class="fa-solid fa-bag-shopping text-xl"></i>
+                            <span class="absolute top-1 right-0 bg-amber-500 text-slate-950 font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm shadow-amber-500/50">
+                                {{ session('cart_count', 0) }}
+                            </span>
+                        </a>
+
+                        <!-- Auth Button (Login / Profile) -->
+                        @auth
+                        <a href="{{ route('profile.index') }}" class="hidden md:flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-semibold px-5 py-2.5 rounded-full text-sm hover:bg-amber-500 hover:text-slate-950 transition-all">
+                            <i class="fa-regular fa-user"></i> {{ Auth::user()->full_name }}
+                        </a>
+                        @else
+                        <a href="{{ route('login') }}" class="hidden md:flex items-center gap-2 bg-slate-900 hover:bg-amber-500 dark:bg-white dark:hover:bg-amber-400 text-white hover:text-slate-900 dark:text-slate-900 font-semibold px-6 py-2.5 rounded-full text-sm transition-all duration-300 shadow-md">
+                            Masuk
+                        </a>
+                        @endauth
                     </div>
 
-                    <!-- Bantuan -->
-                    <div>
-                        <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Bantuan</h4>
-                        <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                            <li><a href="/cara-pemesanan" class="hover:text-amber-500 transition-colors">Cara Pesan</a></li>
-                            <li><a href="/pantau-pengiriman" class="hover:text-amber-500 transition-colors">Pengiriman</a></li>
-                            <li><a href="/syarat-ketentuan" class="hover:text-amber-500 transition-colors">Syarat & Ketentuan</a></li>
-                            <li><a href="/kebijakan-privasi" class="hover:text-amber-500 transition-colors">Kebijakan Privasi</a></li>
-                        </ul>
-                    </div>
                 </div>
+            </header>
+            @endif
 
-                <!-- Pembayaran Aman -->
-                <div class="border-t sm:border-0 border-slate-100 dark:border-slate-800/60 pt-4 sm:pt-0">
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-4 uppercase tracking-wider">Metode Pembayaran</h4>
+            <!-- MAIN CONTENT INJECTION -->
+            <main>
+                @yield('content')
+            </main>
 
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
-                        Transaksi terenkripsi aman dengan konfirmasi otomatis 24/7.
-                    </p>
+            @if(!request()->has('app_view'))
+            <!-- FOOTER -->
+            <footer class="bg-white dark:bg-[#060910] border-t border-slate-200/50 dark:border-slate-800/50 mt-4 pt-8 md:pt-16 pb-6 md:pb-12 transition-colors">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    <div class="flex flex-wrap gap-2">
-                        <!-- QRIS & E-Wallet -->
-                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 cursor-pointer transition-colors">
-                            <span>QRIS & E-Wallet</span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 flex items-center justify-center text-[9px] font-bold">!</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 mb-6 md:mb-12">
 
-                            <!-- Tooltip Hover -->
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
-                                <p class="font-bold text-rose-400 mb-0.5">E-Wallet & QRIS:</p>
-                                <p class="text-slate-300">GoPay, ShopeePay, OVO, DANA, LinkAja & Semua Bank QRIS</p>
+                        <!-- Brand Info -->
+                        <div class="sm:col-span-2 md:col-span-1 border-b sm:border-0 border-slate-100 dark:border-slate-800/60 pb-5 sm:pb-0">
+                            <a href="{{ route('home') }}" class="flex items-center gap-2 mb-3 md:mb-6">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center font-serif font-bold text-slate-950 text-sm shadow-md shadow-amber-500/20">
+                                    TM
+                                </div>
+                                <span class="text-xl font-serif font-bold tracking-tight text-slate-900 dark:text-white">Tipsy<span class="text-amber-500 italic">More</span></span>
+                            </a>
+                            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Penyedia minuman premium, fine wine, dan craft beer terpercaya. Selalu siap nemenin setiap momen berharga kamu.
+                            </p>
+                        </div>
+
+                        <!-- Wrapper Grid 2 Kolom khusus Mobile -->
+                        <div class="grid grid-cols-2 sm:contents gap-4">
+                            <!-- Katalog Produk -->
+                            <div>
+                                <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Katalog</h4>
+                                <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Whiskey & Malt</a></li>
+                                    <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Wine & Champagne</a></li>
+                                    <li><a href="{{ route('catalog.index') }}" class="hover:text-amber-500 transition-colors">Promo Spesial</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Bantuan -->
+                            <div>
+                                <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-5 uppercase tracking-wider">Bantuan</h4>
+                                <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 dark:text-slate-400">
+                                    <li><a href="/cara-pemesanan" class="hover:text-amber-500 transition-colors">Cara Pesan</a></li>
+                                    <li><a href="/pantau-pengiriman" class="hover:text-amber-500 transition-colors">Pengiriman</a></li>
+                                    <li><a href="/syarat-ketentuan" class="hover:text-amber-500 transition-colors">Syarat & Ketentuan</a></li>
+                                    <li><a href="/kebijakan-privasi" class="hover:text-amber-500 transition-colors">Kebijakan Privasi</a></li>
+                                </ul>
                             </div>
                         </div>
 
-                        <!-- Virtual Account -->
-                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 cursor-pointer transition-colors">
-                            <span>Virtual Account</span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 flex items-center justify-center text-[9px] font-bold">!</span>
+                        <!-- Pembayaran Aman -->
+                        <div class="border-t sm:border-0 border-slate-100 dark:border-slate-800/60 pt-4 sm:pt-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 md:mb-4 uppercase tracking-wider">Metode Pembayaran</h4>
 
-                            <!-- Tooltip Hover -->
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
-                                <p class="font-bold text-blue-400 mb-0.5">Transfer VA:</p>
-                                <p class="text-slate-300">BCA, Mandiri, BNI, BRI, Permata, CIMB Niaga</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                                Transaksi terenkripsi aman dengan konfirmasi otomatis 24/7.
+                            </p>
+
+                            <div class="flex flex-wrap gap-2">
+                                <!-- QRIS & E-Wallet -->
+                                <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-rose-600 dark:text-rose-400 cursor-pointer transition-colors">
+                                    <span>QRIS & E-Wallet</span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                                    <!-- Tooltip Hover -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                        <p class="font-bold text-rose-400 mb-0.5">E-Wallet & QRIS:</p>
+                                        <p class="text-slate-300">GoPay, ShopeePay, OVO, DANA, LinkAja & Semua Bank QRIS</p>
+                                    </div>
+                                </div>
+
+                                <!-- Virtual Account -->
+                                <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 cursor-pointer transition-colors">
+                                    <span>Virtual Account</span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                                    <!-- Tooltip Hover -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                        <p class="font-bold text-blue-400 mb-0.5">Transfer VA:</p>
+                                        <p class="text-slate-300">BCA, Mandiri, BNI, BRI, Permata, CIMB Niaga</p>
+                                    </div>
+                                </div>
+
+                                <!-- Kartu Kredit / Debit -->
+                                <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer transition-colors">
+                                    <span>Kartu Kredit/Debit</span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                                    <!-- Tooltip Hover -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                        <p class="font-bold text-indigo-400 mb-0.5">Kartu Kredit/Debit:</p>
+                                        <p class="text-slate-300">Visa, Mastercard, JCB (3D Secure)</p>
+                                    </div>
+                                </div>
+
+                                <!-- Gerai Retail -->
+                                <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 cursor-pointer transition-colors">
+                                    <span>Gerai Retail</span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                                    <!-- Tooltip Hover -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                        <p class="font-bold text-amber-400 mb-0.5">Tunai Minimarket:</p>
+                                        <p class="text-slate-300">Alfamart, Indomaret, DanDan, Lawson</p>
+                                    </div>
+                                </div>
+
+                                <!-- PayLater -->
+                                <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 cursor-pointer transition-colors">
+                                    <span>PayLater</span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-[9px] font-bold">!</span>
+
+                                    <!-- Tooltip Hover -->
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
+                                        <p class="font-bold text-emerald-400 mb-0.5">Cicilan Tanpa Kartu:</p>
+                                        <p class="text-slate-300">Kredivo, Akulaku, Indodana</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Kartu Kredit / Debit -->
-                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer transition-colors">
-                            <span>Kartu Kredit/Debit</span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-[9px] font-bold">!</span>
-
-                            <!-- Tooltip Hover -->
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
-                                <p class="font-bold text-indigo-400 mb-0.5">Kartu Kredit/Debit:</p>
-                                <p class="text-slate-300">Visa, Mastercard, JCB (3D Secure)</p>
-                            </div>
-                        </div>
-
-                        <!-- Gerai Retail -->
-                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 cursor-pointer transition-colors">
-                            <span>Gerai Retail</span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center text-[9px] font-bold">!</span>
-
-                            <!-- Tooltip Hover -->
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
-                                <p class="font-bold text-amber-400 mb-0.5">Tunai Minimarket:</p>
-                                <p class="text-slate-300">Alfamart, Indomaret, DanDan, Lawson</p>
-                            </div>
-                        </div>
-
-                        <!-- PayLater -->
-                        <div class="group relative inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700/80 rounded px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 cursor-pointer transition-colors">
-                            <span>PayLater</span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-[9px] font-bold">!</span>
-
-                            <!-- Tooltip Hover -->
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl border border-slate-700 z-30 pointer-events-none leading-tight font-normal whitespace-normal text-left">
-                                <p class="font-bold text-emerald-400 mb-0.5">Cicilan Tanpa Kartu:</p>
-                                <p class="text-slate-300">Kredivo, Akulaku, Indodana</p>
-                            </div>
-                        </div>
                     </div>
+
+                    <!-- Copyright Bottom -->
+                    <div class="border-t border-slate-200/50 dark:border-slate-800/50 pt-4 md:pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 text-center sm:text-left">
+                        <p>&copy; 2026 Tipsy More (TM). All rights reserved.</p>
+                        <p class="flex items-center gap-1.5">Drink Responsibly <i class="fa-solid fa-wine-glass text-amber-500"></i></p>
+                    </div>
+
                 </div>
+            </footer>
 
-            </div>
+            <!-- MOBILE BOTTOM NAVBAR -->
+            <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800/80 md:hidden transition-colors">
+                <div class="flex items-center justify-around px-2 py-2.5">
+                    <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
+                        <i class="fa-solid fa-house text-lg"></i>
+                        <span class="text-[10px] font-medium">Beranda</span>
+                    </a>
+                    <a href="{{ route('catalog.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('catalog.*') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
+                        <i class="fa-solid fa-wine-glass-empty text-lg"></i>
+                        <span class="text-[10px] font-medium">Katalog</span>
+                    </a>
+                    <a href="{{ route('orders.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('orders.*') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
+                        <i class="fa-solid fa-receipt text-lg"></i>
+                        <span class="text-[10px] font-medium">Pesanan</span>
+                    </a>
+                    <a href="{{ route('profile.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('profile.*') || request()->routeIs('login') || request()->routeIs('register') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
+                        <i class="fa-regular fa-user text-lg"></i>
+                        <span class="text-[10px] font-medium">Akun</span>
+                    </a>
+                </div>
+            </nav>
 
-            <!-- Copyright Bottom -->
-            <div class="border-t border-slate-200/50 dark:border-slate-800/50 pt-4 md:pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 text-center sm:text-left">
-                <p>&copy; 2026 Tipsy More (TM). All rights reserved.</p>
-                <p class="flex items-center gap-1.5">Drink Responsibly <i class="fa-solid fa-wine-glass text-amber-500"></i></p>
-            </div>
-
-        </div>
-    </footer>
-
-    <!-- MOBILE BOTTOM NAVBAR -->
-    <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800/80 md:hidden transition-colors">
-        <div class="flex items-center justify-around px-2 py-2.5">
-            <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
-                <i class="fa-solid fa-house text-lg"></i>
-                <span class="text-[10px] font-medium">Beranda</span>
+            <!-- FLOATING WHATSAPP CUSTOMER SERVICE -->
+            <a href="https://wa.me/6289681676100?text=Halo%20Tipsy%20More,%20saya%20ingin%20tanya%20produk%20dan%20layanan"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="{{ request()->routeIs('cart.*') ? 'hidden md:flex' : 'flex' }} fixed bottom-20 md:bottom-8 right-4 sm:right-6 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white items-center justify-center shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 group"
+                title="Hubungi CS Tipsy More">
+                <span class="absolute -inset-1 rounded-full bg-emerald-500/40 animate-ping pointer-events-none"></span>
+                <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
             </a>
-            <a href="{{ route('catalog.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('catalog.*') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
-                <i class="fa-solid fa-wine-glass-empty text-lg"></i>
-                <span class="text-[10px] font-medium">Katalog</span>
-            </a>
-            <a href="{{ route('orders.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('orders.*') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
-                <i class="fa-solid fa-receipt text-lg"></i>
-                <span class="text-[10px] font-medium">Pesanan</span>
-            </a>
-            <a href="{{ route('profile.index') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('profile.*') || request()->routeIs('login') || request()->routeIs('register') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-500' }}">
-                <i class="fa-regular fa-user text-lg"></i>
-                <span class="text-[10px] font-medium">Akun</span>
-            </a>
-        </div>
-    </nav>
+            @endif
 
-    <!-- FLOATING WHATSAPP CUSTOMER SERVICE -->
-    <a href="https://wa.me/6289681676100?text=Halo%20Tipsy%20More,%20saya%20ingin%20tanya%20produk%20dan%20layanan"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="{{ request()->routeIs('cart.*') ? 'hidden md:flex' : 'flex' }} fixed bottom-20 md:bottom-8 right-4 sm:right-6 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white items-center justify-center shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-110 group"
-        title="Hubungi CS Tipsy More">
-        <span class="absolute -inset-1 rounded-full bg-emerald-500/40 animate-ping pointer-events-none"></span>
-        <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl relative z-10"></i>
-    </a>
-    @endif
+            <!-- JAVASCRIPT GLOBAL LOGIC & AGE MODAL -->
+            <script>
+                // Theme Toggle
+                const themeToggleBtn = document.getElementById('theme-toggle');
+                const darkIcon = document.getElementById('theme-toggle-dark-icon');
+                const lightIcon = document.getElementById('theme-toggle-light-icon');
 
-    <!-- JAVASCRIPT GLOBAL LOGIC & AGE MODAL -->
-    <script>
-        // Theme Toggle
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const darkIcon = document.getElementById('theme-toggle-dark-icon');
-        const lightIcon = document.getElementById('theme-toggle-light-icon');
+                if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    lightIcon.classList.remove('hidden');
+                    darkIcon.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                }
 
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            lightIcon.classList.remove('hidden');
-            darkIcon.classList.add('hidden');
-        } else {
-            document.documentElement.classList.remove('dark');
-            darkIcon.classList.add('hidden');
-            lightIcon.classList.remove('hidden');
-        }
+                themeToggleBtn.addEventListener('click', function() {
+                    lightIcon.classList.toggle('hidden');
+                    darkIcon.classList.toggle('hidden');
+                    if (document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    }
+                });
 
-        themeToggleBtn.addEventListener('click', function() {
-            lightIcon.classList.toggle('hidden');
-            darkIcon.classList.toggle('hidden');
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('color-theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('color-theme', 'dark');
-            }
-        });
+                // ----------------------------------------------------
+                // CUSTOM TAILWIND TOAST NOTIFICATION
+                // ----------------------------------------------------
+                function showCustomToast(message) {
+                    const toast = document.getElementById('custom-alert-toast');
+                    const toastMsg = document.getElementById('custom-alert-message');
+                    if (toast && toastMsg) {
+                        toastMsg.textContent = message;
+                        toast.classList.remove('hidden');
+                        setTimeout(() => {
+                            toast.classList.add('hidden');
+                        }, 3000);
+                    }
+                }
 
-        // ----------------------------------------------------
-        // CUSTOM TAILWIND TOAST NOTIFICATION
-        // ----------------------------------------------------
-        function showCustomToast(message) {
-            const toast = document.getElementById('custom-alert-toast');
-            const toastMsg = document.getElementById('custom-alert-message');
-            if (toast && toastMsg) {
-                toastMsg.textContent = message;
-                toast.classList.remove('hidden');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 3000);
-            }
-        }
+                // ----------------------------------------------------
+                // AGE VERIFICATION MODAL LOGIC (AUTO-OPEN FOR NEW VISITORS)
+                // ----------------------------------------------------
+                const ageModal = document.getElementById('age-verification-modal');
 
-        // ----------------------------------------------------
-        // AGE VERIFICATION MODAL LOGIC (AUTO-OPEN FOR NEW VISITORS)
-        // ----------------------------------------------------
-        const ageModal = document.getElementById('age-verification-modal');
+                function openAgeModal() {
+                    if (ageModal) ageModal.classList.remove('hidden');
+                }
 
-        function openAgeModal() {
-            if (ageModal) ageModal.classList.remove('hidden');
-        }
+                function closeAgeModal() {
+                    const checkbox = document.getElementById('age-confirm-checkbox');
+                    if (checkbox && !checkbox.checked) {
+                        showCustomToast('Silakan centang persetujuan batas usia 21+ terlebih dahulu.');
+                        return;
+                    }
+                    if (ageModal) ageModal.classList.add('hidden');
+                    localStorage.setItem('age-verified', 'true');
+                }
 
-        function closeAgeModal() {
-            const checkbox = document.getElementById('age-confirm-checkbox');
-            if (checkbox && !checkbox.checked) {
-                showCustomToast('Silakan centang persetujuan batas usia 21+ terlebih dahulu.');
-                return;
-            }
-            if (ageModal) ageModal.classList.add('hidden');
-            localStorage.setItem('age-verified', 'true');
-        }
+                function rejectAgeModal() {
+                    showCustomToast('Maaf, Anda harus berusia 21 tahun ke atas untuk mengakses layanan ini.');
+                    setTimeout(() => {
+                        window.location.href = 'https://www.google.com';
+                    }, 1500);
+                }
 
-        function rejectAgeModal() {
-            showCustomToast('Maaf, Anda harus berusia 21 tahun ke atas untuk mengakses layanan ini.');
-            setTimeout(() => {
-                window.location.href = 'https://www.google.com';
-            }, 1500);
-        }
+                // Cek apakah pengunjung pertama kali membuka website
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (localStorage.getItem('age-verified') !== 'true' && ageModal) {
+                        ageModal.classList.remove('hidden');
+                    }
+                });
+            </script>
 
-        // Cek apakah pengunjung pertama kali membuka website
-        document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('age-verified') !== 'true' && ageModal) {
-                ageModal.classList.remove('hidden');
-            }
-        });
-    </script>
-
-    @stack('scripts')
+            @stack('scripts')
 </body>
 
 </html>

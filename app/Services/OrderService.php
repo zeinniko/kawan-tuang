@@ -204,4 +204,24 @@ class OrderService
 
         return $order;
     }
+
+    public function completeOrder(User $user, Order $order): Order
+    {
+        if ($order->user_id !== $user->id) {
+            throw ValidationException::withMessages(['order' => ['Akses ditolak.']]);
+        }
+
+        // Pesanan hanya bisa diselesaikan jika tidak dibatalkan atau belum dibayar
+        if (in_array($order->status, [Order::STATUS_CANCELLED, Order::STATUS_PENDING_PAYMENT])) {
+            throw ValidationException::withMessages([
+                'order' => ['Pesanan belum dibayar atau sudah dibatalkan.'],
+            ]);
+        }
+
+        $order->update([
+            'status' => Order::STATUS_COMPLETED,
+        ]);
+
+        return $order;
+    }
 }

@@ -54,4 +54,14 @@ class OrderController extends Controller
             'data' => new OrderResource($cancelledOrder),
         ]);
     }
+
+    public function complete(Request $request, Order $order): JsonResponse
+    {
+        $completedOrder = $this->orderService->completeOrder($request->user(), $order);
+
+        return response()->json([
+            'message' => 'Pesanan berhasil diselesaikan.',
+            'data' => new OrderResource($completedOrder),
+        ]);
+    }
 }
