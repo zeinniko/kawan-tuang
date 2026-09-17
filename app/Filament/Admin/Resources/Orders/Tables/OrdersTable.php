@@ -11,6 +11,9 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use App\Jobs\CreateBiteshipOrderJob;
+use App\Models\Order;
+use Filament\Notifications\Notification;
 
 class OrdersTable
 {
@@ -91,10 +94,37 @@ class OrdersTable
             ->actions([
                 Action::make('process')
                     ->label('Proses')
-                    ->icon('heroicon-o-arrow-path')
+                    ->icon('heroicon-o-play')
                     ->color('info')
-                    ->visible(fn ($record) => $record->status === 'paid')
-                    ->action(fn ($record) => $record->update(['status' => 'processing'])),
+                    ->visible(fn (Order $record) => $record->status === Order::STATUS_PAID)
+                    ->requiresConfirmation()
+                    ->modalHeading('Proses Pesanan?')
+                    ->modalDescription(fn (Order $record) => $record->fulfillment_type === 'delivery'
+                        ? 'Pesanan Delivery akan didaftarkan pengirimannya ke Biteship (jika toko sedang buka).'
+                        : 'Pesanan Pick Up akan diubah statusnya menjadi Diproses.')
+                    ->action(function (Order $record): void {
+                        if ($record->fulfillment_type === 'delivery') {
+                            // Dispatch job panggil kurir Biteship
+                            CreateBiteshipOrderJob::dispatch($record);
+
+                            Notification::make()
+                                ->title('Permintaan Delivery Diproses')
+                                ->body("Pesanan #{$record->order_number} sedang didaftarkan ke Biteship.")
+                                ->info()
+                                ->send();
+                        } else {
+                            // Update manual untuk Pick Up
+                            $record->update([
+                                'status' => Order::STATUS_PROCESSING,
+                            ]);
+
+                            Notification::make()
+                                ->title('Pesanan Pick Up Diproses')
+                                ->body("Status pesanan #{$record->order_number} berhasil diubah ke Diproses.")
+                                ->success()
+                                ->send();
+                        }
+                    }),
 
                 ViewAction::make(),
             ])

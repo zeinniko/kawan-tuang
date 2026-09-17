@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class Store extends Model
 {
@@ -29,6 +30,34 @@ class Store extends Model
         'is_pickup_active' => 'boolean',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Cek apakah toko sedang buka berdasarkan status is_active & jam operasional
+     */
+    public function isOpen(): bool
+    {
+        // 1. Jika toko di-nonaktifkan secara manual oleh admin
+        if (! $this->is_active) {
+            return false;
+        }
+
+        // 2. Jika jam operasional tidak diisi, anggap toko selalu buka
+        if (empty($this->open_time) || empty($this->close_time)) {
+            return true;
+        }
+
+        $currentTime = now()->format('H:i:s');
+        $open = Carbon::parse($this->open_time)->format('H:i:s');
+        $close = Carbon::parse($this->close_time)->format('H:i:s');
+
+        // Jam operasional normal (contoh: 08:00 - 22:00)
+        if ($open <= $close) {
+            return $currentTime >= $open && $currentTime <= $close;
+        }
+
+        // Jam operasional melewati tengah malam (contoh: 18:00 - 02:00)
+        return $currentTime >= $open || $currentTime <= $close;
+    }
 
     public function stocks(): HasMany
     {

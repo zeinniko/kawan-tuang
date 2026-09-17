@@ -27,6 +27,21 @@ class CreateBiteshipOrderJob implements ShouldQueue
 
         // Load relasi wajib
         $this->order->loadMissing(['store', 'items.product', 'user']);
+        $store = $this->order->store;
+        if ($store && ! $store->isOpen()) {
+            Log::info("[BITESHIP JOB SKIPPED] Toko '{$store->name}' sedang tutup / non-aktif. Order #{$this->order->order_number} tidak dipanggilkan kurir otomatis.", [
+                'order_id'     => $this->order->id,
+                'order_number' => $this->order->order_number,
+                'store_id'     => $store->id,
+                'open_time'    => $store->open_time,
+                'close_time'   => $store->close_time,
+                'is_active'    => $store->is_active,
+            ]);
+        
+            // Stop eksekusi agar tidak panggil API Biteship.
+            // Status order tetap 'paid' (Sudah Dibayar) sampai admin memprosesnya manual saat toko buka.
+            return;
+        }
 
         try {
             $result = $biteshipService->createOrder($this->order);
