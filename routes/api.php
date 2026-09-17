@@ -69,6 +69,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store']);
         Route::get('/user/reviews', [ProductReviewController::class, 'userReviews']);
+        Route::post('/update-fcm-token', [AuthController::class, 'updateToken']);
     });
 
 

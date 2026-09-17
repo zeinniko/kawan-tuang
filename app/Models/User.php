@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Sanctum\HasApiTokens; 
+use Laravel\Sanctum\HasApiTokens;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -44,6 +44,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'role',
         'avatar',
         'points',
+        'fcm_token',
     ];
 
     /**
@@ -127,5 +128,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function getFilamentName(): string
     {
         return $this->full_name ?? 'Anonymous';
+    }
+
+    public function routeNotificationForFcm(): ?string
+    {
+        return $this->fcm_token;
     }
 }

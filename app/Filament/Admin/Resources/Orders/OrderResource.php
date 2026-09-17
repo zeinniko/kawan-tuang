@@ -17,6 +17,8 @@ use App\Enums\NavigationGroup;
 use App\Filament\Admin\Resources\Orders\Pages\ViewOrder;
 use UnitEnum;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Admin\Resources\Orders\Widgets\OrderStatsOverview;
+
 
 class OrderResource extends Resource
 {
@@ -30,6 +32,35 @@ class OrderResource extends Resource
                 <circle cx="12" cy="24" r="8" fill="#9ca3af" />
             </svg>
         ');
+    }
+    /**
+     * Menampilkan Angka Counter Badge di Sidebar
+     */
+    public static function getNavigationBadge(): ?string
+    {
+        // Hitung order yang sudah dibayar dan siap diproses
+        $count = static::getModel()::whereIn('status', [
+            Order::STATUS_PAID,
+            Order::STATUS_PROCESSING
+        ])->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    /**
+     * Warna Badge di Sidebar (Warning/Kuning, Success/Hijau, dll)
+     */
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getNavigationBadge() > 0 ? 'warning' : 'primary';
+    }
+
+    /**
+     * Tooltip saat badge diarahkan kursor (Method resmi Filament v3)
+     */
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Jumlah pesanan yang perlu diproses';
     }
 
     protected static ?string $recordTitleAttribute = 'order_number';
@@ -154,5 +185,13 @@ class OrderResource extends Resource
 
         // Hanya Superadmin yang diizinkan menghapus data order (jika diperlukan)
         return $user?->isSuperAdmin() ?? false;
+    }
+
+
+    public static function getWidgets(): array
+    {
+        return [
+            OrderStatsOverview::class,
+        ];
     }
 }

@@ -2,29 +2,28 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\NavigationGroup as EnumsNavigationGroup;
+use App\Filament\Admin\Widgets\SalesChartWidget;
+use App\Filament\Admin\Widgets\StatsOverviewWidget;
+use App\Filament\Admin\Widgets\TopSellingProductsWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Enums\NavigationGroup as EnumsNavigationGroup;
-use App\Filament\Admin\Widgets\SalesChartWidget;
-use App\Filament\Admin\Widgets\StatsOverviewWidget;
-use App\Filament\Admin\Widgets\TopSellingProductsWidget;
-use Filament\Navigation\NavigationGroup;
-use Filament\Support\Icons\Heroicon;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -38,11 +37,33 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->favicon(asset('images/logo_app.png'))
             ->sidebarWidth('17rem')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('15s')
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            if ("Notification" in window && Notification.permission === "default") {
+                                Notification.requestPermission();
+                            }
+                        });
+
+                        window.addEventListener("database-notifications-updated", function(event) {
+                            if ("Notification" in window && Notification.permission === "granted") {
+                                new Notification("Tipsy More Admin", {
+                                    body: "Ada notifikasi baru masuk di Admin Panel!",
+                                    icon: "/favicon.ico"
+                                });
+                            }
+                        });
+                    </script>
+                ')
+            )
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => Blade::render("@vite(['resources/css/app.css', 'resources/js/app.js'])") . '
                 <style>
-                    /* Merapatkan container group */
                     ul.fi-sidebar-group-items,
                     .fi-sidebar-nav-groups {
                         row-gap: 0px !important;
@@ -102,7 +123,6 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-
             ->discoverWidgets(
                 in: app_path('Filament/Admin/Widgets'),
                 for: 'App\\Filament\\Admin\\Widgets'
