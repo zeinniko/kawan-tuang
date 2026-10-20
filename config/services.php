@@ -50,8 +50,4 @@ return [
         'maps_key' => env('GOOGLE_MAPS_API_KEY'),
     ],
 
-    'fcm' => [
-        'key' => env('FCM_CREDENTIALS'),
-    ],
-
 ];

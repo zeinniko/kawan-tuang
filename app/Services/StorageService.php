@@ -60,17 +60,27 @@ class StorageService
     }
 
     /**
-     * Generate URL untuk menampilkan/mengunduh file.
+     * Generate URL file secara bertingkat:
+     * 1. Cek keberadaan di AWS S3
+     * 2. Cek keberadaan di Storage Local Public
+     * 3. Fallback ke Gambar Default / Placeholder
      * 
      * @param string|null $path Path file yang tersimpan di DB
      * @param string $visibility Options: 'public' | 'private'
      * @param int $ttlMinutes Masa berlaku URL jika private (default 60 menit)
-     * @return string|null Absolute URL file
+     * @param string|null $defaultPath URL/Path alternatif jika file tidak ditemukan
+     * @return string Absolute URL file
      */
-    public function getUrl(?string $path, string $visibility = 'public', int $ttlMinutes = 60): ?string
-    {
+    public function getUrl(
+        ?string $path,
+        string $visibility = 'public',
+        int $ttlMinutes = 60,
+        ?string $defaultPath = null
+    ): string {
+        $defaultImage = $defaultPath ?? asset('images/placeholder-product.png');
+
         if (empty($path)) {
-            return null;
+            return $defaultImage;
         }
 
         // Jika path sudah berupa URL eksternal, kembalikan langsung
@@ -78,18 +88,45 @@ class StorageService
             return $path;
         }
 
-        $disk = $this->getDisk($visibility);
-
+        // Penanganan Khusus Storage Private
         if ($visibility === 'private') {
-            if ($disk === 's3') {
-                return Storage::disk('s3')->temporaryUrl($path, now()->addMinutes($ttlMinutes));
+            if ($this->isAwsConfigured()) {
+                try {
+                    if (Storage::disk('s3')->exists($path)) {
+                        return Storage::disk('s3')->temporaryUrl($path, now()->addMinutes($ttlMinutes));
+                    }
+                } catch (\Throwable $e) {
+                    // Bypass ke lokal jika koneksi/kredensial S3 bermasalah
+                }
             }
 
-            // Fallback untuk file private lokal via route terproteksi
-            return route('private.file.download', ['path' => encrypt($path)]);
+            if (Storage::disk('local')->exists($path)) {
+                return route('private.file.download', ['path' => encrypt($path)]);
+            }
+
+            return $defaultImage;
         }
 
-        return Storage::disk($disk)->url($path);
+        // --- SKEMA BERTINGKAT UNTUK STORAGE PUBLIC ---
+
+        // 1. Cek AWS S3 jika terkonfigurasi
+        if ($this->isAwsConfigured()) {
+            try {
+                if (Storage::disk('s3')->exists($path)) {
+                    return Storage::disk('s3')->url($path);
+                }
+            } catch (\Throwable $e) {
+                // Bypass ke lokal jika S3 mengalami timeout/error
+            }
+        }
+
+        // 2. Cek Storage Local Public (storage/app/public)
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+
+        // 3. Fallback Gambar Default
+        return $defaultImage;
     }
 
     /**

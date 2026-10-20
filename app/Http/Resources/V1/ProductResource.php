@@ -18,7 +18,7 @@ class ProductResource extends JsonResource
             $formattedImages = $this->images->map(function ($img) use ($storageService) {
                 return [
                     'id'            => $img->id,
-                    'image_url'     => $storageService->getUrl($img->image_url, 'public'), // <--- URL Lengkap S3/Public
+                    'image_url'     => $storageService->getUrl($img->image_url, 'public'), // <--- Hirarki S3 -> Local -> Default
                     'is_primary'    => (bool) $img->is_primary,
                     'display_order' => (int) $img->display_order,
                 ];
@@ -42,7 +42,7 @@ class ProductResource extends JsonResource
             'volume_ml'          => (int) $this->volume_ml,
             'is_cold_ready'      => (bool) $this->is_cold_ready,
             'is_active'          => (bool) $this->is_active,
-            'thumbnail_url'      => $storageService->getUrl($primaryImgPath, 'public'), // <--- URL Lengkap S3/Public
+            'thumbnail_url'      => $storageService->getUrl($primaryImgPath, 'public'), // <--- Hirarki S3 -> Local -> Default
             'images'             => $formattedImages,
             'description'        => $this->description,
             'category'           => new CategoryResource($this->whenLoaded('category')),
