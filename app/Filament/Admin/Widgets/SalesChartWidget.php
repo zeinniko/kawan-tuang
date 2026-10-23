@@ -10,7 +10,7 @@ class SalesChartWidget extends ChartWidget
 {
     protected static ?int $sort = 4;
     
-    protected ?string $heading = '📈 Grafik Tren Penjualan 7 Hari Terakhir';
+    protected ?string $heading = 'Grafik Tren Penjualan 7 Hari Terakhir';
     
     protected int | string | array $columnSpan = 'full';
 

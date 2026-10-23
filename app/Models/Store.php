@@ -20,6 +20,7 @@ class Store extends Model
         'phone_number',
         'open_time',
         'close_time',
+        'service_handling_percentage',
         'is_pickup_active',
         'is_active',
     ];
@@ -28,8 +29,21 @@ class Store extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'is_pickup_active' => 'boolean',
+        'service_handling_percentage' => 'decimal:2',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Hitung harga final produk berdasarkan persentase handling fee cabang
+     */
+    public function calculateProductPrice(float $basePrice): float
+    {
+        if ($this->service_handling_percentage <= 0) {
+            return $basePrice;
+        }
+
+        return $basePrice + ($basePrice * ($this->service_handling_percentage / 100));
+    }
 
     /**
      * Cek apakah toko sedang buka berdasarkan status is_active & jam operasional

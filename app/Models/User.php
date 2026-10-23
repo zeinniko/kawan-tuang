@@ -134,4 +134,20 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->fcm_token;
     }
+
+    /**
+     * Ambil ID toko aktif (berdasarkan store_id user)
+     */
+    public function getActiveStoreId(): ?string
+    {
+        return $this->store_id;
+    }
+
+    /**
+     * Update toko aktif user
+     */
+    public function setActiveStore(string $storeId): bool
+    {
+        return $this->update(['store_id' => $storeId]);
+    }
 }

@@ -15,6 +15,7 @@ class OrderService
 {
     public function previewCheckout(User $user, array $data): array
     {
+        $store = \App\Models\Store::find($data['store_id']);
         $cart = $user->cart()->with(['items' => function ($query) use ($data) {
             $query->where('is_selected', true)
                 ->whereHas('product.storeStocks', function ($q) use ($data) {
@@ -30,10 +31,12 @@ class OrderService
         }
 
         // Kalkulasi subtotal dengan fallback ke harga produk jika unit_price bernilai 0/null
-        $itemsSubtotal = $cart->items->sum(function ($item) {
-            $price = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
+        $itemsSubtotal = $cart->items->sum(function ($item) use ($store) {
+            $basePrice = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
+            $finalPrice = $store ? $store->calculateProductPrice($basePrice) : $basePrice;
             $qty = (int) $item->quantity;
-            return $price * $qty;
+        
+            return $finalPrice * $qty;
         });
 
         $discountAmount = 0;
@@ -106,6 +109,7 @@ class OrderService
         }
 
         return DB::transaction(function () use ($user, $cart, $data) {
+            $store = \App\Models\Store::find($data['store_id']);
             $preview = $this->previewCheckout($user, $data);
 
             // Ambil snapshot alamat jika memilih opsi delivery
@@ -149,15 +153,16 @@ class OrderService
             ]);
 
             foreach ($cart->items as $item) {
-                $unitPrice = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
+                $basePrice = (float) ($item->unit_price ?: optional($item->product)->price ?: 0);
+                $finalPrice = $store ? $store->calculateProductPrice($basePrice) : $basePrice;
                 $qty = (int) $item->quantity;
-
+            
                 $order->items()->create([
                     'product_id'            => $item->product_id,
                     'product_name_snapshot' => optional($item->product)->name ?? 'Produk',
-                    'unit_price'            => $unitPrice,
+                    'unit_price'            => $finalPrice, // <--- Tersimpan harga yang sudah ter-markup
                     'quantity'               => $qty,
-                    'subtotal_price'        => $qty * $unitPrice,
+                    'subtotal_price'        => $qty * $finalPrice,
                 ]);
             }
 

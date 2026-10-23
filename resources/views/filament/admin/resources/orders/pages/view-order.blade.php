@@ -25,14 +25,16 @@
                         
                         <!-- Badge Fulfillment Type -->
                         @if($record->fulfillment_type === 'pickup')
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
-                                🏪 PICKUP TOKO
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
-                                🚚 DELIVERY
-                            </span>
-                        @endif
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
+        <x-heroicon-s-building-storefront class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+        PICKUP TOKO
+    </span>
+@else
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
+        <x-heroicon-s-truck class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+        DELIVERY
+    </span>
+@endif
 
                         @php
                             $statusBadge = match($record->status) {
@@ -69,33 +71,39 @@
         <div class="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-amber-200/80 dark:border-amber-500/20 shadow-sm transition-all">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <span class="p-1 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 text-xs">⚡</span> Update Status Pickup Toko
-                    </h3>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+    <span class="p-1.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 inline-flex items-center justify-center">
+        <x-heroicon-s-bolt class="w-3.5 h-3.5" />
+    </span>
+    Update Status Pickup Toko
+</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pilih status terbaru pesanan untuk diperbarui di aplikasi pelanggan.</p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                     <!-- Status 1: Diproses -->
                     <button type="button" 
-                            @click="openConfirm('processing', 'Diproses Penjual', '📦')"
-                            class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'processing' ? 'bg-amber-500 text-gray-950 shadow-md shadow-amber-500/20 ring-2 ring-amber-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
-                        <span>📦</span> 1. Diproses
-                    </button>
+        @click="openConfirm('processing', 'Diproses Penjual', 'archive-box')"
+        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'processing' ? 'bg-amber-500 text-gray-950 shadow-md shadow-amber-500/20 ring-2 ring-amber-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
+    <x-heroicon-s-archive-box class="w-4 h-4 {{ $record->status === 'processing' ? 'text-gray-950' : 'text-amber-500 dark:text-amber-400' }}" />
+    <span>1. Diproses</span>
+</button>
 
                     <!-- Status 2: Siap Pickup -->
                     <button type="button" 
-                            @click="openConfirm('ready_for_pickup', 'Siap Pickup di Outlet', '🏪')"
-                            class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'ready_for_pickup' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20 ring-2 ring-purple-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
-                        <span>🏪</span> 2. Siap Pickup
-                    </button>
+        @click="openConfirm('ready_for_pickup', 'Siap Pickup di Outlet', 'building-storefront')"
+        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'ready_for_pickup' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20 ring-2 ring-purple-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
+    <x-heroicon-s-building-storefront class="w-4 h-4 {{ $record->status === 'ready_for_pickup' ? 'text-white' : 'text-purple-600 dark:text-purple-400' }}" />
+    <span>2. Siap Pickup</span>
+</button>
 
                     <!-- Status 3: Selesai -->
                     <button type="button" 
-                            @click="openConfirm('completed', 'Selesai / Sudah Diambil', '✅')"
-                            class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'completed' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
-                        <span>✅</span> 3. Selesai
-                    </button>
+        @click="openConfirm('completed', 'Selesai / Sudah Diambil', 'check')"
+        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $record->status === 'completed' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-400' : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700' }}">
+    <x-heroicon-s-check-circle class="w-4 h-4 {{ $record->status === 'completed' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400' }}" />
+    <span>3. Selesai</span>
+</button>
                 </div>
             </div>
         </div>
@@ -152,9 +160,10 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     @if($item->is_cold)
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
-                                            ❄️ Cold Stock
-                                        </span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">
+    <x-heroicon-s-sparkles class="w-3 h-3 text-cyan-500 dark:text-cyan-400" />
+    Cold Stock
+</span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                                             Room Temp

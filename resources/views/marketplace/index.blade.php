@@ -20,9 +20,10 @@
       <!-- Slide 1: Welcome Banner -->
       <div class="min-w-full flex flex-col md:flex-row items-center justify-between p-6 sm:p-8 md:p-16">
         <div class="space-y-4 md:space-y-6 max-w-xl text-center md:text-left">
-          <span class="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-rose-500/20 backdrop-blur-md text-amber-300 border border-rose-400/30 rounded-full text-[10px] md:text-xs font-semibold uppercase tracking-widest">
-            ⚡ Delivery 1 Jam • Ready to Serve
-          </span>
+        <span class="inline-flex items-center px-3 py-1 md:px-4 md:py-1.5 bg-rose-500/20 backdrop-blur-md text-amber-300 border border-rose-400/30 rounded-full text-[10px] md:text-xs font-semibold uppercase tracking-widest">
+    <x-heroicon-s-bolt class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 text-amber-300" />
+    Delivery 1 Jam • Ready to Serve
+</span>
           <h1 class="text-3xl sm:text-4xl md:text-6xl font-serif leading-tight">
             Kawani Momen <br class="hidden sm:inline">
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-500 italic">Sempurna Anda.</span>
@@ -136,9 +137,10 @@
 
     <!-- Konten Teks -->
     <div class="space-y-1 sm:space-y-1.5 text-center md:text-left w-full md:w-auto">
-      <span class="bg-slate-950 text-amber-400 text-[9px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase tracking-wider inline-block">
-        🔥 Best Deal Hari Ini
-      </span>
+    <span class="inline-flex items-center bg-slate-950 text-amber-400 text-[9px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase tracking-wider">
+    <x-heroicon-s-fire class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 text-amber-400" />
+    Best Deal Hari Ini
+</span>
       <h2 class="text-base sm:text-2xl md:text-3xl font-serif font-bold leading-tight">
         Lagi Cari yang Segar dengan Harga Spesial?
       </h2>
@@ -149,7 +151,7 @@
 
     <!-- Timer & Tombol CTA -->
     <div class="flex flex-row items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t border-slate-950/10 md:border-t-0">
-      
+
       <!-- Box Countdown -->
       <div class="bg-slate-950 text-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-center shrink-0 flex-1 sm:flex-none">
         <span class="block text-[8px] sm:text-[10px] text-amber-400 font-bold uppercase tracking-wider leading-none mb-0.5 sm:mb-1">
@@ -161,13 +163,13 @@
       </div>
 
       <!-- Tombol CTA (Ikon saja di mobile, Teks + Ikon di tablet/PC) -->
-      <a href="{{ route('catalog.index') }}" 
-         title="Sikat Sekarang"
-         class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold p-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all whitespace-nowrap shadow-md flex items-center justify-center gap-2 shrink-0">
+      <a href="{{ route('catalog.index') }}"
+        title="Sikat Sekarang"
+        class="bg-slate-950 hover:bg-slate-900 text-amber-400 font-bold p-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all whitespace-nowrap shadow-md flex items-center justify-center gap-2 shrink-0">
         <span class="hidden sm:inline">Sikat Sekarang</span>
         <i class="fa-solid fa-arrow-right text-xs sm:text-sm"></i>
       </a>
-      
+
     </div>
 
   </div>
@@ -175,7 +177,7 @@
 
 <!-- Script Logic Countdown Otomatis Bulanan -->
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function() {
     function startMonthlyCountdown() {
       const countdownEl = document.getElementById('countdown');
       if (!countdownEl) return;
@@ -659,6 +661,130 @@
   </div>
 </section>
 
+<!-- ================= MODAL WAJIB PILIH TOKO (SEARCHABLE COMBOBOX + UPWARD POPUP) ================= -->
+@guest
+<div id="store-guest-modal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all duration-300">
+  
+  <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 p-6 sm:p-8 text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-slate-800">
+    
+    <!-- Header Modal -->
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center text-2xl shadow-sm">
+        <i class="fa-solid fa-store"></i>
+      </div>
+
+      <span class="inline-flex items-center px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+    <x-heroicon-s-map-pin class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+    Cabang Outlet
+</span>
+
+      <h3 class="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-white">
+        Pilih Outlet Favoritmu Dulu, Yuk!
+      </h3>
+      
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+        Tentukan cabang toko tujuanmu untuk langsung mengeksplorasi katalog lengkap kami.
+      </p>
+    </div>
+
+    <!-- Form Custom ListTile Dropdown -->
+    <form onsubmit="submitGuestStore(event)" class="space-y-4">
+      
+      <input type="hidden" id="guest-store-input" required>
+
+      <div class="relative">
+        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+          Pilih Outlet / Cabang
+        </label>
+
+        <!-- Searchable Combobox Trigger (Bisa langsung mengetik di sini) -->
+        <div id="guest-store-trigger" class="relative flex items-center rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500 transition-all">
+          <i class="fa-solid fa-store text-amber-500 ml-3.5 text-xs shrink-0"></i>
+          
+          <input type="text"
+                 id="store-search-input"
+                 onfocus="openStoreDropdown()"
+                 onkeyup="filterStoreOptions()"
+                 placeholder="-- Cari / Pilih Cabang Toko --"
+                 autocomplete="off"
+                 class="w-full py-3.5 pl-2.5 pr-8 text-xs sm:text-sm bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder-slate-400 font-medium">
+          
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 absolute right-3.5 pointer-events-none transition-transform duration-200" id="trigger-arrow"></i>
+        </div>
+
+        <!-- Panel Pilihan ListTile (Membuka ke atas: bottom-full mb-2) -->
+        <div id="guest-store-options" 
+             class="hidden absolute z-50 left-0 right-0 bottom-full mb-2 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl space-y-1.5">
+          
+          <div class="max-h-56 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin" id="store-items-container">
+            @forelse($stores as $store)
+              @php
+                $storeId = $store['id'] ?? '';
+                $storeName = $store['name'] ?? 'Cabang Toko';
+                $storeAddress = $store['address'] ?? '';
+                $openTime = !empty($store['open_time']) ? date('H:i', strtotime($store['open_time'])) : '';
+                $closeTime = !empty($store['close_time']) ? date('H:i', strtotime($store['close_time'])) : '';
+              @endphp
+
+              <!-- ListTile Option Item -->
+              <button type="button" 
+                      onclick="selectStoreOption('{{ $storeId }}', '{{ addslashes($storeName) }}', this)"
+                      data-search-text="{{ strtolower($storeName . ' ' . $storeAddress) }}"
+                      class="store-option-item w-full p-3 rounded-xl border border-transparent hover:border-amber-500/40 bg-slate-50 dark:bg-slate-800/50 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 transition-all flex items-center justify-between gap-3 text-left group">
+                
+                <div class="flex items-start gap-3 overflow-hidden">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors mt-0.5">
+                    <i class="fa-solid fa-shop text-xs"></i>
+                  </div>
+                  <div class="overflow-hidden">
+                    <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors truncate">
+                      {{ $storeName }}
+                    </h4>
+
+                    @if($storeAddress)
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2 leading-tight flex items-start gap-1">
+                        <i class="fa-solid fa-location-dot text-[10px] text-amber-500 shrink-0 mt-0.5"></i>
+                        <span>{{ $storeAddress }}</span>
+                      </p>
+                    @endif
+
+                    @if($openTime)
+                      <p class="text-[10px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1 mt-1">
+                        <i class="fa-regular fa-clock text-[10px]"></i> Buka: {{ $openTime }} - {{ $closeTime }} WIB
+                      </p>
+                    @endif
+                  </div>
+                </div>
+
+                <div class="check-indicator hidden shrink-0 text-amber-500 self-center">
+                  <i class="fa-solid fa-circle-check text-sm"></i>
+                </div>
+
+              </button>
+            @empty
+              <p class="text-center text-xs text-slate-400 py-3">Tidak ada outlet tersedia.</p>
+            @endforelse
+
+            <div id="no-store-found" class="hidden text-center py-4 text-xs text-slate-400">
+              Cabang outlet tidak ditemukan.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <button type="submit" 
+              class="w-full py-3.5 px-5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-95">
+        <span>Mulai Belanja</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+
+    </form>
+
+  </div>
+</div>
+@endguest
+
 @endsection
 @push('scripts')
 <script>
@@ -721,5 +847,131 @@
   }
 
   setInterval(nextSlide, 10000);
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  @guest
+    const activeStoreId = "{{ $activeStoreId ?? '' }}";
+    const localStoreId = localStorage.getItem('active_store_id');
+
+    // Jika cookie backend belum terisi tapi di localStorage ada, sinkronkan cookie
+    if (!activeStoreId && localStoreId) {
+      const date = new Date();
+      date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+      document.cookie = `active_store_id=${localStoreId}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+      
+      // Cegah reload berulang dengan mengecek flag sessionStorage
+      if (!sessionStorage.getItem('store_synced')) {
+        sessionStorage.setItem('store_synced', 'true');
+        window.location.reload();
+        return;
+      }
+    }
+
+    // Tampilkan modal HANYA jika memang belum ada toko di backend maupun localStorage
+    if (!activeStoreId && !localStoreId) {
+      const modal = document.getElementById('store-guest-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+    }
+  @endguest
+});
+
+// Buka Dropdown Panel
+function openStoreDropdown() {
+  const options = document.getElementById('guest-store-options');
+  const arrow = document.getElementById('trigger-arrow');
+  if (options && options.classList.contains('hidden')) {
+    options.classList.remove('hidden');
+    if (arrow) arrow.classList.add('rotate-180');
+  }
+}
+
+// Filter Pencarian Real-Time
+function filterStoreOptions() {
+  openStoreDropdown();
+  const input = document.getElementById('store-search-input');
+  const filter = input.value.toLowerCase().trim();
+  const items = document.querySelectorAll('.store-option-item');
+  const noResult = document.getElementById('no-store-found');
+  let hasMatch = false;
+
+  items.forEach(item => {
+    const searchText = item.getAttribute('data-search-text') || '';
+    if (searchText.includes(filter)) {
+      item.classList.remove('hidden');
+      hasMatch = true;
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+
+  if (noResult) {
+    if (hasMatch) {
+      noResult.classList.add('hidden');
+    } else {
+      noResult.classList.remove('hidden');
+    }
+  }
+}
+
+// Pilih Item dari ListTile
+function selectStoreOption(storeId, storeName, element) {
+  document.getElementById('guest-store-input').value = storeId;
+  document.getElementById('store-search-input').value = storeName;
+
+  document.querySelectorAll('.store-option-item').forEach(item => {
+    item.classList.remove('border-amber-500', 'bg-amber-500/10');
+    const check = item.querySelector('.check-indicator');
+    if (check) check.classList.add('hidden');
+  });
+
+  element.classList.add('border-amber-500', 'bg-amber-500/10');
+  const activeCheck = element.querySelector('.check-indicator');
+  if (activeCheck) activeCheck.classList.remove('hidden');
+
+  const options = document.getElementById('guest-store-options');
+  const arrow = document.getElementById('trigger-arrow');
+  if (options) options.classList.add('hidden');
+  if (arrow) arrow.classList.remove('rotate-180');
+}
+
+// Simpan Toko & Reload
+function selectGuestStore(storeId) {
+  if (!storeId) return;
+
+  localStorage.setItem('active_store_id', storeId);
+
+  const date = new Date();
+  date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+  document.cookie = `active_store_id=${storeId}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+
+  window.location.reload();
+}
+
+// Handle Form Submit
+function submitGuestStore(e) {
+  e.preventDefault();
+  const storeId = document.getElementById('guest-store-input').value;
+  if (!storeId) {
+    alert('Silakan pilih salah satu cabang toko terlebih dahulu.');
+    return;
+  }
+
+  selectGuestStore(storeId);
+}
+
+// Close dropdown saat klik di luar area
+document.addEventListener('click', function (e) {
+  const trigger = document.getElementById('guest-store-trigger');
+  const options = document.getElementById('guest-store-options');
+  if (trigger && options && !trigger.contains(e.target) && !options.contains(e.target)) {
+    options.classList.add('hidden');
+    const arrow = document.getElementById('trigger-arrow');
+    if (arrow) arrow.classList.remove('rotate-180');
+  }
+});
 </script>
 @endpush

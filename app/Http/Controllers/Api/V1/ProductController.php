@@ -8,6 +8,7 @@ use App\Http\Resources\V1\ProductResource;
 use App\Models\Product;
 use App\Services\CatalogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -27,7 +28,7 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'data' => new ProductResource($product->load(['category', 'brand', 'vibes', 'images', 'primaryImage'])),
+            'data' => new ProductResource($product->load(['category', 'brand', 'vibes', 'images', 'primaryImage','storeStocks.store'])),
         ]);
     }
 }

@@ -54,9 +54,9 @@ class CategoryForm
                                     ? "https://www.flaticon.com/search?word={$query}" 
                                     : "https://www.flaticon.com";
 
-                                $labelText = $name 
-                                    ? "Cari icon untuk <strong>\"" . e($name) . "\"</strong> di Flaticon ↗" 
-                                    : "Cari icon di Flaticon ↗";
+                                    $labelText = $name 
+                                    ? "Cari icon untuk <strong>\"" . e($name) . "\"</strong> di Flaticon \u{2197}" 
+                                    : "Cari icon di Flaticon \u{2197}";
 
                                 return new HtmlString(
                                     '<a href="' . $url . '" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">' 

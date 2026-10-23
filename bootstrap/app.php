@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/v1/webhooks/*',
         ]);
+        $middleware->encryptCookies(except: [
+            'active_store_id',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

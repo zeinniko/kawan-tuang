@@ -22,7 +22,7 @@ class KtpVerificationObserver
 
             if ($isApproved || $status === 'rejected') {
                 $user->notify(new UserPushNotification(
-                    title: $isApproved ? 'KYC Disetujui 🎉' : 'KYC Ditolak ❌',
+                    title: $isApproved ? "KYC Disetujui \u{1F389}" : "KYC Ditolak \u{274C}",
                     body: $isApproved
                         ? 'Selamat, verifikasi identitas (21+) kamu telah berhasil!'
                         : ($ktpVerification->rejection_reason ?? 'Mohon maaf, pengajuan KYC kamu ditolak. Silakan cek kembali dokumen Anda.'),

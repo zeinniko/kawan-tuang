@@ -11,7 +11,7 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $cartResponse      = InternalApiService::get('cart');
-        $storesResponse    = InternalApiService::get('stores');
+        $storesResponse    = InternalApiService::get('stores/nearest');
         $addressesResponse = InternalApiService::get('addresses');
         $kycResponse       = InternalApiService::get('kyc/status');
 

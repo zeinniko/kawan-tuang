@@ -317,9 +317,10 @@
       <!-- BANNER PERSUASIF: KEUNTUNGAN VERIFIKASI -->
       <div class="bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 space-y-2.5">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
-            ✨ Keuntungan Khusus Member Verifikasi:
-          </span>
+        <span class="inline-flex items-center text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+    <x-heroicon-s-sparkles class="w-4 h-4 mr-1 text-amber-500" />
+    Keuntungan Khusus Member Verifikasi:
+</span>
         </div>
 
         <ul class="space-y-2 text-xs text-slate-700 dark:text-slate-300">

@@ -98,7 +98,7 @@ class KtpVerificationsTable
                     ]),
             ])
             ->actions([
-                // ACTION: TINJAU BEBERAPA DOKUMEN SIDE-BY-SIDE WITH ROTATE & MAGNIFIER
+                // ACTION: TINJAU DOKUMEN SIDE-BY-SIDE WITH ROTATE & MAGNIFIER
                 Action::make('inspect_documents')
                     ->label('Tinjau Dokumen')
                     ->icon('heroicon-o-magnifying-glass-plus')
@@ -111,8 +111,8 @@ class KtpVerificationsTable
 
                         return new HtmlString("
                             <div class='grid grid-cols-1 md:grid-cols-2 gap-4 p-2'>
-                                " . self::renderZoomBoxHtml($ktpUrl, '🎴 Foto KTP Asli') . "
-                                " . self::renderZoomBoxHtml($selfieUrl, '🤳 Foto Selfie Memegang KTP') . "
+                                " . self::renderZoomBoxHtml($ktpUrl, 'Foto KTP Asli', 'identification') . "
+                                " . self::renderZoomBoxHtml($selfieUrl, 'Foto Selfie Memegang KTP', 'camera') . "
                             </div>
                         ");
                     })
@@ -174,7 +174,7 @@ class KtpVerificationsTable
     /**
      * Helper merender HTML Inspector Gambar dengan Smooth Hover Zoom + Rotate Button
      */
-    protected static function renderZoomBoxHtml(?string $url, string $label): string
+    protected static function renderZoomBoxHtml(?string $url, string $label, string $iconType = 'identification'): string
     {
         if (! $url) {
             return "
@@ -184,18 +184,29 @@ class KtpVerificationsTable
             ";
         }
 
+        // Definisi SVG Icon berdasarkan jenis dokumen
+        $headerIconSvg = match ($iconType) {
+            'camera' => '<svg class="w-4 h-4 text-indigo-500 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+            default => '<svg class="w-4 h-4 text-amber-500 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h-3m2 3h-2m2 3h-2m-4-6h.01M9 12h.01M9 15h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>',
+        };
+
+        $rotateIconSvg = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>';
+        $infoIconSvg = '<svg class="w-3.5 h-3.5 text-amber-500 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.493 1.508 1.333 1.508 2.316V18"/></svg>';
+
         return "
             <div x-data=\"{ scale: 1, rotation: 0, x: 50, y: 50 }\" 
                  class='flex flex-col items-center border border-gray-200 dark:border-gray-800 rounded-2xl p-3 bg-gray-50 dark:bg-gray-900'>
                 
                 <!-- HEADER BAR & ACTION TOOLBAR -->
                 <div class='w-full flex items-center justify-between mb-2 px-1'>
-                    <span class='text-xs font-bold text-gray-700 dark:text-gray-300'>
+                    <span class='text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center'>
+                        {$headerIconSvg}
                         {$label}
                     </span>
                     <div class='flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-1 shadow-sm'>
                         <button type='button' @click='rotation = (rotation + 90) % 360' title='Putar Gambar' class='px-2 py-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-700 dark:text-gray-200 text-[11px] font-semibold flex items-center gap-1 cursor-pointer'>
-                            🔄 Putar
+                            {$rotateIconSvg}
+                            Putar
                         </button>
                         <button type='button' @click='scale = Math.min(scale + 0.5, 4)' title='Perbesar' class='px-2 py-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-700 dark:text-gray-200 text-[11px] font-bold cursor-pointer'>
                             +
@@ -226,8 +237,9 @@ class KtpVerificationsTable
                          class='max-h-full max-w-full object-contain pointer-events-none transition-transform duration-75 ease-out' />
                 </div>
 
-                <span class='text-[10px] text-gray-400 mt-2 text-center'>
-                    💡 Tempelkan kursor untuk zoom otomatis, atau gunakan tombol <strong>Putar / + / -</strong> di atas.
+                <span class='text-[10px] text-gray-400 mt-2 text-center flex items-center justify-center gap-1'>
+                    {$infoIconSvg}
+                    Tempelkan kursor untuk zoom otomatis, atau gunakan tombol <strong>Putar / + / -</strong> di atas.
                 </span>
             </div>
         ";
@@ -240,7 +252,7 @@ class KtpVerificationsTable
     {
         return new HtmlString("
             <div class='p-2'>
-                " . self::renderZoomBoxHtml($imageUrl, $title) . "
+                " . self::renderZoomBoxHtml($imageUrl, $title, 'identification') . "
             </div>
         ");
     }

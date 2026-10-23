@@ -34,7 +34,7 @@ class ProductReviewsTable
                     ->sortable()
                     ->limit(30),
 
-                TextColumn::make('rating')
+                    TextColumn::make('rating')
                     ->label('Rating')
                     ->sortable()
                     ->badge()
@@ -43,8 +43,7 @@ class ProductReviewsTable
                         3 => 'warning',
                         default => 'danger',
                     })
-                    ->formatStateUsing(fn ($state) => str_repeat('⭐', (int) $state) . " ({$state})"),
-
+                    ->formatStateUsing(fn ($state) => str_repeat("\u{2B50}", (int) $state) . " ({$state})"),
                 TextColumn::make('review_text')
                     ->label('Ulasan')
                     ->limit(50)

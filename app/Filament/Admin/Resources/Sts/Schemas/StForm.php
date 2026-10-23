@@ -47,24 +47,36 @@ class StForm
                             ->columnSpanFull(),
                     ])->columns(3),
 
-                    Section::make('Koordinat Lokasi GPS')
+                Section::make('Koordinat Lokasi GPS')
                     ->schema([
                         ViewField::make('location_picker')
                             ->label('Penentuan Lokasi GPS & Koordinat')
                             ->view('filament.forms.components.location-picker')
                             ->columnSpanFull(),
 
-                            Hidden::make('latitude')
-            ->default('-2.99090000')
-            ->required(),
+                        Hidden::make('latitude')
+                            ->default('-2.99090000')
+                            ->required(),
 
-        Hidden::make('longitude')
-            ->default('104.75650000')
-            ->required(),
+                        Hidden::make('longitude')
+                            ->default('104.75650000')
+                            ->required(),
                     ]),
 
-                Section::make('Jam Operasional & Status Cabang')
+                Section::make('Jam Operasional & Kebijakan Harga Cabang')
                     ->schema([
+                        // Input Markup / Service Handling Fee (Hanya Tampil untuk Superadmin)
+                        TextInput::make('service_handling_percentage')
+                            ->label('Markup / Service Handling Fee (%)')
+                            ->numeric()
+                            ->step(0.01)
+                            ->minValue(0)
+                            ->suffix('%')
+                            ->default(0)
+                            ->helperText('Persentase penambahan harga otomatis untuk seluruh produk di cabang ini.')
+                            ->visible(fn () => auth()->user()?->isSuperAdmin())
+                            ->columnSpanFull(),
+
                         TimePicker::make('open_time')
                             ->label('Jam Buka')
                             ->required()

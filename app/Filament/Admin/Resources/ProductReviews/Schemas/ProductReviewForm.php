@@ -37,14 +37,14 @@ class ProductReviewForm
                             ->preload()
                             ->nullable(),
 
-                        Select::make('rating')
+                            Select::make('rating')
                             ->label('Rating Bintang')
                             ->options([
-                                5 => '⭐⭐⭐⭐⭐ (5 Stars)',
-                                4 => '⭐⭐⭐⭐ (4 Stars)',
-                                3 => '⭐⭐⭐ (3 Stars)',
-                                2 => '⭐⭐ (2 Stars)',
-                                1 => '⭐ (1 Star)',
+                                5 => "\u{2B50}\u{2B50}\u{2B50}\u{2B50}\u{2B50} (5 Stars)",
+                                4 => "\u{2B50}\u{2B50}\u{2B50}\u{2B50} (4 Stars)",
+                                3 => "\u{2B50}\u{2B50}\u{2B50} (3 Stars)",
+                                2 => "\u{2B50}\u{2B50} (2 Stars)",
+                                1 => "\u{2B50} (1 Star)",
                             ])
                             ->required(),
 

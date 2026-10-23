@@ -24,35 +24,35 @@ class OrderObserver
             match ($order->status) {
                 // 1. Order Pesanan Berhasil
                 Order::STATUS_PAID => $user->notify(new UserPushNotification(
-                    title: 'Order Berhasil 🛒',
+                    title: "Order Berhasil \u{1F6D2}",
                     body: "Pembayaran pesanan #{$order->order_number} telah diterima.",
                     data: ['type' => 'order_detail', 'order_id' => (string) $order->id]
                 )),
 
                 // 2. Pesanan Diproses
                 Order::STATUS_PROCESSING => $user->notify(new UserPushNotification(
-                    title: 'Pesanan Diproses 👨‍🍳',
+                    title: "Pesanan Diproses \u{1F468}\u{200D}\u{1F373}",
                     body: "Pesanan #{$order->order_number} sedang disiapkan oleh tim kami.",
                     data: ['type' => 'order_detail', 'order_id' => (string) $order->id]
                 )),
 
                 // 3. Pesanan Delivery Dikirim
                 Order::STATUS_DELIVERING => $user->notify(new UserPushNotification(
-                    title: 'Pesanan Dikirim 🚚',
+                    title: "Pesanan Dikirim \u{1F69A}",
                     body: "Pesanan #{$order->order_number} dalam perjalanan menuju lokasimu.",
                     data: ['type' => 'order_detail', 'order_id' => (string) $order->id]
                 )),
 
                 // 4. Pesanan Pickup Siap
                 Order::STATUS_READY_FOR_PICKUP => $user->notify(new UserPushNotification(
-                    title: 'Pesanan Siap Diambil 🛍️',
+                    title: "Pesanan Siap Diambil \u{1F6CD}",
                     body: "Pesanan #{$order->order_number} sudah siap diambil di outlet.",
                     data: ['type' => 'order_detail', 'order_id' => (string) $order->id]
                 )),
 
                 // 5. Pesanan Completed & Minta Review
                 Order::STATUS_COMPLETED => $user->notify(new UserPushNotification(
-                    title: 'Pesanan Selesai ⭐',
+                    title: "Pesanan Selesai \u{2B50}",
                     body: "Pesanan #{$order->order_number} telah selesai. Berikan ulasan terbaikmu!",
                     data: ['type' => 'order_review', 'order_id' => (string) $order->id]
                 )),
@@ -75,12 +75,12 @@ class OrderObserver
         ])->get();
 
         $customerName = $order->user?->full_name ?? $order->user?->name ?? 'Customer';
-        
+
         // Gunakan URL string langsung (Tanpa Closure fn() => ...) agar aman diserialisasi ke DB
         $orderUrl = "/admin/orders/{$order->id}";
 
         Notification::make()
-            ->title('Pesanan Baru Masuk! 🛒')
+            ->title("Pesanan Baru Masuk! \u{1F6D2}")
             ->body("Pesanan #{$order->order_number} dari {$customerName} sebesar Rp " . number_format($order->total_amount, 0, ',', '.'))
             ->icon('heroicon-o-shopping-bag')
             ->color('success')

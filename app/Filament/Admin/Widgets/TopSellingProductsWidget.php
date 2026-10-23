@@ -13,7 +13,7 @@ class TopSellingProductsWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
     protected int | string | array $columnSpan = 'full';
-    protected static ?string $heading = '🔥 5 Produk Terlaris (Top-Selling Products)';
+    protected static ?string $heading = '5 Produk Terlaris (Top-Selling Products)';
 
     public function table(Table $table): Table
     {

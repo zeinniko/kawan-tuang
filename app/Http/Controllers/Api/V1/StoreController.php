@@ -24,43 +24,57 @@ class StoreController extends Controller
 
     public function nearest(FindNearestStoreRequest $request): JsonResponse
     {
-        $limit = $request->input('limit', 5);
-        $lat   = $request->input('latitude');
-        $lng   = $request->input('longitude');
-
-        // Jika lat & lng tidak dikirim, ambil dari alamat user yang sedang login
-        if (is_null($lat) || is_null($lng)) {
-            $user = $request->user();
-
-            if ($user) {
-                // Ambil alamat utama (is_primary = true) atau fallback ke alamat pertama
+        $user = $request->user();
+    
+        // 1. Cari ID toko yang sedang aktif dari User -> Request -> Cookie
+        $activeStoreId = $user?->store_id
+            ?? $request->input('store_id')
+            ?? $request->cookie('active_store_id');
+    
+        $activeStore = null;
+    
+        // 2. Jika toko aktif sudah ada, ambil objek toko tersebut
+        if ($activeStoreId) {
+            $activeStore = Store::where('id', $activeStoreId)
+                ->where('is_active', true)
+                ->first();
+        }
+    
+        // 3. Fallback: Jika belum ada toko aktif, cari 1 toko terdekat berdasarkan koordinat
+        if (!$activeStore) {
+            $lat = $request->input('latitude');
+            $lng = $request->input('longitude');
+    
+            if ((is_null($lat) || is_null($lng)) && $user) {
                 $primaryAddress = $user->addresses()->where('is_primary', true)->first() 
                     ?? $user->addresses()->first();
-
+    
                 if ($primaryAddress) {
                     $lat = $primaryAddress->latitude;
                     $lng = $primaryAddress->longitude;
                 }
             }
+    
+            if (!is_null($lat) && !is_null($lng)) {
+                $activeStore = $this->storeService->findNearestStores(
+                    (float) $lat,
+                    (float) $lng,
+                    1
+                )->first();
+            }
         }
-
-        // Jika lat dan lng tetap tidak ada (Guest atau User belum set alamat)
-        if (is_null($lat) || is_null($lng)) {
+    
+        // 4. Jika toko ditemukan, bungkus dalam collection berisi 1 item agar FE menerima format array
+        if ($activeStore) {
             return response()->json([
-                'message' => 'Koordinat lokasi tidak ditemukan.',
-                'data'    => [],
+                'message' => 'Daftar cabang terdekat berhasil didapatkan.',
+                'data'    => StoreResource::collection(collect([$activeStore])),
             ]);
         }
-
-        $stores = $this->storeService->findNearestStores(
-            (float) $lat,
-            (float) $lng,
-            (int) $limit
-        );
-
+    
         return response()->json([
-            'message' => 'Daftar cabang terdekat berhasil didapatkan.',
-            'data'    => StoreResource::collection($stores),
+            'message' => 'Toko aktif tidak ditemukan.',
+            'data'    => [],
         ]);
     }
 

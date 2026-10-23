@@ -11,6 +11,9 @@ use App\Models\User;
 use App\Models\Vibe;
 use App\Models\Voucher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CatalogService
 {
@@ -51,7 +54,7 @@ class CatalogService
             'categories'        => Category::withCount('products')->get(),
             'vibes'             => Vibe::all(),
             'featured_products' => Product::where('is_active', true)
-                ->with(['category', 'brand', 'primaryImage', 'images', 'storeStocks'])
+                ->with(['category', 'brand', 'primaryImage', 'images', 'storeStocks.store'])
                 ->latest()
                 ->take(8)
                 ->get(),
@@ -72,7 +75,7 @@ class CatalogService
                 'vibes',
                 'primaryImage',
                 'images',
-                'storeStocks',
+                'storeStocks.store',
             ]);
 
         // Search Filter
@@ -99,8 +102,19 @@ class CatalogService
         }
 
         if (!empty($filters['store_id'])) {
-            $query->whereHas('storeStocks', function ($q) use ($filters) {
-                $q->where('store_id', $filters['store_id'])
+            $storeId = $filters['store_id'];
+            Log::info($storeId);
+        
+            // 1. Antrekan Cookie agar otomatis nempel di HTTP Response (30 Hari)
+            Cookie::queue('active_store_id', $storeId, 60 * 24 * 30, '/', null, false, false);
+        
+            // 2. Jika user sedang login, update kolom store_id di DB
+            if (Auth::check() && Auth::user()->store_id !== $storeId) {
+                Auth::user()->update(['store_id' => $storeId]);
+            }
+        
+            $query->whereHas('storeStocks', function ($q) use ($storeId) {
+                $q->where('store_id', $storeId)
                     ->where('stock', '>', 0);
             });
         }

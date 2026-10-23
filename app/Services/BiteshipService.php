@@ -11,6 +11,8 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Auth;
 
 class BiteshipService
 {
@@ -31,6 +33,21 @@ class BiteshipService
         ])->baseUrl($this->baseUrl);
     }
 
+    private function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371; // Radius bumi dalam KM
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+    
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+    
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    
+        return $earthRadius * $c;
+    }
+
     /**
      * Cek Tarif / Rates API
      */
@@ -41,6 +58,7 @@ class BiteshipService
         // 1. Validasi Stok Produk di Cabang Toko Dulu (Mencegah Call API Sia-sia)
         $biteshipItems = [];
         $itemFingerprints = [];
+        $totalWeightGrams = 0;
 
         foreach ($itemsInput as $item) {
             $product = Product::findOrFail($item['product_id']);
@@ -55,11 +73,12 @@ class BiteshipService
             }
 
             $weight = $product->volume_ml ? ($product->volume_ml + 250) : 1000;
+            $totalWeightGrams += ($weight * (int) $item['quantity']);
 
             $biteshipItems[] = [
                 'name'     => $product->name,
                 'sku'      => $product->sku,
-                'value'    => (int) $product->price,
+                'value' => (int) $store->calculateProductPrice((float) $product->price),
                 'quantity' => (int) $item['quantity'],
                 'weight'   => (int) $weight,
             ];
@@ -117,7 +136,7 @@ class BiteshipService
 
         $pricing = $response->json('pricing', []);
 
-        $mappedRates = collect($pricing)->map(fn ($rate) => [
+        $mappedRates = collect($pricing)->map(fn($rate) => [
             'courier_name'           => $rate['courier_name'],
             'courier_code'           => $rate['courier_code'],
             'courier_service_code'   => $rate['courier_service_code'],
@@ -127,6 +146,41 @@ class BiteshipService
             'estimated_days'         => $rate['shipment_duration_range'] ?? null,
             'shipment_duration_unit' => $rate['shipment_duration_unit'] ?? 'days',
         ])->toArray();
+
+        $distanceKm = $this->calculateDistance(
+            (float) $store->latitude,
+            (float) $store->longitude,
+            (float) $address->latitude,
+            (float) $address->longitude
+        );
+        $mappedRates = collect($mappedRates)->filter(function ($rate) use ($totalWeightGrams, $distanceKm) {
+            $courierCode = strtolower($rate['courier_code']);
+            $serviceCode = strtolower($rate['courier_service_code']);
+            $serviceName = strtolower($rate['service_name']);
+
+            // 1. BATASAN CARGO / TRUCKING:
+            // Sembunyikan Kargo (JTR, Trucking, Gokil) jika total berat < 10 kg (10.000 gram)
+            $isCargo = str_contains($serviceCode, 'cargo') ||
+                str_contains($serviceName, 'trucking') ||
+                str_contains($serviceCode, 'jtr') ||
+                str_contains($serviceCode, 'gokil');
+
+            if ($isCargo && $totalWeightGrams < 10000) {
+                return false;
+            }
+
+            // 2. BATASAN INSTANT / SAME DAY (GoSend, Grab, Paxel Instant):
+            // Sembunyikan kurir Instant jika jarak > 40 KM
+            $isInstantOrSameDay = in_array($courierCode, ['gojek', 'grab']) ||
+                str_contains($serviceCode, 'instant') ||
+                str_contains($serviceCode, 'sameday');
+
+            if ($isInstantOrSameDay && $distanceKm > 40) {
+                return false;
+            }
+
+            return true;
+        })->values()->toArray();
 
         // 5. SIMPAN HASIL BITESIP PERMANEN KE DATABASE CACHE
         if (!empty($mappedRates) && $userId) {

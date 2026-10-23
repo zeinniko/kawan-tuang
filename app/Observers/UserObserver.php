@@ -15,7 +15,7 @@ class UserObserver
         // Hanya kirim Notifikasi jika role-nya Customer
         if ($user->isCustomer()) {
             $user->notify(new UserPushNotification(
-                title: 'Selamat Datang! 🎉',
+                title: "Selamat Datang! \u{1F389}",
                 body: 'Registrasi berhasil. Selamat berbelanja di Tipsy More!',
                 data: ['type' => 'register']
             ));

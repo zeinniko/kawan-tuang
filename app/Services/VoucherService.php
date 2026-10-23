@@ -49,7 +49,10 @@ class VoucherService
             ]);
         }
 
-        // Ambil Cart pengguna
+        // Ambil Cart dan toko aktif milik pengguna
+        $user->loadMissing('store');
+        $store = $user->store;
+
         $cart = $user->cart()->first();
 
         if (! $cart) {
@@ -58,7 +61,7 @@ class VoucherService
             ]);
         }
 
-        // Paksa query ulang langsung dari tabel cart_items (mengabaikan cache Eloquent)
+        // Paksa query ulang langsung dari tabel cart_items
         $cartItems = \App\Models\CartItem::where('cart_id', $cart->id)
             ->with('product')
             ->get();
@@ -69,11 +72,13 @@ class VoucherService
             ]);
         }
 
-        // Hitung Subtotal secara Presisi dari Data Database Terbaru
-        $subtotal = $cartItems->sum(function ($item) {
-            $price = (float) ($item->unit_price > 0 ? $item->unit_price : optional($item->product)->price ?? 0);
+        // Hitung Subtotal Menggunakan Harga Setelah Markup Toko
+        $subtotal = $cartItems->sum(function ($item) use ($store) {
+            $basePrice = (float) ($item->unit_price > 0 ? $item->unit_price : optional($item->product)->price ?? 0);
+            $finalPrice = $store ? $store->calculateProductPrice($basePrice) : $basePrice;
             $qty = (int) $item->quantity;
-            return $price * $qty;
+
+            return $finalPrice * $qty;
         });
 
         // Validasi Minimal Pembelian

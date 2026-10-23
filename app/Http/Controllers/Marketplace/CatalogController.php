@@ -12,6 +12,50 @@ class CatalogController extends Controller
 {
     public function index(Request $request)
     {
+        // 1. Ambil data semua toko terlebih dahulu
+        $storesResponse = InternalApiService::get('stores');
+        $stores = $storesResponse['data'] ?? $storesResponse ?? [];
+
+        // 2. OTOMATIS REDIRECT jika 'store_id' tidak ada di URL
+        if (!$request->has('store_id') && !empty($stores)) {
+            $determinedStoreId = null;
+
+            // Prioritas A: Active Store dari User Login
+            if (Auth::check() && Auth::user()->active_store_id) {
+                $determinedStoreId = Auth::user()->active_store_id;
+            }
+
+            // Prioritas B: Active Store dari Cookie Guest
+            if (!$determinedStoreId && $request->cookie('active_store_id')) {
+                $determinedStoreId = $request->cookie('active_store_id');
+            }
+
+            // Prioritas C: Toko Terdekat via API (User Login)
+            if (!$determinedStoreId && Auth::check()) {
+                try {
+                    $nearestResponse = InternalApiService::get('stores/nearest');
+                    $nearestStores = $nearestResponse['data'] ?? [];
+                    if (!empty($nearestStores[0]['id'])) {
+                        $determinedStoreId = $nearestStores[0]['id'];
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('[CATALOG] Gagal mengambil toko terdekat: ' . $e->getMessage());
+                }
+            }
+
+            // Prioritas D: Fallback ke Toko Pertama
+            if (!$determinedStoreId && !empty($stores[0]['id'])) {
+                $determinedStoreId = $stores[0]['id'];
+            }
+
+            // Redirect otomatis agar URL berubah menjadi /catalog?store_id=xxx
+            if ($determinedStoreId) {
+                $queryParams = array_merge($request->query(), ['store_id' => $determinedStoreId]);
+                return redirect()->route('catalog.index', $queryParams);
+            }
+        }
+
+        // 3. Susun Filter Query
         $filters = [
             'search'    => $request->query('search'),
             'category'  => $request->query('category'),
@@ -26,51 +70,14 @@ class CatalogController extends Controller
             'page'      => $request->query('page', 1),
         ];
 
-        // 1. Ambil data semua toko
-        $storesResponse = InternalApiService::get('stores');
-        $stores = $storesResponse['data'] ?? $storesResponse ?? [];
+        // 4. Cari objek toko yang sedang terpilih
+        $selectedStoreId = $filters['store_id'];
+        $selectedStore = collect($stores)->firstWhere('id', (string) $selectedStoreId);
 
-        // 2. Tentukan toko terpilih (Hirarki Prioritas)
-        $selectedStoreId = $request->query('store_id');
-        $selectedStore = null;
-
-        // Priority 1: User memilih toko secara manual via URL / Query String
-        if ($selectedStoreId && !empty($stores)) {
-            $selectedStore = collect($stores)->firstWhere('id', (int) $selectedStoreId);
-        }
-
-        // Priority 2: Jika User sudah LOGIN dan belum pilih toko manual
-        if (!$selectedStore && Auth::check()) {
-            try {
-                // Panggil langsung API stores/nearest (Backend API akan otomatis mendeteksi alamat user login)
-                $nearestResponse = InternalApiService::get('stores/nearest');
-                $nearestStores = $nearestResponse['data'] ?? [];
-
-                if (!empty($nearestStores)) {
-                    $nearestData = $nearestStores[0] ?? null;
-                    if ($nearestData && isset($nearestData['id'])) {
-                        $selectedStore = collect($stores)->firstWhere('id', (int) $nearestData['id']) ?? $nearestData;
-                    }
-                }
-            } catch (\Throwable $e) {
-                Log::error('[CATALOG] Gagal mengambil toko terdekat: ' . $e->getMessage());
-            }
-        }
-
-        // Priority 3: Fallback default (Guest / Belum ada alamat / API Nearest kosong) -> Toko pertama
-        if (!$selectedStore && !empty($stores)) {
-            $selectedStore = $stores[0] ?? null;
-        }
-
-        // Simpan ID toko terpilih ke filter agar query produk terikat pada toko tersebut
-        if ($selectedStore) {
-            $filters['store_id'] = data_get($selectedStore, 'id');
-        }
-
-        // 3. Ambil daftar produk yang sudah ter-filter
+        // 5. Ambil daftar produk ter-filter
         $productsResponse = InternalApiService::get('products', array_filter($filters, fn($val) => !is_null($val) && $val !== ''));
 
-        // 4. Ambil master data pendukung
+        // 6. Ambil master data pendukung
         $categoriesResponse = InternalApiService::get('categories');
         $brandsResponse     = InternalApiService::get('brands');
 

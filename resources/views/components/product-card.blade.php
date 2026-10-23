@@ -1,22 +1,22 @@
 @props(['product'])
 
 @php
-    // Dukungan fleksibel untuk Array maupun Eloquent Model/Object
-    $prodId          = data_get($product, 'id');
-    $prodName        = data_get($product, 'name');
-    $prodSlug        = data_get($product, 'slug');
-    $prodPrice       = (float) data_get($product, 'price', 0);
-    $prodStrikePrice = data_get($product, 'strike_price');
-    $prodAbv         = data_get($product, 'alcohol_percentage', data_get($product, 'abv', 0));
-    $prodVolume      = data_get($product, 'volume_ml');
-    $prodCategory    = data_get($product, 'category.name', 'Minuman');
-    $isColdReady     = data_get($product, 'is_cold_ready', false);
+// Dukungan fleksibel untuk Array maupun Eloquent Model/Object
+$prodId = data_get($product, 'id');
+$prodName = data_get($product, 'name');
+$prodSlug = data_get($product, 'slug');
+$prodPrice = (float) data_get($product, 'price', 0);
+$prodStrikePrice = data_get($product, 'strike_price');
+$prodAbv = data_get($product, 'alcohol_percentage', data_get($product, 'abv', 0));
+$prodVolume = data_get($product, 'volume_ml');
+$prodCategory = data_get($product, 'category.name', 'Minuman');
+$isColdReady = data_get($product, 'is_cold_ready', false);
 
-    // Resolusi Gambar Utama
-    $prodImg = data_get($product, 'thumbnail_url') 
-        ?? data_get($product, 'primary_image.image_url') 
-        ?? data_get($product, 'images.0.image_url') 
-        ?? 'https://images.unsplash.com/photo-1614316650630-f2030d9980c6?auto=format&fit=crop&w=400&q=80';
+// Resolusi Gambar Utama
+$prodImg = data_get($product, 'thumbnail_url')
+?? data_get($product, 'primary_image.image_url')
+?? data_get($product, 'images.0.image_url')
+?? 'https://images.unsplash.com/photo-1614316650630-f2030d9980c6?auto=format&fit=crop&w=400&q=80';
 @endphp
 
 <div class="group cursor-pointer">
@@ -25,8 +25,9 @@
         <img src="{{ $prodImg }}" alt="{{ $prodName }}" class="w-full h-full object-contain p-2 mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500">
 
         @if($isColdReady)
-        <div class="absolute top-2.5 left-2.5 bg-indigo-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full z-10 shadow-sm">
-            🧊 COLD READY
+        <div class="absolute top-2.5 left-2.5 inline-flex items-center gap-1 bg-indigo-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full z-10 shadow-sm">
+            <x-heroicon-s-sparkles class="w-3 h-3 text-white" />
+            <span>COLD READY</span>
         </div>
         @endif
 
